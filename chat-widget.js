@@ -146,6 +146,55 @@
             margin-top: 10px;
         }
 
+        .privacy-checkbox input[type="checkbox"] {
+
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .privacy-checkbox label {
+            display: flex;
+            align-items: center;          
+            gap: 8px; 
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .privacy-checkbox label::before {
+            content: '';
+            width: 20px;
+            height: 20px;  
+            border: 2px solid #ccc;
+            background-color: #fff;
+            border-radius: 4px;
+            transition: all 0.2s ease-in-out;
+        }
+
+
+        .privacy-checkbox input[type="checkbox"]:checked + label::before {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+
+        .privacy-checkbox input[type="checkbox"]:checked + label::after {
+            content: '\2713';
+            position: relative;
+            color: #fff;
+            font-size: 16px;
+            line-height: 1;
+            opacity: 1;
+            transition: opacity 0.2s ease-in-out;
+            left: -19px; 
+        }
+
+        .privacy-checkbox input[type="checkbox"]:focus-visible + label::before {
+            outline: 2px solid #007bff; /* Un contorno visible al usar el teclado */
+            outline-offset: 2px;
+        }
+
         .n8n-chat-widget .chat-interface {
             display: none;
             flex-direction: column;
