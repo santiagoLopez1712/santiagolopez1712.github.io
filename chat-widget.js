@@ -130,8 +130,8 @@
         .n8n-chat-widget .chat-line {
             display: block;
             margin-bottom: 8px;
-            font-weight: normal;
-            font-size: 15px;
+            font-weight: 200;
+            font-size: 14px;
         }
 
         .n8n-chat-widget .message-icon {
@@ -144,7 +144,7 @@
             font-size: 14px;
             color: var(--chat--color-font);
             opacity: 0.7;
-            margin: 0;
+            margin-top: 10px;
         }
 
         .n8n-chat-widget .chat-interface {
@@ -351,7 +351,7 @@
     const chatContainer = document.createElement('div');
     chatContainer.className = `chat-container${config.style.position === 'left' ? ' position-left' : ''}`;
     
-    const newConversationHTML = `
+  const newConversationHTML = `
         <div class="brand-header">
             <img src="${config.branding.logo}" alt="${config.branding.name}">
             <span>${config.branding.name}</span>
@@ -359,7 +359,8 @@
         </div>
         <div class="new-conversation">
             <h2 class="welcome-text">${config.branding.welcomeText}</h2>
-            <button class="new-chat-btn">
+            
+            <button class="new-chat-btn" disabled>
                 <div class="chat-btn-content">
                     <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                         <path fill="currentColor" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/>
@@ -368,7 +369,16 @@
                     <span class="chat-line">Wir sind jederzeit hier für Sie da!</span>
                 </div>
             </button>
-            <p class="response-text">${config.branding.responseTimeText}</p>
+            
+            <p class="response-text">${config.branding.responseTimeText}</p><br>
+            <p class="response-text">${config.branding.responseTimeText}</p><br>
+            
+            <div class="privacy-checkbox">
+                <input type="checkbox" id="datenschutz" name="datenschutz">
+                <label for="datenschutz">
+                Ich habe die Datenschutzerklärung gelesen und akzeptiere sie.
+                </label>
+            </div>
         </div>
     `;
 
@@ -405,6 +415,13 @@
 
     const newChatBtn = chatContainer.querySelector('.new-chat-btn');
     const chatInterface = chatContainer.querySelector('.chat-interface');
+    const privacyCheckbox = chatContainer.querySelector('#datenschutz');
+        if (privacyCheckbox) {
+            privacyCheckbox.addEventListener('change', function() {
+                // Habilita o deshabilita el botón basado en el estado del checkbox
+                newChatBtn.disabled = !this.checked;
+        });
+    }
     const messagesContainer = chatContainer.querySelector('.chat-messages');
     const textarea = chatContainer.querySelector('textarea');
     const sendButton = chatContainer.querySelector('button[type="submit"]');
