@@ -224,7 +224,7 @@
             right: 20px;
             width: 60px;
             height: 60px;
-            border-radius: 30px;
+            border-radius: 12px;
             background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
             color: white;
             border: none;
@@ -296,8 +296,8 @@
             welcomeText: '',
             responseTimeText: '',
             poweredBy: {
-                text: 'Powered by n8n',
-                link: 'https://n8n.partnerlinks.io/m8a94i19zhqq?utm_source=nocodecreative.io'
+                text: 'Powered by AMARETIS AI',
+                link: 'https://www.amaretis.de'
             }
         },
         style: {
