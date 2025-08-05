@@ -93,7 +93,8 @@
             font-size: 24px;
             font-weight: 600;
             color: var(--chat--color-font);
-            margin-bottom: 24px;
+            margin-top: 25px;
+            margin-bottom: 20px;
             line-height: 1.3;
         }
 
