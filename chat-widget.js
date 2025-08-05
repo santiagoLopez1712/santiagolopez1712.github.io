@@ -129,14 +129,14 @@
         .n8n-chat-widget .chat-line {
             display: block;
             margin-bottom: 8px;
-            font-weight: bold;
-            font-size: 16px;
+            font-weight: normal;
+            font-size: 15px;
         }
 
         .n8n-chat-widget .message-icon {
             width: 24px;
             height: 24px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .n8n-chat-widget .response-text {
