@@ -99,9 +99,10 @@
 
         .n8n-chat-widget .new-chat-btn {
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 12px;
             width: 100%;
             padding: 16px 24px;
             background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
@@ -111,18 +112,31 @@
             cursor: pointer;
             font-size: 16px;
             transition: transform 0.3s;
-            font-weight: 500;
-            font-family: inherit;
-            margin-bottom: 12px;
+            font-weight: 400;
         }
 
         .n8n-chat-widget .new-chat-btn:hover {
             transform: scale(1.02);
         }
 
+        .n8n-chat-widget .chat-btn-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .n8n-chat-widget .chat-line {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
         .n8n-chat-widget .message-icon {
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
+            margin-bottom: 12px;
         }
 
         .n8n-chat-widget .response-text {
@@ -345,11 +359,13 @@
         <div class="new-conversation">
             <h2 class="welcome-text">${config.branding.welcomeText}</h2>
             <button class="new-chat-btn">
-                <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <path fill="currentColor" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/>
-                </svg><br>
-                Fragen oder einen Termin vereinbaren?<br>  
-                Wir sind jederzeit hier für Sie da! 
+                <div class="chat-btn-content">
+                    <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/>
+                    </svg><br>
+                    <span class="chat-line">Fragen oder einen Termin vereinbaren?</span>
+                    <span class="chat-line">Wir sind jederzeit hier für Sie da!</span>
+                </div>
             </button>
             <p class="response-text">${config.branding.responseTimeText}</p>
         </div>
