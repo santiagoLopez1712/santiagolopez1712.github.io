@@ -420,12 +420,18 @@
             chatContainer.querySelector('.new-conversation').style.display = 'none';
             chatInterface.classList.add('active');
             
-            // Mostrar mensaje de bienvenida automático en alemán
-            const welcomeMessage = document.createElement('div');
-            welcomeMessage.className = 'chat-message bot';
-            welcomeMessage.textContent = 'Hallo 👋, wie kann ich Ihnen helfen?';
-            messagesContainer.appendChild(welcomeMessage);
+            // Datenschutz Nachricht
+            const optInMessage = document.createElement('div');
+            optInMessage.className = 'chat-message bot';
+            optInMessage.innerHTML = `
+                Hallo 👋<br><br>
+                Bevor wir fortfahren, benötigen wir Ihre Zustimmung zur Verarbeitung Ihrer personenbezogenen Daten (Name, E-Mail-Adresse, Telefonnummer und Unternehmen).<br>
+                Bitte lesen Sie unsere <a href="https://www.amaretis.de/datenschutz" target="_blank">Datenschutzerklärung</a>.<br><br>
+                Stimmen Sie zu? (Antworten Sie mit <strong>„Ja, ich stimme zu“</strong> oder <strong>„Nein“</strong>)
+            `;
+            messagesContainer.appendChild(optInMessage);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
 
         } catch (error) {
             console.error('Error:', error);
