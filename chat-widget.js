@@ -93,7 +93,6 @@
             font-size: 24px;
             font-weight: 600;
             color: var(--chat--color-font);
-            margin-top: 25px;
             margin-bottom: 20px;
             line-height: 1.3;
         }
@@ -368,11 +367,8 @@
                     <span class="chat-line">Fragen oder einen Termin vereinbaren?</span>
                     <span class="chat-line">Wir sind jederzeit hier für Sie da!</span>
                 </div>
-            </button>
-            
-            <p class="response-text">${config.branding.responseTimeText}</p><br>
-            <p class="response-text">${config.branding.responseTimeText}</p><br>
-            
+            </button>           
+            <p class="response-text">${config.branding.responseTimeText}</p><br> 
             <div class="privacy-checkbox">
                 <input type="checkbox" id="datenschutz" name="datenschutz">
                 <label for="datenschutz">
