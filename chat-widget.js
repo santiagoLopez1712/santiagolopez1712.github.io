@@ -419,12 +419,14 @@
             chatContainer.querySelector('.brand-header').style.display = 'none';
             chatContainer.querySelector('.new-conversation').style.display = 'none';
             chatInterface.classList.add('active');
-
-            const botMessageDiv = document.createElement('div');
-            botMessageDiv.className = 'chat-message bot';
-            botMessageDiv.textContent = Array.isArray(responseData) ? responseData[0].output : responseData.output;
-            messagesContainer.appendChild(botMessageDiv);
+            
+            // Mostrar mensaje de bienvenida automático en alemán
+            const welcomeMessage = document.createElement('div');
+            welcomeMessage.className = 'chat-message bot';
+            welcomeMessage.textContent = 'Hallo 👋, wie kann ich Ihnen helfen?';
+            messagesContainer.appendChild(welcomeMessage);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
         } catch (error) {
             console.error('Error:', error);
         }
