@@ -102,7 +102,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 12px;
+            gap: 10px;
             width: 100%;
             padding: 16px 24px;
             background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
@@ -112,7 +112,7 @@
             cursor: pointer;
             font-size: 16px;
             transition: transform 0.3s;
-            font-weight: 400;
+            font-weight: 200;
         }
 
         .n8n-chat-widget .new-chat-btn:hover {
