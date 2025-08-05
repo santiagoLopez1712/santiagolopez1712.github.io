@@ -369,6 +369,7 @@
                 </div>
             </button>           
             <p class="response-text">${config.branding.responseTimeText}</p><br> 
+            
             <div class="privacy-checkbox">
                 <input type="checkbox" id="datenschutz" name="datenschutz">
                 <label for="datenschutz">
