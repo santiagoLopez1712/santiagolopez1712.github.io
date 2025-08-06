@@ -97,12 +97,11 @@
             line-height: 1.3;
         }
 
-        .n8n-chat-widget .new-chat-btn {
+       .n8n-chat-widget .new-chat-btn {
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
             width: 100%;
             padding: 16px 24px;
             background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
@@ -112,7 +111,9 @@
             cursor: pointer;
             font-size: 16px;
             transition: transform 0.3s;
-            font-weight: 200;
+            font-weight: 500;
+            font-family: inherit;
+            margin-bottom: 12px;
         }
 
         .n8n-chat-widget .new-chat-btn:hover {
@@ -134,9 +135,8 @@
         }
 
         .n8n-chat-widget .message-icon {
-            width: 24px;
-            height: 24px;
-            margin-bottom: 10px;
+            width: 20px;
+            height: 20px;
         }
 
         .n8n-chat-widget .response-text {
