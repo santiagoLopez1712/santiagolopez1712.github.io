@@ -456,8 +456,10 @@
             const optInMessage = document.createElement('div');
             optInMessage.className = 'chat-message bot';
             optInMessage.innerHTML = `
-                Hallo 👋<br>
-                Was kann ich heute für Sie tun ?  
+                Hallo! 👋 Mein Name ist Karl und ich bin Ihr persönlicher Assistent von der AMARETIS Agentur für Kommunikation.<br> 
+                Wir sind eine Full-Service Werbeagentur mit Sitz in Göttingen und bundesweit tätig. <br>
+                Wie kann ich Ihnen heute behilflich sein?<br>
+                Möchten Sie einen Termin vereinbaren oder haben Sie eine allgemeine Anfrage? 
             `;
             messagesContainer.appendChild(optInMessage);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
