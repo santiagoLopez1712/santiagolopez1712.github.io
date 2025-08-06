@@ -286,62 +286,69 @@
             opacity: 1;
         }
 
-        .privacy-checkbox {
+       .n8n-chat-widget .privacy-checkbox {
             display: flex;
             justify-content: center;
-            margin-top: 2rem;
-            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            margin-top: 1.5rem;
+            font-family: inherit;
         }
 
-        .privacy-checkbox input[type="checkbox"] {
+       .n8n-chat-widget .privacy-checkbox input[type="checkbox"] {
             display: none;
         }
 
-        .privacy-checkbox label {
-            position: relative;
-            padding-left: 32px;
-            font-size: 1rem;
-            color: #333;
-            cursor: pointer;
-            line-height: 1.6;
-            text-align: left;
-            max-width: 320px;
+       .n8n-chat-widget .privacy-checkbox label {
+           position: relative;
+           padding-left: 28px;
+           font-size: 14px;
+           color: var(--chat--color-font);
+           cursor: pointer;
+           line-height: 1.4;
+           max-width: 300px;
+           font-weight: 400;
         }
 
-        .privacy-checkbox label::before {
-            content: "";
-            position: absolute;
-            left: 0;
-            top: 3px;
-            width: 20px;
-            height: 20px;
-            border: 2px solid #888;
-            border-radius: 4px;
-            background-color: #fff;
-            transition: all 0.2s ease;
+        .n8n-chat-widget .privacy-checkbox label::before {
+          content: "";
+          position: absolute;
+          left: 0;
+          top: 2px;
+          width: 18px;
+          height: 18px;
+          border: 1.5px solid rgba(133, 79, 255, 0.6); /* matching purple border */
+          border-radius: 4px;
+          background-color: #fff;
+          transition: all 0.2s ease;
+          box-shadow: 0 2px 4px rgba(133, 79, 255, 0.1);
         }
 
-        .privacy-checkbox input[type="checkbox"]:checked + label::before {
-            background-color: #c70039; /* rojo de acento */
-            border-color: #c70039;
+        .n8n-chat-widget .privacy-checkbox input[type="checkbox"]:checked + label::before {
+          background: linear-gradient(135deg, var(--chat--color-primary), var(--chat--color-secondary));
+          border-color: transparent;
         }
         
-        .privacy-checkbox input[type="checkbox"]:checked + label::after {
-            content: "✔";
-            position: absolute;
-            left: 4px;
-            top: 0px;
-            font-size: 14px;
-            color: #fff;
+        .n8n-chat-widget .privacy-checkbox input[type="checkbox"]:checked + label::after {
+          content: "✔";
+          position: absolute;
+          left: 4px;
+          top: -1px;
+          font-size: 12px;
+          color: #fff;
         }
         
-        .privacy-checkbox a {
-            display: block;
-            margin-top: 4px;
-            font-size: 0.9rem;
-            color: #8e2de2; /* púrpura acento */
-            text-decoration: underline;
+        .n8n-chat-widget .privacy-checkbox a {
+          display: block;
+          margin-top: 2px;
+          font-size: 12px;
+          color: var(--chat--color-primary);
+          text-decoration: underline;
+          transition: color 0.2s;
         }
+        
+        .n8n-chat-widget .privacy-checkbox a:hover {
+          color: var(--chat--color-secondary);
+        }
+
 
     `;
 
