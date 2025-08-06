@@ -299,16 +299,15 @@
         }
 
        .n8n-chat-widget .privacy-checkbox label {
-           position: relative;
-           padding-left: 28px;
-           font-size: 14px;
-           color: #3A6262;
-           cursor: pointer;
-           line-height: 1.4;
-           max-width: 300px;
-           font-weight: 400;
-           padding-bottom: 28px;
-        }
+            position: relative;
+            padding-left: 28px;
+            font-size: 14px;
+            color: #3A6262;
+            cursor: pointer;
+            line-height: 1.4;
+            max-width: 300px;
+            font-weight: 400;
+            padding-bottom: 28px;
 
         .n8n-chat-widget .privacy-checkbox label::before {
           content: "";
