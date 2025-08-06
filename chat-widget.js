@@ -93,7 +93,7 @@
             font-size: 24px;
             font-weight: 600;
             color: #74743E;
-            margin-bottom: 20px;
+            margin-bottom: 28px;
             line-height: 1.3;
         }
 
@@ -143,7 +143,7 @@
             font-size: 14px;
             color: #3A6262;
             opacity: 0.7;
-            margin-top: 20px;
+            margin-bottom:28px;
         }
 
         .n8n-chat-widget .chat-interface {
