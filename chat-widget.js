@@ -285,6 +285,64 @@
         .n8n-chat-widget .chat-footer a:hover {
             opacity: 1;
         }
+
+        .privacy-checkbox {
+            display: flex;
+            justify-content: center;
+            margin-top: 2rem;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+
+        .privacy-checkbox input[type="checkbox"] {
+            display: none;
+        }
+
+        .privacy-checkbox label {
+            position: relative;
+            padding-left: 32px;
+            font-size: 1rem;
+            color: #333;
+            cursor: pointer;
+            line-height: 1.6;
+            text-align: left;
+            max-width: 320px;
+        }
+
+        .privacy-checkbox label::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 3px;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #888;
+            border-radius: 4px;
+            background-color: #fff;
+            transition: all 0.2s ease;
+        }
+
+        .privacy-checkbox input[type="checkbox"]:checked + label::before {
+            background-color: #c70039; /* rojo de acento */
+            border-color: #c70039;
+        }
+        
+        .privacy-checkbox input[type="checkbox"]:checked + label::after {
+            content: "✔";
+            position: absolute;
+            left: 4px;
+            top: 0px;
+            font-size: 14px;
+            color: #fff;
+        }
+        
+        .privacy-checkbox a {
+            display: block;
+            margin-top: 4px;
+            font-size: 0.9rem;
+            color: #8e2de2; /* púrpura acento */
+            text-decoration: underline;
+        }
+
     `;
 
     // Load Geist font
@@ -374,6 +432,7 @@
                 <input type="checkbox" id="datenschutz" name="datenschutz">
                 <label for="datenschutz">
                 Ich habe die Datenschutzerklärung gelesen und akzeptiere sie.
+                <a href="https://www.amaretis.de/datenschutz/" target="_blank">AMARETIS AI Datenschutz</a>
                 </label>
             </div>
         </div>
