@@ -7,7 +7,7 @@
             --chat--color-secondary: var(--n8n-chat-secondary-color, #6b3fd4);
             --chat--color-background: var(--n8n-chat-background-color, #ffffff);
             --chat--color-font: var(--n8n-chat-font-color, #333333);
-            font-family: 'Geist Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            font-family: futura-pt;
         }
 
         .n8n-chat-widget .chat-container {
@@ -438,8 +438,7 @@
             <div class="privacy-checkbox">
                 <input type="checkbox" id="datenschutz" name="datenschutz">
                 <label for="datenschutz">
-                Ich habe die Datenschutzerklärung gelesen und akzeptiere sie.
-                <a href="https://www.amaretis.de/datenschutz/" target="_blank">AMARETIS AI Datenschutz</a>
+                Ich habe die <a href="https://www.amaretis.de/datenschutz/" target="_blank">Datenschutzerklärung</a> gelesen und akzeptiere sie.
                 </label>
             </div>
         </div>
