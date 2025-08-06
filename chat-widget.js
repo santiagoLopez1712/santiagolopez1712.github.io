@@ -92,7 +92,7 @@
         .n8n-chat-widget .welcome-text {
             font-size: 24px;
             font-weight: 600;
-            color: var(--chat--color-font);
+            color: #74743E;
             margin-bottom: 20px;
             line-height: 1.3;
         }
@@ -141,7 +141,7 @@
 
         .n8n-chat-widget .response-text {
             font-size: 14px;
-            color: var(--chat--color-font);
+            color: #3A6262;
             opacity: 0.7;
             margin-top: 20px;
         }
@@ -301,7 +301,7 @@
            position: relative;
            padding-left: 28px;
            font-size: 14px;
-           color: var(--chat--color-font);
+           color: #3A6262;
            cursor: pointer;
            line-height: 1.4;
            max-width: 300px;
