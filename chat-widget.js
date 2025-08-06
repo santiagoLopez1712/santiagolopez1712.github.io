@@ -143,7 +143,7 @@
             font-size: 14px;
             color: var(--chat--color-font);
             opacity: 0.7;
-            margin-top: 14px;
+            margin-top: 20px;
         }
 
         .n8n-chat-widget .chat-interface {
