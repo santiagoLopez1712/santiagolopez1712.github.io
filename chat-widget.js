@@ -290,6 +290,7 @@
             display: flex;
             justify-content: center;
             margin-top: 1.5rem;
+            margin-bottom: 20px
             font-family: inherit;
         }
 
@@ -335,6 +336,9 @@
           font-size: 12px;
           color: #fff;
         }
+
+        .n8n-chat-widget .privacy-checkbox .label a#datenschutz (
+            color: #3A6262;
         
         .n8n-chat-widget .privacy-checkbox a {
           display: block;
@@ -427,7 +431,7 @@
              <div class="privacy-checkbox">
                 <input type="checkbox" id="datenschutz" name="datenschutz">
                 <label for="datenschutz">
-                Ich habe die <a href="https://www.amaretis.de/datenschutz/" target="_blank">Datenschutzerklärung</a> gelesen und akzeptiere sie.
+                Ich habe die <a id="datenschutz" href="https://www.amaretis.de/datenschutz/" target="_blank">Datenschutzerklärung</a> gelesen und akzeptiere sie.
                 </label>
             </div>
             <button class="new-chat-btn">
