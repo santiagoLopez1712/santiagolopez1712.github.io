@@ -307,7 +307,7 @@
            line-height: 1.4;
            max-width: 300px;
            font-weight: 400;
-           adding-bottom: 28px;
+           padding-bottom: 28px;
         }
 
         .n8n-chat-widget .privacy-checkbox label::before {
