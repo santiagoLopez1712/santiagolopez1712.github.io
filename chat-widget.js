@@ -452,13 +452,12 @@
             chatContainer.querySelector('.new-conversation').style.display = 'none';
             chatInterface.classList.add('active');
             
-            // Datenschutz Nachricht
+            // Begrüßung
             const optInMessage = document.createElement('div');
             optInMessage.className = 'chat-message bot';
             optInMessage.innerHTML = `
-                Hallo 👋<br><br>
-                Was kann ich heute für Sie tun?
-                
+                Hallo 👋<br>
+                Was kann ich heute für Sie tun ?  
             `;
             messagesContainer.appendChild(optInMessage);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
