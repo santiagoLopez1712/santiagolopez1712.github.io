@@ -457,9 +457,8 @@
             optInMessage.className = 'chat-message bot';
             optInMessage.innerHTML = `
                 Hallo 👋<br><br>
-                Bevor wir fortfahren, benötigen wir Ihre Zustimmung zur Verarbeitung Ihrer personenbezogenen Daten (Name, E-Mail-Adresse, Telefonnummer und Unternehmen).<br>
-                Bitte lesen Sie unsere <a href="https://www.amaretis.de/datenschutz" target="_blank">Datenschutzerklärung</a>.<br><br>
-                Stimmen Sie zu? (Antworten Sie mit <strong>„Ja, ich stimme zu“</strong> oder <strong>„Nein“</strong>)
+                Was kann ich heute für Sie tun?
+                
             `;
             messagesContainer.appendChild(optInMessage);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
