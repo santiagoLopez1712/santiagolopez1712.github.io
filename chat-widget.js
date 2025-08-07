@@ -533,10 +533,12 @@
             const optInMessage = document.createElement('div');
             optInMessage.className = 'chat-message bot';
             optInMessage.innerHTML = `
-                Hallo! 👋 Mein Name ist Karl und ich bin Ihr persönlicher Assistent von der AMARETIS Agentur für Kommunikation.<br> 
-                Wir sind eine Full-Service Werbeagentur mit Sitz in Göttingen und bundesweit tätig. <br>
-                Wie kann ich Ihnen heute behilflich sein?<br>
-                Möchten Sie einen Termin vereinbaren oder haben Sie eine allgemeine Anfrage? 
+                Hallo! 👋 Ich bin Ihr persönlicher Assistent der Agentur für Kommunikation AMARETIS.
+                Wir sind eine Full-Service-Werbeagentur mit Sitz in Göttingen und arbeiten für Kundinnen und Kunden in ganz Deutschland.
+                Wie kann ich Ihnen heute weiterhelfen?
+                Möchten Sie einen Termin vereinbaren – telefonisch, per Videocall oder vor Ort?
+                Oder haben Sie eine allgemeine Anfrage zu unseren Leistungen?
+ 
             `;
             messagesContainer.appendChild(optInMessage);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
