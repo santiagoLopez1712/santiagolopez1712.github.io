@@ -348,12 +348,10 @@
             content: "✔";
             position: absolute;
             left: 4px;
-            top: 3px;  /* Ajuste ligero para centrar mejor */
+            top: 4px;  /* Ajuste ligero para centrar mejor */
             font-size: 12px;
             color: #fff;
         }
-
-        /* --- REGLA ROTA ELIMINADA --- */
 
         /* Estilo para el enlace dentro del label */
        .n8n-chat-widget .privacy-checkbox a {
