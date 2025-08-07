@@ -433,6 +433,9 @@
                 <label for="datenschutz">
                 Ich habe die <a id="datenschutz" href="https://www.amaretis.de/datenschutz/" target="_blank">Datenschutzerklärung</a> gelesen und akzeptiere sie.
                 </label>
+                <p id="error-msg" style="display: none; font-size: 14px; margin-top: 4px;">
+                    Bitte akzeptieren Sie die Datenschutzerklärung, um fortzufahren.
+                </p>
             </div>
             <button class="new-chat-btn">
                 <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -477,12 +480,29 @@
     const newChatBtn = chatContainer.querySelector('.new-chat-btn');
     const chatInterface = chatContainer.querySelector('.chat-interface');
     const privacyCheckbox = chatContainer.querySelector('#datenschutz');
-        if (privacyCheckbox) {
-            privacyCheckbox.addEventListener('change', function() {
-                // Habilita o deshabilita el botón basado en el estado del checkbox
-                newChatBtn.disabled = !this.checked;
+    const newChatBtn = chatContainer.querySelector('#continueBtn'); // Ajusta el selector si tu botón tiene otro ID
+    const errorMsg = chatContainer.querySelector('#error-msg'); // Parrafito oculto para mostrar errores
+    
+    if (privacyCheckbox && newChatBtn) {
+        // Cambia el estado del botón según el checkbox
+        privacyCheckbox.addEventListener('change', function () {
+            newChatBtn.disabled = !this.checked;
+            if (this.checked && errorMsg) {
+                errorMsg.style.display = 'none'; // Oculta error si todo está bien
+            }
         });
-    }
+
+    // Verifica al hacer clic en el botón si el checkbox está marcado
+    newChatBtn.addEventListener('click', function (e) {
+        if (!privacyCheckbox.checked) {
+            e.preventDefault(); // Previene acción si no está marcado
+            if (errorMsg) {
+                errorMsg.style.display = 'block'; // Muestra mensaje de error
+            }
+        }
+    });
+}
+
     const messagesContainer = chatContainer.querySelector('.chat-messages');
     const textarea = chatContainer.querySelector('textarea');
     const sendButton = chatContainer.querySelector('button[type="submit"]');
