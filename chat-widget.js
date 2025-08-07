@@ -491,6 +491,7 @@
                 errorMsg.style.display = 'none'; // Oculta error si todo está bien
             }
         });
+    }
 
     // Verifica al hacer clic en el botón si el checkbox está marcado
     newChatBtn.addEventListener('click', function (e) {
