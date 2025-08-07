@@ -92,9 +92,18 @@
         .n8n-chat-widget .welcome-text {
             font-size: 24px;
             font-weight: 600;
-            color: #74743E;
             margin-bottom: 28px;
             line-height: 1.3;
+
+            /* 1. Aplica el gradiente como fondo */
+            background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
+    
+            /* 2. Recorta el fondo a la forma del texto (con prefijo para compatibilidad) */
+            -webkit-background-clip: text;
+            background-clip: text;
+    
+            /* 3. Hace que el color del texto sea transparente para mostrar el fondo */
+            color: transparent;
         }
 
        .n8n-chat-widget .new-chat-btn {
