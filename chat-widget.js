@@ -289,12 +289,15 @@
        .n8n-chat-widget .privacy-checkbox {
             display: flex;
             justify-content: center;
+            align-items: center; /* Alinea el checkbox y el texto verticalmente */
+            text-align: left; /* Asegura que el texto no esté centrado si hay saltos de línea */
             margin-top: 1.5rem;
-            margin-bottom: 20px
+            margin-bottom: 20px;
             font-family: inherit;
         }
 
        .n8n-chat-widget .privacy-checkbox input[type="checkbox"] {
+            /* Esto está BIEN. Oculta el checkbox original para poder darle un estilo personalizado */
             display: none;
         }
 
@@ -307,50 +310,50 @@
             line-height: 1.4;
             max-width: 300px;
             font-weight: 400;
-            padding-bottom: 28px;
-
-        .n8n-chat-widget .privacy-checkbox label::before {
-          content: "";
-          position: absolute;
-          left: 0;
-          top: 2px;
-          width: 18px;
-          height: 18px;
-          border: 1.5px solid rgba(133, 79, 255, 0.6); /* matching purple border */
-          border-radius: 4px;
-          background-color: #fff;
-          transition: all 0.2s ease;
-          box-shadow: 0 2px 4px rgba(133, 79, 255, 0.1);
         }
 
-        .n8n-chat-widget .privacy-checkbox input[type="checkbox"]:checked + label::before {
-          background: linear-gradient(135deg, var(--chat--color-primary), var(--chat--color-secondary));
-          border-color: transparent;
-        }
-        
-        .n8n-chat-widget .privacy-checkbox input[type="checkbox"]:checked + label::after {
-          content: "✔";
-          position: absolute;
-          left: 4px;
-          top: -1px;
-          font-size: 12px;
-          color: #fff;
+        /* Esta es la caja del checkbox personalizado */
+       .n8n-chat-widget .privacy-checkbox label::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 2px;
+            width: 18px;
+            height: 18px;
+            border: 1.5px solid rgba(133, 79, 255, 0.6);
+            border-radius: 4px;
+            background-color: #fff;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(133, 79, 255, 0.1);
         }
 
-        .n8n-chat-widget .privacy-checkbox .label a#datenschutz (
-            color: #3A6262;
-        
-        .n8n-chat-widget .privacy-checkbox a {
-          display: block;
-          margin-top: 2px;
-          font-size: 12px;
-          color: var(--chat--color-primary);
-          text-decoration: underline;
-          transition: color 0.2s;
+        /* Estilo cuando el checkbox está marcado */
+       .n8n-chat-widget .privacy-checkbox input[type="checkbox"]:checked + label::before {
+            background: linear-gradient(135deg, var(--chat--color-primary), var(--chat--color-secondary));
+            border-color: transparent;
         }
         
-        .n8n-chat-widget .privacy-checkbox a:hover {
-          color: var(--chat--color-secondary);
+        /* El símbolo de check (palomita) */
+       .n8n-chat-widget .privacy-checkbox input[type="checkbox"]:checked + label::after {
+            content: "✔";
+            position: absolute;
+            left: 4px;
+            top: 3px;  /* Ajuste ligero para centrar mejor */
+            font-size: 12px;
+            color: #fff;
+        }
+
+        /* --- REGLA ROTA ELIMINADA --- */
+
+        /* Estilo para el enlace dentro del label */
+       .n8n-chat-widget .privacy-checkbox a {
+            color: var(--chat--color-primary); /* Usa el color primario para consistencia */
+            text-decoration: underline;
+            transition: color 0.2s;
+        }
+        
+       .n8n-chat-widget .privacy-checkbox a:hover {
+            color: var(--chat--color-secondary);
         }
 
 
@@ -427,20 +430,19 @@
         </div>
         <div class="new-conversation">
             <h2 class="welcome-text">${config.branding.welcomeText}</h2>
-            <p class="response-text">${config.branding.responseTimeText}</p>  
-             <div class="privacy-checkbox">
+            <p class="response-text">${config.branding.responseTimeText}</p>    
+            <div class="privacy-checkbox">
                 <input type="checkbox" id="datenschutz" name="datenschutz">
                 <label for="datenschutz">
-                Ich habe die <a id="datenschutz" href="https://www.amaretis.de/datenschutz/" target="_blank">Datenschutzerklärung</a> gelesen und akzeptiere sie.
+                    Ich habe die <a href="https://www.amaretis.de/datenschutz/" target="_blank">Datenschutzerklärung</a> gelesen und akzeptiere sie.
                 </label>
-                
             </div>
-            <button class="new-chat-btn">
+            <button class="new-chat-btn" disabled>
                 <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <path fill="currentColor" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/>
                 </svg>
                 Schreiben Sie uns :)
-            </button>            
+            </button>             
         </div>
     `;
 
