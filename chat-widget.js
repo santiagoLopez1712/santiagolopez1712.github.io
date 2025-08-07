@@ -144,6 +144,7 @@
             color: #3A6262;
             opacity: 0.7;
             margin-bottom:28px;
+            font-weight: 400;
         }
 
         .n8n-chat-widget .chat-interface {
@@ -310,6 +311,7 @@
             line-height: 1.4;
             max-width: 300px;
             font-weight: 400;
+            opacity: 0.7;
         }
 
         /* Esta es la caja del checkbox personalizado */
