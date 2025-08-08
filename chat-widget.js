@@ -509,7 +509,7 @@
             <textarea placeholder="Schreiben Sie uns hier..." rows="1"></textarea>
             <button type="button" class="mic-btn" title="Nachricht diktieren" aria-pressed="false">
                 <!-- SVG micrófono base -->
-                <svg class="mic-icon" width="24" height="24" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                <svg class="mic-icon" width="24" height="24" viewBox="0 0 64 64" fill="none" xmlns="https://github.com/AMARETIS/AMARETIS.github.io/blob/main/mikrofon.svg" aria-hidden="true" focusable="false">
                     <defs>
                         <linearGradient id="micGradient" x1="0" y1="0" x2="1" y2="1">
                             <stop offset="0%" stop-color="#854fff"/>
