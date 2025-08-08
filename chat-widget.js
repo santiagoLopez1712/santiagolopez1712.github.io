@@ -554,7 +554,7 @@
         </div>
         <div class="chat-messages"></div>
         <div class="chat-input">
-            <textarea placeholder="Schreiben Sie uns hier..." rows="1"></textarea>
+            <textarea placeholder="Text oder Sprache eingeben – mit Senden abschicken …" rows="1"></textarea>
             <button type="button" class="mic-btn" title="Nachricht diktieren" aria-pressed="false">
                 <!-- SVG micrófono base -->
                 <img src="https://github.com/AMARETIS/AMARETIS.github.io/blob/main/Mikrofon%20Farben%20bold.png?raw=true" 
@@ -621,47 +621,59 @@
       micButton.title = "Diktat in der Browser nicht Verfügbar";
     } else {
       const recognition = new SpeechRecognition();
-      recognition.lang = 'de-DE';          // o 'es-ES'
-      recognition.interimResults = false;  // pon true si quieres texto parcial en vivo
-      // recognition.continuous = true;    // opcional: para dictados largos
-    
-      let isRecognizing = false;
-    
-      micButton.addEventListener('click', () => {
-        if (!isRecognizing) recognition.start();
-        else recognition.stop();
-      });
-    
-      recognition.onstart = () => {
-        micButton.classList.add('active');
-        micButton.setAttribute('aria-pressed', 'true');
-        chatInputBox.classList.add('listening');   // << activa la onda
-        isRecognizing = true;
-      };
-    
-      recognition.onresult = (event) => {
-        const transcript = event.results[event.results.length - 1][0].transcript;
-        textarea.value += transcript.trim() + ' ';
-        autosize(textarea);                          // << ajusta alto del textarea
-        textarea.focus();
-      };
-    
-      recognition.onerror = (event) => {
-        console.error("Error en el reconocimiento de voz:", event.error);
-        micButton.classList.remove('active');
-        micButton.setAttribute('aria-pressed', 'false');
-        chatInputBox.classList.remove('listening'); // << apaga la onda
-        isRecognizing = false;
-      };
-    
-      recognition.onend = () => {
-        micButton.classList.remove('active');
-        micButton.setAttribute('aria-pressed', 'false');
-        chatInputBox.classList.remove('listening'); // << apaga la onda
-        isRecognizing = false;
-      };
-    }
+        recognition.lang = 'de-DE';          
+        recognition.interimResults = true;   // true para texto parcial
+        recognition.continuous = true;       // sigue escuchando sin parar
+        
+        let isRecognizing = false;
+        let manualStop = false;              // para saber si el stop es manual
+        
+        micButton.addEventListener('click', () => {
+          if (!isRecognizing) {
+            manualStop = false;
+            recognition.start();
+          } else {
+            manualStop = true;
+            recognition.stop();
+          }
+        });
+        
+        recognition.onstart = () => {
+          micButton.classList.add('active');
+          micButton.setAttribute('aria-pressed', 'true');
+          chatInputBox.classList.add('listening'); // activa la onda
+          isRecognizing = true;
+        };
+        
+        recognition.onresult = (event) => {
+          const transcript = event.results[event.results.length - 1][0].transcript;
+          textarea.value += transcript.trim() + ' ';
+          autosize(textarea);
+          textarea.focus();
+        };
+        
+        recognition.onerror = (event) => {
+          console.error("Error en el reconocimiento de voz:", event.error);
+          // en errores graves sí apagamos
+          micButton.classList.remove('active');
+          micButton.setAttribute('aria-pressed', 'false');
+          chatInputBox.classList.remove('listening');
+          isRecognizing = false;
+        };
+        
+        recognition.onend = () => {
+          if (!manualStop) {
+            // reinicia para que siga escuchando hasta que el usuario haga click
+            recognition.start();
+            return;
+          }
+          micButton.classList.remove('active');
+          micButton.setAttribute('aria-pressed', 'false');
+          chatInputBox.classList.remove('listening'); // apaga onda solo si fue stop manual
+          isRecognizing = false;
+        };
 
+    }
 
     
     function generateUUID() {
