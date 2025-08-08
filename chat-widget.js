@@ -364,23 +364,49 @@
             color: var(--chat--color-secondary);
         }
 
-        .n8n-chat-widget .chat-input .mic-btn {
+       .n8n-chat-widget .chat-input .mic-btn {
             background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
             color: white;
             border: none;
             border-radius: 8px;
-            padding: 0 16px;
+            padding: 6px 12px;
             cursor: pointer;
             font-size: 18px;
             margin-right: 4px;
             transition: transform 0.2s;
             font-family: inherit;
             font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+        
         .n8n-chat-widget .chat-input .mic-btn:hover {
             transform: scale(1.05);
         }
-
+        
+        .n8n-chat-widget .chat-input .mic-btn .mic-icon {
+            width: 24px;
+            height: 24px;
+            transition: filter 0.3s ease;
+        }
+        
+        /* Estado activo: pulso y cambio de color */
+        .n8n-chat-widget .chat-input .mic-btn.active .mic-icon path,
+        .n8n-chat-widget .chat-input .mic-btn.active .mic-icon line {
+            stroke: #ff3b3b; /* rojo más fuerte para indicar grabación */
+            filter: drop-shadow(0 0 4px #ff3b3b);
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                filter: drop-shadow(0 0 4px #ff3b3b);
+            }
+            50% {
+                filter: drop-shadow(0 0 10px #ff3b3b);
+            }
+        }
 
     `;
 
@@ -472,23 +498,40 @@
     `;
 
     const chatInterfaceHTML = `
-        <div class="chat-interface">
-            <div class="brand-header">
-                <img src="${config.branding.logo}" alt="${config.branding.name}">
-                <span>${config.branding.name}</span>
-                <button class="close-button">×</button>
-            </div>
-            <div class="chat-messages"></div>
-            <div class="chat-input">
-                <textarea placeholder="Schreiben Sie uns hier..." rows="1"></textarea>
-                <button type="button" class="mic-btn" title="Nachricht diktieren">🎤</button>
-                <button type="submit">Senden</button>
-            </div>
-            <div class="chat-footer">
-                <a href="${config.branding.poweredBy.link}" target="_blank">${config.branding.poweredBy.text}</a>
-            </div>
+    <div class="chat-interface">
+        <div class="brand-header">
+            <img src="${config.branding.logo}" alt="${config.branding.name}">
+            <span>${config.branding.name}</span>
+            <button class="close-button">×</button>
         </div>
-    `;
+        <div class="chat-messages"></div>
+        <div class="chat-input">
+            <textarea placeholder="Schreiben Sie uns hier..." rows="1"></textarea>
+            <button type="button" class="mic-btn" title="Nachricht diktieren" aria-pressed="false">
+                <!-- SVG micrófono base -->
+                <svg class="mic-icon" width="24" height="24" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                    <defs>
+                        <linearGradient id="micGradient" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#854fff"/>
+                            <stop offset="100%" stop-color="#dd0c0d"/>
+                        </linearGradient>
+                    </defs>
+                    <path d="M32 4C26.48 4 22 8.48 22 14V34C22 39.52 26.48 44 32 44C37.52 44 42 39.52 42 34V14C42 8.48 37.52 4 32 4Z" 
+                          stroke="url(#micGradient)" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M48 26V34C48 41.73 41.73 48 34 48H30C22.27 48 16 41.73 16 34V26" 
+                          stroke="url(#micGradient)" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    <line x1="32" y1="48" x2="32" y2="60" stroke="url(#micGradient)" stroke-width="4" stroke-linecap="round"/>
+                    <line x1="24" y1="60" x2="40" y2="60" stroke="url(#micGradient)" stroke-width="4" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <button type="submit">Senden</button>
+        </div>
+        <div class="chat-footer">
+            <a href="${config.branding.poweredBy.link}" target="_blank">${config.branding.poweredBy.text}</a>
+        </div>
+    </div>
+`;
+
     
     chatContainer.innerHTML = newConversationHTML + chatInterfaceHTML;
     
@@ -516,56 +559,54 @@
     const textarea = chatContainer.querySelector('textarea');
     const sendButton = chatContainer.querySelector('button[type="submit"]');
     const micButton = chatContainer.querySelector('.mic-btn');
-
-    // Compatibilität von Voice API 
+    
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
     if (!SpeechRecognition) {
         micButton.disabled = true;
         micButton.title = "Diktat in der Browser nicht Verfügbar";
     } else {
-        // ESTE ES EL NUEVO CÓDIGO
         const recognition = new SpeechRecognition();
-        recognition.lang = 'de-DE'; // O 'es-ES' si prefieres español
+        recognition.lang = 'de-DE'; // O 'es-ES' si quieres español
         recognition.interimResults = false;
-        
-        let isRecognizing = false; // Variable para controlar el estado
-        
+    
+        let isRecognizing = false;
+    
         micButton.addEventListener('click', () => {
             if (!isRecognizing) {
-                // Si no está reconociendo, inicia el reconocimiento
                 recognition.start();
-                isRecognizing = true;
             } else {
-                // Si ya está reconociendo, lo detiene
                 recognition.stop();
-                isRecognizing = false;
             }
         });
-        
+    
         recognition.onstart = () => {
-            // Cuando el reconocimiento empieza de verdad
-            micButton.textContent = "🎙️";
+            micButton.classList.add('active');
+            micButton.setAttribute('aria-pressed', 'true');
             isRecognizing = true;
         };
-        
+    
         recognition.onresult = (event) => {
             const transcript = event.results[event.results.length - 1][0].transcript;
-            textarea.value += transcript.trim() + ' '; // Concatena el resultado para dictados largos
+            textarea.value += transcript.trim() + ' ';
             textarea.focus();
         };
-        
+    
         recognition.onerror = (event) => {
             console.error("Error en el reconocimiento de voz:", event.error);
+            micButton.classList.remove('active');
+            micButton.setAttribute('aria-pressed', 'false');
             isRecognizing = false;
-            micButton.textContent = "🎤";
         };
-        
+    
         recognition.onend = () => {
-            // Se ejecuta cuando el reconocimiento termina (por stop() o automáticamente)
+            micButton.classList.remove('active');
+            micButton.setAttribute('aria-pressed', 'false');
             isRecognizing = false;
-            micButton.textContent = "🎤";
         };
     }
+
+    
     function generateUUID() {
         return crypto.randomUUID();
     }
