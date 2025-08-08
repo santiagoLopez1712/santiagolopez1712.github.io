@@ -403,6 +403,23 @@
         }
     };
 
+    .n8n-chat-widget .chat-input .mic-btn {
+    background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0 16px;
+    cursor: pointer;
+    font-size: 18px;
+    margin-right: 4px;
+    transition: transform 0.2s;
+    font-family: inherit;
+    font-weight: 500;
+    }
+    .n8n-chat-widget .chat-input .mic-btn:hover {
+        transform: scale(1.05);
+    }
+
     // Merge user config with defaults
     const config = window.ChatWidgetConfig ? 
         {
@@ -464,6 +481,7 @@
             <div class="chat-messages"></div>
             <div class="chat-input">
                 <textarea placeholder="Schreiben Sie uns hier..." rows="1"></textarea>
+                <button type="button" class="mic-btn" title="Nachricht diktieren">🎤</button>
                 <button type="submit">Senden</button>
             </div>
             <div class="chat-footer">
@@ -497,6 +515,38 @@
     const messagesContainer = chatContainer.querySelector('.chat-messages');
     const textarea = chatContainer.querySelector('textarea');
     const sendButton = chatContainer.querySelector('button[type="submit"]');
+    const micButton = chatContainer.querySelector('.mic-btn');
+
+    // Compatibilidad con la API de voz
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+        micButton.disabled = true;
+        micButton.title = "Dictado no soportado en este navegador";
+    } else {
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'de-DE'; // O 'es-ES' si prefieres español
+        recognition.interimResults = false;
+    
+        micButton.addEventListener('click', () => {
+            recognition.start();
+            micButton.textContent = "🎙️";
+        });
+    
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            textarea.value = transcript;
+            micButton.textContent = "🎤";
+            textarea.focus();
+        };
+    
+        recognition.onerror = () => {
+            micButton.textContent = "🎤";
+        };
+    
+        recognition.onend = () => {
+            micButton.textContent = "🎤";
+        };
+    }
 
     function generateUUID() {
         return crypto.randomUUID();
