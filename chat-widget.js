@@ -364,6 +364,23 @@
             color: var(--chat--color-secondary);
         }
 
+        .n8n-chat-widget .chat-input .mic-btn {
+            background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0 16px;
+            cursor: pointer;
+            font-size: 18px;
+            margin-right: 4px;
+            transition: transform 0.2s;
+            font-family: inherit;
+            font-weight: 500;
+        }
+        .n8n-chat-widget .chat-input .mic-btn:hover {
+            transform: scale(1.05);
+        }
+
 
     `;
 
@@ -402,23 +419,6 @@
             fontColor: '#333333'
         }
     };
-
-    .n8n-chat-widget .chat-input .mic-btn {
-    background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 0 16px;
-    cursor: pointer;
-    font-size: 18px;
-    margin-right: 4px;
-    transition: transform 0.2s;
-    font-family: inherit;
-    font-weight: 500;
-    }
-    .n8n-chat-widget .chat-input .mic-btn:hover {
-        transform: scale(1.05);
-    }
 
     // Merge user config with defaults
     const config = window.ChatWidgetConfig ? 
