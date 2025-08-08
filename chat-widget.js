@@ -1,7 +1,7 @@
 // Chat Widget Script
 (function() {
     // Create and inject styles
-    const styles = 
+    const styles = `
         .n8n-chat-widget {
             --chat--color-primary: var(--n8n-chat-primary-color, #854fff);
             --chat--color-secondary: var(--n8n-chat-secondary-color, #6b3fd4);
@@ -364,51 +364,8 @@
             color: var(--chat--color-secondary);
         }
 
-       .n8n-chat-widget .chat-input .mic-btn {
-            background: transparent;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 6px 12px;
-            cursor: pointer;
-            font-size: 18px;
-            margin-right: 4px;
-            transition: transform 0.2s;
-            font-family: inherit;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .n8n-chat-widget .chat-input .mic-btn:hover {
-            transform: scale(1.05);
-        }
-        
-        .n8n-chat-widget .chat-input .mic-btn .mic-icon {
-            width: 24px;
-            height: 24px;
-            transition: filter 0.3s ease;
-        }
-        
-        /* Estado activo: pulso y cambio de color */
-        .n8n-chat-widget .chat-input .mic-btn.active .mic-icon path,
-        .n8n-chat-widget .chat-input .mic-btn.active .mic-icon line {
-            stroke: #ff3b3b; /* rojo más fuerte para indicar grabación */
-            filter: drop-shadow(0 0 4px #ff3b3b);
-            animation: pulse 1.5s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% {
-                filter: drop-shadow(0 0 4px #ff3b3b);
-            }
-            50% {
-                filter: drop-shadow(0 0 10px #ff3b3b);
-            }
-        }
 
-    ;
+    `;
 
     // Load Geist font
     const fontLink = document.createElement('link');
@@ -471,9 +428,9 @@
     widgetContainer.style.setProperty('--n8n-chat-font-color', config.style.fontColor);
 
     const chatContainer = document.createElement('div');
-    chatContainer.className = chat-container${config.style.position === 'left' ? ' position-left' : ''};
+    chatContainer.className = `chat-container${config.style.position === 'left' ? ' position-left' : ''}`;
     
-  const newConversationHTML = 
+  const newConversationHTML = `
         <div class="brand-header">
             <img src="${config.branding.logo}" alt="${config.branding.name}">
             <span>${config.branding.name}</span>
@@ -495,56 +452,34 @@
                 Starten Sie Ihre Anfrage!
             </button>             
         </div>
-    ;
+    `;
 
-    const chatInterfaceHTML = 
-    <div class="chat-interface">
-        <div class="brand-header">
-            <img src="${config.branding.logo}" alt="${config.branding.name}">
-            <span>${config.branding.name}</span>
-            <button class="close-button">×</button>
+    const chatInterfaceHTML = `
+        <div class="chat-interface">
+            <div class="brand-header">
+                <img src="${config.branding.logo}" alt="${config.branding.name}">
+                <span>${config.branding.name}</span>
+                <button class="close-button">×</button>
+            </div>
+            <div class="chat-messages"></div>
+            <div class="chat-input">
+                <textarea placeholder="Schreiben Sie uns hier..." rows="1"></textarea>
+                <button type="submit">Senden</button>
+            </div>
+            <div class="chat-footer">
+                <a href="${config.branding.poweredBy.link}" target="_blank">${config.branding.poweredBy.text}</a>
+            </div>
         </div>
-        <div class="chat-messages"></div>
-        <div class="chat-input">
-            <textarea placeholder="Schreiben Sie uns hier..." rows="1"></textarea>
-            <button type="button" class="mic-btn" title="Nachricht diktieren" aria-pressed="false">
-                <!-- SVG micrófono base -->
-                <img src="https://github.com/AMARETIS/AMARETIS.github.io/blob/main/Mikrofon%20Farben%20bold.png?raw=true" 
-                     alt="Micrófono" 
-                     class="mic-icon" 
-                     width="64" height="64">
-
-                    <defs>
-                        <linearGradient id="micGradient" x1="0" y1="0" x2="1" y2="1">
-                            <stop offset="0%" stop-color="#854fff"/>
-                            <stop offset="100%" stop-color="#dd0c0d"/>
-                        </linearGradient>
-                    </defs>
-                    <path d="M32 4C26.48 4 22 8.48 22 14V34C22 39.52 26.48 44 32 44C37.52 44 42 39.52 42 34V14C42 8.48 37.52 4 32 4Z" 
-                          stroke="url(#micGradient)" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M48 26V34C48 41.73 41.73 48 34 48H30C22.27 48 16 41.73 16 34V26" 
-                          stroke="url(#micGradient)" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-                    <line x1="32" y1="48" x2="32" y2="60" stroke="url(#micGradient)" stroke-width="4" stroke-linecap="round"/>
-                    <line x1="24" y1="60" x2="40" y2="60" stroke="url(#micGradient)" stroke-width="4" stroke-linecap="round"/>
-                </svg>
-            </button>
-            <button type="submit">Senden</button>
-        </div>
-        <div class="chat-footer">
-            <a href="${config.branding.poweredBy.link}" target="_blank">${config.branding.poweredBy.text}</a>
-        </div>
-    </div>
-;
-
+    `;
     
     chatContainer.innerHTML = newConversationHTML + chatInterfaceHTML;
     
     const toggleButton = document.createElement('button');
-    toggleButton.className = chat-toggle${config.style.position === 'left' ? ' position-left' : ''};
-    toggleButton.innerHTML = 
+    toggleButton.className = `chat-toggle${config.style.position === 'left' ? ' position-left' : ''}`;
+    toggleButton.innerHTML = `
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
             <path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.476 0-2.886-.313-4.156-.878l-3.156.586.586-3.156A7.962 7.962 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/>
-        </svg>;
+        </svg>`;
     
     widgetContainer.appendChild(chatContainer);
     widgetContainer.appendChild(toggleButton);
@@ -562,55 +497,7 @@
     const messagesContainer = chatContainer.querySelector('.chat-messages');
     const textarea = chatContainer.querySelector('textarea');
     const sendButton = chatContainer.querySelector('button[type="submit"]');
-    const micButton = chatContainer.querySelector('.mic-btn');
-    
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    
-    if (!SpeechRecognition) {
-        micButton.disabled = true;
-        micButton.title = "Diktat in der Browser nicht Verfügbar";
-    } else {
-        const recognition = new SpeechRecognition();
-        recognition.lang = 'de-DE'; // O 'es-ES' si quieres español
-        recognition.interimResults = false;
-    
-        let isRecognizing = false;
-    
-        micButton.addEventListener('click', () => {
-            if (!isRecognizing) {
-                recognition.start();
-            } else {
-                recognition.stop();
-            }
-        });
-    
-        recognition.onstart = () => {
-            micButton.classList.add('active');
-            micButton.setAttribute('aria-pressed', 'true');
-            isRecognizing = true;
-        };
-    
-        recognition.onresult = (event) => {
-            const transcript = event.results[event.results.length - 1][0].transcript;
-            textarea.value += transcript.trim() + ' ';
-            textarea.focus();
-        };
-    
-        recognition.onerror = (event) => {
-            console.error("Error en el reconocimiento de voz:", event.error);
-            micButton.classList.remove('active');
-            micButton.setAttribute('aria-pressed', 'false');
-            isRecognizing = false;
-        };
-    
-        recognition.onend = () => {
-            micButton.classList.remove('active');
-            micButton.setAttribute('aria-pressed', 'false');
-            isRecognizing = false;
-        };
-    }
 
-    
     function generateUUID() {
         return crypto.randomUUID();
     }
@@ -643,14 +530,14 @@
             // Begrüßung
             const optInMessage = document.createElement('div');
             optInMessage.className = 'chat-message bot';
-            optInMessage.innerHTML = 
+            optInMessage.innerHTML = `
                 Hallo! 👋 Ich bin Ihr persönlicher Assistent der Agentur für Kommunikation AMARETIS.
                 Wir sind eine Full-Service-Werbeagentur mit Sitz in Göttingen und arbeiten für Kundinnen und Kunden in ganz Deutschland.
                 Wie kann ich Ihnen heute weiterhelfen?
                 Möchten Sie einen Termin vereinbaren – telefonisch, per Videocall oder vor Ort?
                 Oder haben Sie eine allgemeine Anfrage zu unseren Leistungen?
  
-            ;
+            `;
             messagesContainer.appendChild(optInMessage);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
