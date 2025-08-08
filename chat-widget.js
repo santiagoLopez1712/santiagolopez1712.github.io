@@ -517,37 +517,55 @@
     const sendButton = chatContainer.querySelector('button[type="submit"]');
     const micButton = chatContainer.querySelector('.mic-btn');
 
-    // Compatibilidad con la API de voz
+    // Compatibilität von Voice API 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
         micButton.disabled = true;
-        micButton.title = "Dictado no soportado en este navegador";
+        micButton.title = "Diktat in der Browser nicht Verfügbar";
     } else {
+        // ESTE ES EL NUEVO CÓDIGO
         const recognition = new SpeechRecognition();
         recognition.lang = 'de-DE'; // O 'es-ES' si prefieres español
         recognition.interimResults = false;
-    
+        
+        let isRecognizing = false; // Variable para controlar el estado
+        
         micButton.addEventListener('click', () => {
-            recognition.start();
-            micButton.textContent = "🎙️";
+            if (!isRecognizing) {
+                // Si no está reconociendo, inicia el reconocimiento
+                recognition.start();
+                isRecognizing = true;
+            } else {
+                // Si ya está reconociendo, lo detiene
+                recognition.stop();
+                isRecognizing = false;
+            }
         });
-    
+        
+        recognition.onstart = () => {
+            // Cuando el reconocimiento empieza de verdad
+            micButton.textContent = "🎙️";
+            isRecognizing = true;
+        };
+        
         recognition.onresult = (event) => {
-            const transcript = event.results[0][0].transcript;
-            textarea.value = transcript;
-            micButton.textContent = "🎤";
+            const transcript = event.results[event.results.length - 1][0].transcript;
+            textarea.value += transcript.trim() + ' '; // Concatena el resultado para dictados largos
             textarea.focus();
         };
-    
-        recognition.onerror = () => {
+        
+        recognition.onerror = (event) => {
+            console.error("Error en el reconocimiento de voz:", event.error);
+            isRecognizing = false;
             micButton.textContent = "🎤";
         };
-    
+        
         recognition.onend = () => {
+            // Se ejecuta cuando el reconocimiento termina (por stop() o automáticamente)
+            isRecognizing = false;
             micButton.textContent = "🎤";
         };
     }
-
     function generateUUID() {
         return crypto.randomUUID();
     }
