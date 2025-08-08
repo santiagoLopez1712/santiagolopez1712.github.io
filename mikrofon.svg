@@ -14,27 +14,24 @@
         stroke-linejoin: round; 
         fill: none;
       }
-      .fill { fill: none; stroke: none; }
     </style>
   </defs>
 
-  <!-- Cuerpo del micrófono (cápsula redondeada) -->
+  <!-- Cuerpo del micrófono -->
   <rect x="72" y="24" width="112" height="160" rx="56" ry="56" class="stroke"/>
 
-  <!-- Rejillas / líneas internas -->
-  <line x1="96" y1="88"  x2="136" y2="88"  class="stroke"/>
-  <line x1="96" y1="120" x2="136" y2="120" class="stroke"/>
-  <line x1="96" y1="152" x2="136" y2="152" class="stroke"/>
+  <!-- Rejillas internas -->
+  <line x1="96" y1="88"  x2="160" y2="88"  class="stroke"/>
+  <line x1="96" y1="120" x2="160" y2="120" class="stroke"/>
+  <line x1="96" y1="152" x2="160" y2="152" class="stroke"/>
 
   <!-- Soporte en forma de U -->
   <path d="M56 168
-           a72 72 0 0 0 72 72
-           h0
-           a72 72 0 0 0 72 -72" class="stroke"/>
+           a72 72 0 0 0 144 0" class="stroke"/>
 
   <!-- Palo del soporte -->
-  <line x1="128" y1="240" x2="128" y2="192" class="stroke"/>
+  <line x1="128" y1="240" x2="128" y2="200" class="stroke"/>
 
-  <!-- Base -->
-  <line x1="80" y1="240" x2="176" y2="240" class="stroke"/>
+  <!-- Base más visible -->
+  <line x1="88" y1="240" x2="168" y2="240" class="stroke"/>
 </svg>
