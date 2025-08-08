@@ -1,13 +1,20 @@
-<!-- Micrófono 24x24 optimizado: base visible en tamaños pequeños -->
-<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+<!-- Micrófono SVG 24x24: estados activo/inactivo -->
+<svg class="mic-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="0" y2="24" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#6A00FF"/>
-      <stop offset="1" stop-color="#FF3B2F"/>
+    <!-- Degradado púrpura -> rojo -->
+    <linearGradient id="micGrad" x1="0" y1="0" x2="0" y2="24" gradientUnits="userSpaceOnUse">
+      <stop offset="0"  stop-color="#6A00FF"/>
+      <stop offset="1"  stop-color="#FF3B2F"/>
     </linearGradient>
     <style>
-      .s { stroke:url(#g); stroke-width:2; stroke-linecap:round; stroke-linejoin:round; fill:none; }
-      .f { fill:url(#g); }
+      /* Base: trazos redondeados */
+      .s { stroke-width:2; stroke-linecap:round; stroke-linejoin:round; fill:none; }
+      /* Activo (degradado) */
+      svg.mic-icon.is-active .s { stroke:url(#micGrad); }
+      svg.mic-icon.is-active .base { fill:url(#micGrad); }
+      /* Inactivo (gris visible sobre blanco) */
+      svg.mic-icon:not(.is-active) .s { stroke:#9aa0a6; }
+      svg.mic-icon:not(.is-active) .base { fill:#9aa0a6; }
     </style>
   </defs>
 
@@ -20,7 +27,7 @@
   <!-- Soporte en U -->
   <path d="M4.5 14.5a7.5 7.5 0 0 0 15 0" class="s"/>
   <!-- Palo -->
-  <line x1="12" y1="21" x2="12" y2="18" class="s"/>
-  <!-- Base (relleno para que no se pierda) -->
-  <rect x="7.5" y="21" width="9" height="2" rx="1" class="f"/>
+  <line x1="12" y1="18" x2="12" y2="21" class="s"/>
+  <!-- Base (rellena para no perderse) -->
+  <rect x="7.5" y="21" width="9" height="2" rx="1" class="base"/>
 </svg>
