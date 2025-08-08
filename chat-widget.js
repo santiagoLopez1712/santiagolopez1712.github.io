@@ -408,6 +408,54 @@
             }
         }
 
+
+        /* chat-input necesita posición para el halo */
+        .n8n-chat-widget .chat-input{
+          position: relative;
+        }
+        
+        /* Onda/halo animado cuando está escuchando */
+        .n8n-chat-widget .chat-input::before{
+          content:"";
+          position:absolute; inset:-2px; border-radius:10px;
+          background: conic-gradient(from 0deg,
+            var(--chat--color-primary),
+            #9b6bff,
+            var(--chat--color-secondary),
+            #ff6a3b,
+            var(--chat--color-primary)
+          );
+          filter: blur(8px);
+          opacity:0; pointer-events:none;
+          transition: opacity .25s ease;
+          /* máscara para que sea solo halo */
+          -webkit-mask: radial-gradient(closest-side, transparent calc(100% - 3px), #000 0);
+                  mask: radial-gradient(closest-side, transparent calc(100% - 3px), #000 0);
+        }
+        
+        @keyframes n8n-spin { to { transform: rotate(360deg); } }
+        @keyframes n8n-breathe {
+          0%,100% { box-shadow: 0 0 0 rgba(0,0,0,0); }
+          50%     { box-shadow: 0 0 22px rgba(133,79,255,.18); }
+        }
+        
+        .n8n-chat-widget .chat-input.listening::before{
+          opacity:.95;
+          animation: n8n-spin 2.2s linear infinite;
+        }
+        .n8n-chat-widget .chat-input.listening{
+          animation: n8n-breathe 1.6s ease-in-out infinite;
+          border-top-color: transparent; /* opcional: limpia borde al animar */
+        }
+        
+        /* Textarea auto‑expandible */
+        .n8n-chat-widget .chat-input textarea{
+          min-height: 36px;         /* alto base */
+          max-height: 160px;        /* tope */
+          overflow: auto;           /* scroll si supera el tope */
+          resize: none;             /* el usuario no lo deforma */
+        }
+
     `;
 
     // Load Geist font
@@ -563,52 +611,57 @@
     const textarea = chatContainer.querySelector('textarea');
     const sendButton = chatContainer.querySelector('button[type="submit"]');
     const micButton = chatContainer.querySelector('.mic-btn');
+    const chatInputBox = chatContainer.querySelector('.chat-input');
+
     
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    
+   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
     if (!SpeechRecognition) {
-        micButton.disabled = true;
-        micButton.title = "Diktat in der Browser nicht Verfügbar";
+      micButton.disabled = true;
+      micButton.title = "Diktat in der Browser nicht Verfügbar";
     } else {
-        const recognition = new SpeechRecognition();
-        recognition.lang = 'de-DE'; // O 'es-ES' si quieres español
-        recognition.interimResults = false;
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'de-DE';          // o 'es-ES'
+      recognition.interimResults = false;  // pon true si quieres texto parcial en vivo
+      // recognition.continuous = true;    // opcional: para dictados largos
     
-        let isRecognizing = false;
+      let isRecognizing = false;
     
-        micButton.addEventListener('click', () => {
-            if (!isRecognizing) {
-                recognition.start();
-            } else {
-                recognition.stop();
-            }
-        });
+      micButton.addEventListener('click', () => {
+        if (!isRecognizing) recognition.start();
+        else recognition.stop();
+      });
     
-        recognition.onstart = () => {
-            micButton.classList.add('active');
-            micButton.setAttribute('aria-pressed', 'true');
-            isRecognizing = true;
-        };
+      recognition.onstart = () => {
+        micButton.classList.add('active');
+        micButton.setAttribute('aria-pressed', 'true');
+        chatInputBox.classList.add('listening');   // << activa la onda
+        isRecognizing = true;
+      };
     
-        recognition.onresult = (event) => {
-            const transcript = event.results[event.results.length - 1][0].transcript;
-            textarea.value += transcript.trim() + ' ';
-            textarea.focus();
-        };
+      recognition.onresult = (event) => {
+        const transcript = event.results[event.results.length - 1][0].transcript;
+        textarea.value += transcript.trim() + ' ';
+        autosize(textarea);                          // << ajusta alto del textarea
+        textarea.focus();
+      };
     
-        recognition.onerror = (event) => {
-            console.error("Error en el reconocimiento de voz:", event.error);
-            micButton.classList.remove('active');
-            micButton.setAttribute('aria-pressed', 'false');
-            isRecognizing = false;
-        };
+      recognition.onerror = (event) => {
+        console.error("Error en el reconocimiento de voz:", event.error);
+        micButton.classList.remove('active');
+        micButton.setAttribute('aria-pressed', 'false');
+        chatInputBox.classList.remove('listening'); // << apaga la onda
+        isRecognizing = false;
+      };
     
-        recognition.onend = () => {
-            micButton.classList.remove('active');
-            micButton.setAttribute('aria-pressed', 'false');
-            isRecognizing = false;
-        };
+      recognition.onend = () => {
+        micButton.classList.remove('active');
+        micButton.setAttribute('aria-pressed', 'false');
+        chatInputBox.classList.remove('listening'); // << apaga la onda
+        isRecognizing = false;
+      };
     }
+
 
     
     function generateUUID() {
@@ -701,23 +754,34 @@
     newChatBtn.addEventListener('click', startNewConversation);
     
     sendButton.addEventListener('click', () => {
-        const message = textarea.value.trim();
-        if (message) {
-            sendMessage(message);
-            textarea.value = '';
-        }
+      const message = textarea.value.trim();
+      if (message) {
+        sendMessage(message);
+        textarea.value = '';
+    
+        // ← reset y auto‑expand
+        textarea.style.height = 'auto';
+        autosize(textarea);
+      }
     });
+
+    
     
     textarea.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            const message = textarea.value.trim();
-            if (message) {
-                sendMessage(message);
-                textarea.value = '';
-            }
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        const message = textarea.value.trim();
+        if (message) {
+          sendMessage(message);
+          textarea.value = '';
+    
+          // ← reset y auto‑expand
+          textarea.style.height = 'auto';
+          autosize(textarea);
         }
+      }
     });
+
     
     toggleButton.addEventListener('click', () => {
         chatContainer.classList.toggle('open');
