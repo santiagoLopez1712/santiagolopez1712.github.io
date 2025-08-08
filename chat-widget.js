@@ -365,7 +365,7 @@
         }
 
        .n8n-chat-widget .chat-input .mic-btn {
-            background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
+            background: transparent;
             color: white;
             border: none;
             border-radius: 8px;
