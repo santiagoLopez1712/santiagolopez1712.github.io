@@ -1,33 +1,40 @@
-<!-- Micrófono SVG 24x24: estados activo/inactivo -->
-<svg class="mic-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+<!-- Micrófono (SVG) con degradado y líneas gruesas -->
+<svg viewBox="0 0 256 256" width="128" height="128" aria-hidden="true" focusable="false">
   <defs>
-    <!-- Degradado púrpura -> rojo -->
-    <linearGradient id="micGrad" x1="0" y1="0" x2="0" y2="24" gradientUnits="userSpaceOnUse">
-      <stop offset="0"  stop-color="#6A00FF"/>
-      <stop offset="1"  stop-color="#FF3B2F"/>
+    <!-- Degradado púrpura a rojo -->
+    <linearGradient id="micGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"  stop-color="#6A00FF"/>
+      <stop offset="100%" stop-color="#FF3B2F"/>
     </linearGradient>
     <style>
-      /* Base: trazos redondeados */
-      .s { stroke-width:2; stroke-linecap:round; stroke-linejoin:round; fill:none; }
-      /* Activo (degradado) */
-      svg.mic-icon.is-active .s { stroke:url(#micGrad); }
-      svg.mic-icon.is-active .base { fill:url(#micGrad); }
-      /* Inactivo (gris visible sobre blanco) */
-      svg.mic-icon:not(.is-active) .s { stroke:#9aa0a6; }
-      svg.mic-icon:not(.is-active) .base { fill:#9aa0a6; }
+      .stroke { 
+        stroke: url(#micGrad); 
+        stroke-width: 16;          /* Ajusta grosor aquí */
+        stroke-linecap: round; 
+        stroke-linejoin: round; 
+        fill: none;
+      }
+      .fill { fill: none; stroke: none; }
     </style>
   </defs>
 
-  <!-- Cápsula -->
-  <rect x="7" y="2.5" width="10" height="14" rx="5" class="s"/>
-  <!-- Rejillas -->
-  <line x1="8.5" y1="8"  x2="12.5" y2="8"  class="s"/>
-  <line x1="8.5" y1="11" x2="12.5" y2="11" class="s"/>
-  <line x1="8.5" y1="14" x2="12.5" y2="14" class="s"/>
-  <!-- Soporte en U -->
-  <path d="M4.5 14.5a7.5 7.5 0 0 0 15 0" class="s"/>
-  <!-- Palo -->
-  <line x1="12" y1="18" x2="12" y2="21" class="s"/>
-  <!-- Base (rellena para no perderse) -->
-  <rect x="7.5" y="21" width="9" height="2" rx="1" class="base"/>
+  <!-- Cuerpo del micrófono (cápsula redondeada) -->
+  <rect x="72" y="24" width="112" height="160" rx="56" ry="56" class="stroke"/>
+
+  <!-- Rejillas / líneas internas -->
+  <line x1="96" y1="88"  x2="136" y2="88"  class="stroke"/>
+  <line x1="96" y1="120" x2="136" y2="120" class="stroke"/>
+  <line x1="96" y1="152" x2="136" y2="152" class="stroke"/>
+
+  <!-- Soporte en forma de U -->
+  <path d="M56 168
+           a72 72 0 0 0 72 72
+           h0
+           a72 72 0 0 0 72 -72" class="stroke"/>
+
+  <!-- Palo del soporte -->
+  <line x1="128" y1="240" x2="128" y2="192" class="stroke"/>
+
+  <!-- Base -->
+  <line x1="80" y1="240" x2="176" y2="240" class="stroke"/>
 </svg>
