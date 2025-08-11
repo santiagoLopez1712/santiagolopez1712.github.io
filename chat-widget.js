@@ -205,7 +205,7 @@
     let recognition, isListening = false;
     let bufferText = "";      // acumulamos mientras grabas
     let resultCursor = 0;     // no reprocesar resultados
-    let defaultPlaceholder = "Schreiben Sie uns hier...";
+    let defaultPlaceholder = "Text oder Sprache eingeben – mit Senden abschicken …";
 
     function correctGerman(raw) {
         let text = (raw || "").replace(/\s+/g," ").trim();
