@@ -206,22 +206,24 @@
             background: var(--chat--color-background);
             border-top: 1px solid rgba(133, 79, 255, 0.1);
             display: flex;
-            gap: 8px;
+            flex-direction: column;  /* Asegura que los elementos estén en columna */
+            gap: 8px;  /* Espacio entre el textarea y el botón */
         }
-
+        
         .n8n-chat-widget .chat-input textarea {
-            flex: 1;
+            flex-grow: 1;  /* Hace que el textarea crezca para ocupar espacio disponible */
             padding: 12px;
             border: 1px solid rgba(133, 79, 255, 0.2);
             border-radius: 8px;
             background: var(--chat--color-background);
             color: var(--chat--color-font);
-            resize: none;  /* Deshabilita el redimensionamiento manual */
+            resize: none;  /* Evita el redimensionamiento manual */
             font-family: inherit;
             font-size: 14px;
-            min-height: 40px; /* Altura mínima para evitar que el cuadro se haga demasiado pequeño */
-            overflow: hidden; /* Evita que aparezcan barras de desplazamiento */
+            min-height: 40px; /* Altura mínima */
+            overflow: hidden; /* Evita las barras de desplazamiento */
         }
+
 
 
         .n8n-chat-widget .chat-input textarea::placeholder {
