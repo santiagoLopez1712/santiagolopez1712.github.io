@@ -613,7 +613,8 @@
 
         // Añadir al chat input al lado del botón enviar
         const chatInputDiv = chatContainer.querySelector('.chat-input');
-        chatInputDiv.appendChild(micButton);
+        chatInputDiv.insertBefore(micButton, sendButton);
+;
 
         let recognizing = false;
 
