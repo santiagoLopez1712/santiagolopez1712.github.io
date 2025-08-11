@@ -595,7 +595,6 @@
         micButton.style.display = 'flex';
         micButton.style.alignItems = 'center';
         micButton.style.justifyContent = 'center';
-        micButton.style.marginLeft = '8px';
         micButton.style.minWidth = '40px';
         micButton.style.height = '40px';
         micButton.style.transition = 'opacity 0.3s ease';
@@ -608,7 +607,7 @@
 
         // Añadir al chat input al lado del botón enviar
         const chatInputDiv = chatContainer.querySelector('.chat-input');
-        chatInputDiv.appendChild(micButton);
+        chatInputDiv.insertBefore(micButton, sendBtn);
 
         let recognizing = false;
 
