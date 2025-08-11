@@ -389,8 +389,8 @@
             }
         },
         style: {
-            primaryColor: '',
-            secondaryColor: '',
+            primaryColor: '#854fff',
+            secondaryColor: '#6b3fd4',
             position: 'right',
             backgroundColor: '#ffffff',
             fontColor: '#333333'
