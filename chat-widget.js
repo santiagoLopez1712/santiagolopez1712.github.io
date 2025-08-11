@@ -1,7 +1,7 @@
 // Chat Widget Script
 (function() {
     // Create and inject styles
-    const styles = 
+    const styles = `
         .n8n-chat-widget {
             --chat--color-primary: var(--n8n-chat-primary-color, #854fff);
             --chat--color-secondary: var(--n8n-chat-secondary-color, #6b3fd4);
@@ -365,7 +365,7 @@
         }
 
 
-    ;
+    `;
 
     // Load Geist font
     const fontLink = document.createElement('link');
@@ -428,9 +428,9 @@
     widgetContainer.style.setProperty('--n8n-chat-font-color', config.style.fontColor);
 
     const chatContainer = document.createElement('div');
-    chatContainer.className = chat-container${config.style.position === 'left' ? ' position-left' : ''};
+    chatContainer.className = `chat-container${config.style.position === 'left' ? ' position-left' : ''}`;
     
-  const newConversationHTML = 
+  const newConversationHTML = `
         <div class="brand-header">
             <img src="${config.branding.logo}" alt="${config.branding.name}">
             <span>${config.branding.name}</span>
@@ -452,9 +452,9 @@
                 Starten Sie Ihre Anfrage!
             </button>             
         </div>
-    ;
+    `;
 
-    const chatInterfaceHTML = 
+    const chatInterfaceHTML = `
         <div class="chat-interface">
             <div class="brand-header">
                 <img src="${config.branding.logo}" alt="${config.branding.name}">
@@ -470,16 +470,16 @@
                 <a href="${config.branding.poweredBy.link}" target="_blank">${config.branding.poweredBy.text}</a>
             </div>
         </div>
-    ;
+    `;
     
     chatContainer.innerHTML = newConversationHTML + chatInterfaceHTML;
     
     const toggleButton = document.createElement('button');
-    toggleButton.className = chat-toggle${config.style.position === 'left' ? ' position-left' : ''};
-    toggleButton.innerHTML = 
+    toggleButton.className = `chat-toggle${config.style.position === 'left' ? ' position-left' : ''}`;
+    toggleButton.innerHTML = `
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
             <path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.476 0-2.886-.313-4.156-.878l-3.156.586.586-3.156A7.962 7.962 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/>
-        </svg>;
+        </svg>`;
     
     widgetContainer.appendChild(chatContainer);
     widgetContainer.appendChild(toggleButton);
@@ -530,14 +530,14 @@
             // Begrüßung
             const optInMessage = document.createElement('div');
             optInMessage.className = 'chat-message bot';
-            optInMessage.innerHTML = 
+            optInMessage.innerHTML = `
                 Hallo! 👋 Ich bin Ihr persönlicher Assistent der Agentur für Kommunikation AMARETIS.
                 Wir sind eine Full-Service-Werbeagentur mit Sitz in Göttingen und arbeiten für Kundinnen und Kunden in ganz Deutschland.
                 Wie kann ich Ihnen heute weiterhelfen?
                 Möchten Sie einen Termin vereinbaren – telefonisch, per Videocall oder vor Ort?
                 Oder haben Sie eine allgemeine Anfrage zu unseren Leistungen?
  
-            ;
+            `;
             messagesContainer.appendChild(optInMessage);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
@@ -618,5 +618,3 @@
         });
     });
 })();
-
-
