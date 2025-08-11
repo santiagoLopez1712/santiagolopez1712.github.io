@@ -505,10 +505,86 @@
         textarea.style.height = `${textarea.scrollHeight}px`;  // Ajusta la altura según el contenido
     });
     const sendButton = chatContainer.querySelector('button[type="submit"]');
+    // Después de const sendButton = chatContainer.querySelector('button[type="submit"]');
+    const micButton = document.createElement('button');
+    micButton.type = 'button';
+    micButton.innerHTML = '🎤';
+    micButton.style.padding = '0 10px';
+    micButton.style.fontSize = '18px';
+    micButton.title = 'Spracheingabe starten/stoppen';
+    sendButton.before(micButton); // Insertamos antes del botón enviar
+    
+    let recognition;
+    let isRecording = false;
+    
+    // Inicializar SpeechRecognition si está disponible
+    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.lang = 'de-DE'; // Idioma alemán
+        recognition.continuous = true;
+        recognition.interimResults = true;
+    
+        recognition.onresult = (event) => {
+            let transcript = '';
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                transcript += event.results[i][0].transcript;
+            }
+            textarea.value = transcript.trim();
+            textarea.style.height = 'auto';
+            textarea.style.height = `${textarea.scrollHeight}px`;
+        };
+    
+        recognition.onerror = (event) => {
+            console.error('Speech recognition error:', event.error);
+            stopRecording();
+        };
+    
+        recognition.onend = () => {
+            if (isRecording) stopRecording();
+        };
+    } else {
+        micButton.disabled = true;
+        micButton.title = 'Spracherkennung nicht unterstützt';
+    }
+    
+    function startRecording() {
+        if (!recognition) return;
+        isRecording = true;
+        micButton.style.background = 'red';
+        micButton.textContent = '⏹️';
+        recognition.start();
+    }
+    
+    function stopRecording() {
+        if (!recognition) return;
+        isRecording = false;
+        micButton.style.background = '';
+        micButton.textContent = '🎤';
+        recognition.stop();
+    
+        // Enviar mensaje automáticamente si hay texto
+        const message = textarea.value.trim();
+        if (message) {
+            sendMessage(message);
+            textarea.value = '';
+        }
+    }
+    
+    micButton.addEventListener('click', () => {
+        if (isRecording) {
+            stopRecording();
+        } else {
+            startRecording();
+        }
+    });
+
 
     function generateUUID() {
         return crypto.randomUUID();
     }
+
+    
 
     async function startNewConversation() {
         currentSessionId = generateUUID();
