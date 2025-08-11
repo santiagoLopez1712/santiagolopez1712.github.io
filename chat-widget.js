@@ -95,14 +95,11 @@
             margin-bottom: 28px;
             line-height: 1.3;
 
-            /* 1. Aplica el gradiente como fondo */
             background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
     
-            /* 2. Recorta el fondo a la forma del texto (con prefijo para compatibilidad) */
             -webkit-background-clip: text;
             background-clip: text;
     
-            /* 3. Hace que el color del texto sea transparente para mostrar el fondo */
             color: transparent;
         }
 
@@ -366,8 +363,6 @@
        .n8n-chat-widget .privacy-checkbox a:hover {
             color: var(--chat--color-secondary);
         }
-
-
     `;
 
     // Load Geist font
@@ -489,57 +484,156 @@
     document.body.appendChild(widgetContainer);
 
     const newChatBtn = chatContainer.querySelector('.new-chat-btn');
+    const privacyCheckbox = chatContainer.querySelector('#datenschutz');
+    const newConversationSection = chatContainer.querySelector('.new-conversation');
     const chatInterface = chatContainer.querySelector('.chat-interface');
-    const privacyCheckbox = chatContainer.querySelector('#datenschutz'); 
-        if (privacyCheckbox) {
-            privacyCheckbox.addEventListener('change', function() {
-                // Habilita o deshabilita el botón basado en el estado del checkbox
-                newChatBtn.disabled = !this.checked;
+    const closeButtons = chatContainer.querySelectorAll('.close-button');
+
+    // Enable button only if privacy accepted
+    privacyCheckbox.addEventListener('change', () => {
+        newChatBtn.disabled = !privacyCheckbox.checked;
+    });
+
+    newChatBtn.addEventListener('click', () => {
+        if (!privacyCheckbox.checked) return;
+        newConversationSection.style.display = 'none';
+        chatInterface.classList.add('active');
+        textarea.focus();
+        currentSessionId = generateUUID();
+    });
+
+    closeButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            chatInterface.classList.remove('active');
+            newConversationSection.style.display = 'block';
+            toggleButton.style.display = 'flex';
         });
-    }
+    });
+
+    toggleButton.addEventListener('click', () => {
+        chatContainer.classList.toggle('open');
+        if (chatContainer.classList.contains('open')) {
+            toggleButton.style.display = 'none';
+        } else {
+            toggleButton.style.display = 'flex';
+        }
+    });
+
+    // Chat functionality
     const messagesContainer = chatContainer.querySelector('.chat-messages');
     const textarea = chatContainer.querySelector('textarea');
-
-    textarea.addEventListener('input', () => {
-        textarea.style.height = 'auto';  // Resetea la altura a 'auto' para que se ajuste al contenido
-        textarea.style.height = `${textarea.scrollHeight}px`;  // Ajusta la altura según el contenido
-    });
     const sendButton = chatContainer.querySelector('button[type="submit"]');
-    // Después de const sendButton = chatContainer.querySelector('button[type="submit"]');
+
+    // Function to add message bubble
+    function addMessage(text, sender = 'bot') {
+        const messageEl = document.createElement('div');
+        messageEl.classList.add('chat-message', sender);
+        messageEl.textContent = text;
+        messagesContainer.appendChild(messageEl);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // Function to send message to webhook
+    async function sendMessage(message) {
+        addMessage(message, 'user');
+
+        if (!config.webhook.url) {
+            addMessage('Webhook URL is not configured.', 'bot');
+            return;
+        }
+
+        try {
+            const response = await fetch(config.webhook.url + (config.webhook.route || ''), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    sessionId: currentSessionId,
+                    message: message
+                })
+            });
+            if (!response.ok) {
+                throw new Error(`Error: ${response.status}`);
+            }
+            const data = await response.json();
+
+            if (data && data.reply) {
+                addMessage(data.reply, 'bot');
+            } else {
+                addMessage('Keine Antwort vom Server erhalten.', 'bot');
+            }
+        } catch (error) {
+            addMessage('Fehler bei der Verbindung zum Server.', 'bot');
+            console.error(error);
+        }
+    }
+
+    sendButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        const message = textarea.value.trim();
+        if (!message) return;
+        sendMessage(message);
+        textarea.value = '';
+        textarea.style.height = 'auto';
+    });
+
+    // Adjust textarea height dynamically
+    textarea.addEventListener('input', () => {
+        textarea.style.height = 'auto';
+        textarea.style.height = `${textarea.scrollHeight}px`;
+    });
+
+    // Mic button with SVG and speech recognition
     const micButton = document.createElement('button');
     micButton.type = 'button';
-    micButton.innerHTML = '🎤';
+    micButton.title = 'Spracheingabe starten/stoppen';
     micButton.style.padding = '0 10px';
     micButton.style.fontSize = '18px';
-    micButton.title = 'Spracheingabe starten/stoppen';
-    sendButton.before(micButton); // Insertamos antes del botón enviar
-    
+    micButton.style.background = 'none';
+    micButton.style.border = 'none';
+    micButton.style.cursor = 'pointer';
+    micButton.style.display = 'flex';
+    micButton.style.alignItems = 'center';
+    micButton.style.justifyContent = 'center';
+
+    micButton.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+          <path d="M12 14a3 3 0 003-3V6a3 3 0 10-6 0v5a3 3 0 003 3z"/>
+          <path d="M19 10v1a7 7 0 01-14 0v-1H4v1a8 8 0 0014 0v-1h-1z"/>
+          <path d="M11 19h2v3h-2z"/>
+        </svg>
+    `;
+
+    sendButton.before(micButton);
+
     let recognition;
     let isRecording = false;
-    
-    // Inicializar SpeechRecognition si está disponible
+
     if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition = new SpeechRecognition();
-        recognition.lang = 'de-DE'; // Idioma alemán
+        recognition.lang = 'de-DE'; // Cambia idioma si quieres
         recognition.continuous = true;
         recognition.interimResults = true;
-    
+
         recognition.onresult = (event) => {
             let transcript = '';
             for (let i = event.resultIndex; i < event.results.length; i++) {
                 transcript += event.results[i][0].transcript;
             }
-            textarea.value = transcript.trim();
+            const currentText = textarea.value.trim();
+            const newText = transcript.trim();
+            textarea.value = currentText + (currentText ? ' ' : '') + capitalizeFirstLetter(newText);
             textarea.style.height = 'auto';
             textarea.style.height = `${textarea.scrollHeight}px`;
         };
-    
+
         recognition.onerror = (event) => {
             console.error('Speech recognition error:', event.error);
             stopRecording();
         };
-    
+
         recognition.onend = () => {
             if (isRecording) stopRecording();
         };
@@ -547,30 +641,32 @@
         micButton.disabled = true;
         micButton.title = 'Spracherkennung nicht unterstützt';
     }
-    
+
+    function capitalizeFirstLetter(text) {
+        if (!text) return '';
+        return text.charAt(0).toUpperCase() + text.slice(1);
+    }
+
     function startRecording() {
         if (!recognition) return;
         isRecording = true;
-        micButton.style.background = 'red';
-        micButton.textContent = '⏹️';
+        micButton.style.background = 'rgba(133, 79, 255, 0.15)';
         recognition.start();
     }
-    
+
     function stopRecording() {
         if (!recognition) return;
         isRecording = false;
-        micButton.style.background = '';
-        micButton.textContent = '🎤';
+        micButton.style.background = 'none';
         recognition.stop();
-    
-        // Enviar mensaje automáticamente si hay texto
+
         const message = textarea.value.trim();
         if (message) {
             sendMessage(message);
             textarea.value = '';
         }
     }
-    
+
     micButton.addEventListener('click', () => {
         if (isRecording) {
             stopRecording();
@@ -579,126 +675,12 @@
         }
     });
 
-
+    // Utility to generate UUID
     function generateUUID() {
-        return crypto.randomUUID();
-    }
-
-    
-
-    async function startNewConversation() {
-        currentSessionId = generateUUID();
-        const data = [{
-            action: "loadPreviousSession",
-            sessionId: currentSessionId,
-            route: config.webhook.route,
-            metadata: {
-                userId: ""
-            }
-        }];
-
-        try {
-            const response = await fetch(config.webhook.url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
-
-            const responseData = await response.json();
-            chatContainer.querySelector('.brand-header').style.display = 'none';
-            chatContainer.querySelector('.new-conversation').style.display = 'none';
-            chatInterface.classList.add('active');
-            
-            // Begrüßung
-            const optInMessage = document.createElement('div');
-            optInMessage.className = 'chat-message bot';
-            optInMessage.innerHTML = `
-                Hallo! 👋 Ich bin Ihr persönlicher Assistent der Agentur für Kommunikation AMARETIS.
-                Wir sind eine Full-Service-Werbeagentur mit Sitz in Göttingen und arbeiten für Kundinnen und Kunden in ganz Deutschland.
-                Wie kann ich Ihnen heute weiterhelfen?
-                Möchten Sie einen Termin vereinbaren – telefonisch, per Videocall oder vor Ort?
-                Oder haben Sie eine allgemeine Anfrage zu unseren Leistungen?
- 
-            `;
-            messagesContainer.appendChild(optInMessage);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    }
-
-    async function sendMessage(message) {
-        const messageData = {
-            action: "sendMessage",
-            sessionId: currentSessionId,
-            route: config.webhook.route,
-            chatInput: message,
-            metadata: {
-                userId: ""
-            }
-        };
-
-        const userMessageDiv = document.createElement('div');
-        userMessageDiv.className = 'chat-message user';
-        userMessageDiv.textContent = message;
-        messagesContainer.appendChild(userMessageDiv);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-        try {
-            const response = await fetch(config.webhook.url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(messageData)
-            });
-            
-            const data = await response.json();
-            
-            const botMessageDiv = document.createElement('div');
-            botMessageDiv.className = 'chat-message bot';
-            botMessageDiv.textContent = Array.isArray(data) ? data[0].output : data.output;
-            messagesContainer.appendChild(botMessageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    }
-
-    newChatBtn.addEventListener('click', startNewConversation);
-    
-    sendButton.addEventListener('click', () => {
-        const message = textarea.value.trim();
-        if (message) {
-            sendMessage(message);
-            textarea.value = '';
-        }
-    });
-    
-    textarea.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            const message = textarea.value.trim();
-            if (message) {
-                sendMessage(message);
-                textarea.value = '';
-            }
-        }
-    });
-    
-    toggleButton.addEventListener('click', () => {
-        chatContainer.classList.toggle('open');
-    });
-
-    // Add close button handlers
-    const closeButtons = chatContainer.querySelectorAll('.close-button');
-    closeButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            chatContainer.classList.remove('open');
+        // RFC4122 version 4 compliant UUID
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
         });
-    });
+    }
 })();
