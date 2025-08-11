@@ -275,6 +275,11 @@
         isListening = false;
         micBtn.classList.remove('pulse');
         micBtn.setAttribute('aria-pressed','false');
+        micBtn.title = 'Nachricht diktieren (de-DE)';
+        micBtn.setAttribute('aria-label', 'Nachricht diktieren (de-DE)');
+        micBtn.title = 'Aufnahme läuft…';
+        micBtn.setAttribute('aria-label', 'Aufnahme läuft…');
+
         // Restaurar placeholder
         textareaEl.setAttribute('placeholder', defaultPlaceholder);
         if (!silent && textareaEl) dumpBufferToTextarea(textareaEl);
