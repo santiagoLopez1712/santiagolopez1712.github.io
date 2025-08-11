@@ -201,6 +201,7 @@
             border-top: 1px solid rgba(133, 79, 255, 0.1);
             display: flex;
             gap: 8px;
+            align-items: center; /* Nuevo: para alinear verticalmente los botones */
         }
         
         .n8n-chat-widget .chat-input textarea {
@@ -215,13 +216,16 @@
             font-size: 14px;
             min-height: 40px;
             overflow: hidden;
+            line-height: 1.5; /* Nuevo: para un mejor espaciado del texto */
         }
 
         .n8n-chat-widget .chat-input textarea::placeholder {
             color: var(--n8n-chat-font-color);
             opacity: 0.6;
         }
-
+        
+        /* Eliminar estilos del botón de enviar original */
+        /*
         .n8n-chat-widget .chat-input button {
             background: linear-gradient(135deg, var(--n8n-chat-primary-color) 0%, var(--n8n-chat-secondary-color) 100%);
             color: white;
@@ -237,6 +241,7 @@
         .n8n-chat-widget .chat-input button:hover {
             transform: scale(1.05);
         }
+        */
 
         .n8n-chat-widget .chat-toggle {
             position: fixed;
@@ -429,7 +434,7 @@
         </div>
         <div class="new-conversation">
             <h2 class="welcome-text">${config.branding.welcomeText}</h2>
-            <p class="response-text">${config.branding.responseTimeText}</p>    
+            <p class="response-text">${config.branding.responseTimeText}</p>      
             <div class="privacy-checkbox">
                 <input type="checkbox" id="datenschutz" name="datenschutz">
                 <label for="datenschutz">
@@ -441,7 +446,7 @@
                     <path fill="currentColor" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/>
                 </svg>
                 Starten Sie Ihre Anfrage!
-            </button>             
+            </button>          
         </div>
     `;
 
@@ -451,8 +456,7 @@
             <div class="chat-messages"></div>
             <div class="chat-input">
                 <textarea placeholder="Schreiben Sie uns hier..." rows="1"></textarea>
-                <button type="submit">Senden</button>
-            </div>
+                </div>
             <div class="chat-footer">
                 <a href="${config.branding.poweredBy.link}" target="_blank">${config.branding.poweredBy.text}</a>
             </div>
@@ -482,14 +486,14 @@
     const toggleBtn = toggleButton;
     const chatMessages = chatContainer.querySelector('.chat-messages');
     const textarea = chatContainer.querySelector('textarea');
-    const sendBtn = chatContainer.querySelector('button[type="submit"]');
+    // const sendBtn = chatContainer.querySelector('button[type="submit"]'); // Antiguo botón, lo eliminaremos
 
-    // Enable "Start" button only if privacy is accepted
+    // Habilitar botón "Start" si se acepta la política de privacidad
     privacyCheckbox.addEventListener('change', () => {
         newChatBtn.disabled = !privacyCheckbox.checked;
     });
 
-    // Open chat window
+    // Abrir ventana de chat
     toggleBtn.addEventListener('click', () => {
         chatContainer.classList.add('open');
         toggleBtn.style.display = 'none';
@@ -500,7 +504,7 @@
         currentSessionId = '';
     });
 
-    // Close chat window (from close buttons)
+    // Cerrar ventana de chat
     closeButtons.forEach(btn => {
         btn.addEventListener('click', () => {
             chatContainer.classList.remove('open');
@@ -513,7 +517,7 @@
         });
     });
 
-    // Start new chat on new chat button click
+    // Iniciar nuevo chat al hacer clic en el botón de "Nuevo Chat"
     newChatBtn.addEventListener('click', () => {
         if (!privacyCheckbox.checked) return;
         newConversationSection.style.display = 'none';
@@ -522,13 +526,13 @@
         startNewSession();
     });
 
-    // Start new session function
+    // Función para iniciar una nueva sesión
     function startNewSession() {
         currentSessionId = `session-${Date.now()}`;
         chatMessages.innerHTML = '';
     }
 
-    // Append message to chat
+    // Función para agregar un mensaje al chat
     function appendMessage(text, sender = 'bot') {
         const msgDiv = document.createElement('div');
         msgDiv.classList.add('chat-message', sender);
@@ -537,13 +541,13 @@
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    // Send message function
+    // Función para enviar un mensaje
     async function sendMessage(text) {
         if (!text.trim()) return;
         appendMessage(text, 'user');
         textarea.value = '';
         
-        // Call your webhook API here:
+        // Llamada a la API de webhook:
         try {
             const response = await fetch(config.webhook.url + (config.webhook.route || ''), {
                 method: 'POST',
@@ -562,6 +566,38 @@
         }
     }
 
+    // Creación y estilización del nuevo botón de enviar (senden)
+    const sendBtn = document.createElement('button');
+    sendBtn.type = 'submit';
+    sendBtn.className = 'send-btn';
+    sendBtn.title = 'Nachricht senden';
+
+    // Aplicar los mismos estilos que el botón del micrófono
+    sendBtn.style.background = `linear-gradient(135deg, ${config.style.primaryColor} 0%, ${config.style.secondaryColor} 100%)`;
+    sendBtn.style.border = 'none';
+    sendBtn.style.borderRadius = '8px';
+    sendBtn.style.padding = '0 16px';
+    sendBtn.style.color = 'white';
+    sendBtn.style.cursor = 'pointer';
+    sendBtn.style.display = 'flex';
+    sendBtn.style.alignItems = 'center';
+    sendBtn.style.justifyContent = 'center';
+    sendBtn.style.minWidth = '40px';
+    sendBtn.style.height = '40px';
+    sendBtn.style.transition = 'transform 0.2s';
+
+    // SVG del botón de enviar (avión de papel)
+    sendBtn.innerHTML = `
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" fill="white"/>
+        </svg>
+    `;
+
+    // Añadir el nuevo botón de enviar al input
+    const chatInputDiv = chatContainer.querySelector('.chat-input');
+    chatInputDiv.appendChild(sendBtn);
+
+    // Event listeners
     sendBtn.addEventListener('click', () => {
         sendMessage(textarea.value);
     });
@@ -573,7 +609,7 @@
         }
     });
 
-    // Speech recognition setup
+    // Configuración del reconocimiento de voz
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
         const recognition = new SpeechRecognition();
@@ -586,6 +622,8 @@
         micButton.type = 'button';
         micButton.className = 'mic-btn';
         micButton.title = 'Nachricht diktieren';
+
+        // Aplicar los mismos estilos que el botón de enviar
         micButton.style.background = `linear-gradient(135deg, ${config.style.primaryColor} 0%, ${config.style.secondaryColor} 100%)`;
         micButton.style.border = 'none';
         micButton.style.borderRadius = '8px';
@@ -605,8 +643,8 @@
             </svg>
         `;
 
-        // Añadir al chat input al lado del botón enviar
-        const chatInputDiv = chatContainer.querySelector('.chat-input');
+        // Añadir el botón de micrófono
+        // He cambiado el orden para que aparezca antes del botón de enviar
         chatInputDiv.insertBefore(micButton, sendBtn);
 
         let recognizing = false;
@@ -642,5 +680,4 @@
             }
         });
     }
-
 })();
