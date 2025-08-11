@@ -389,8 +389,8 @@
             }
         },
         style: {
-            primaryColor: '#854fff',
-            secondaryColor: '#6b3fd4',
+            primaryColor: '',
+            secondaryColor: '',
             position: 'right',
             backgroundColor: '#ffffff',
             fontColor: '#333333'
@@ -410,7 +410,6 @@
     window.N8NChatWidgetInitialized = true;
 
     let currentSessionId = '';
-
 
     // Create widget container
     const widgetContainer = document.createElement('div');
