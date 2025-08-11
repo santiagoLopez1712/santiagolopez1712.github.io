@@ -59,8 +59,8 @@
         .n8n-chat-widget .new-chat-btn {
             display: flex; align-items: center; justify-content: center; gap: 8px;
             width: 100%; padding: 16px 24px;
-            background: transparent;
-            color: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
+            background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
+            color: white; border: none; border-radius: 8px; cursor: pointer;
             font-size: 16px; transition: transform 0.3s; font-weight: 500; font-family: inherit; margin-bottom: 12px;
         }
         .n8n-chat-widget .new-chat-btn:hover { transform: scale(1.02); }
@@ -92,26 +92,45 @@
         }
 
         .n8n-chat-widget .chat-input {
-            padding: 16px; background: var(--chat--color-background);
+            padding: 12px 16px;
+            background: var(--chat--color-background);
             border-top: 1px solid rgba(133, 79, 255, 0.1);
-            display: flex; gap: 8px; align-items: center;
+            display: grid;
+            grid-template-columns: 1fr auto auto; /* textarea | mic | send */
+            gap: 8px;
+            align-items: center;
         }
         
         .n8n-chat-widget .chat-input textarea {
-            flex-grow: 1; padding: 12px;
+            padding: 12px;
             border: 1px solid rgba(133, 79, 255, 0.2); border-radius: 8px;
             background: var(--chat--color-background); color: var(--chat--color-font);
             resize: none; font-family: inherit; font-size: 14px; line-height: 1.4;
             min-height: 40px; max-height: 400px; overflow-y: auto;
+            width: 100%;
         }
         .n8n-chat-widget .chat-input textarea::placeholder { color: var(--chat--color-font); opacity: 0.6; }
 
-        .n8n-chat-widget .chat-input button {
+        /* Botones compactos */
+        .n8n-chat-widget .btn-icon {
+            width: 38px; height: 38px;
+            display: inline-flex; align-items: center; justify-content: center;
+            border-radius: 8px; border: none; cursor: pointer;
             background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
-            color: white; border: none; border-radius: 8px; padding: 0 20px; cursor: pointer;
-            transition: transform 0.2s; font-family: inherit; font-weight: 500; height: 40px;
+            color: #fff; transition: transform .15s ease;
         }
-        .n8n-chat-widget .chat-input button:hover { transform: scale(1.05); }
+        .n8n-chat-widget .btn-icon:hover { transform: scale(1.05); }
+
+        /* Mic como botón transparente (para que sea pequeño pero mantenga el estilo) */
+        .n8n-chat-widget .mic-icon-btn {
+            width: 38px; height: 38px;
+            background: linear-gradient(135deg, #ffffff 0%, #ffffff 100%); /* fondo blanco para destacar el icono */
+            border: 1px solid rgba(133,79,255,0.25);
+            border-radius: 8px;
+            display: inline-flex; align-items: center; justify-content: center;
+            cursor: pointer;
+        }
+        .n8n-chat-widget .mic-icon-btn.pulse svg { filter: drop-shadow(0 0 6px rgba(221,12,13,.45)); }
 
         .n8n-chat-widget .chat-toggle {
             position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 12px;
@@ -152,14 +171,6 @@
         }
         .n8n-chat-widget .privacy-checkbox a { color: var(--chat--color-primary); text-decoration: underline; transition: color 0.2s; }
         .n8n-chat-widget .privacy-checkbox a:hover { color: var(--chat--color-secondary); }
-
-        /* === MIC UI START === */
-        .n8n-chat-widget .mic-icon-btn {
-            background: transparent; border: none; padding: 0 6px; height: 40px;
-            cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
-        }
-        .n8n-chat-widget .mic-icon-btn.pulse svg { filter: drop-shadow(0 0 6px rgba(221,12,13,.45)); }
-        /* === MIC UI END === */
     `;
 
     // Load Geist font
@@ -205,7 +216,7 @@
     let recognition, isListening = false;
     let bufferText = "";      // acumulamos mientras grabas
     let resultCursor = 0;     // no reprocesar resultados
-    let defaultPlaceholder = "Text oder Sprache eingeben – mit Senden abschicken …";
+    let defaultPlaceholder = "Schreiben Sie uns hier...";
 
     function correctGerman(raw) {
         let text = (raw || "").replace(/\s+/g," ").trim();
@@ -265,7 +276,9 @@
         isListening = true;
         micBtn.classList.add('pulse');
         micBtn.setAttribute('aria-pressed','true');
-        // Placeholder "Aufnahme läuft…"
+        // Tooltip y placeholder activos
+        micBtn.title = 'Aufnahme läuft…';
+        micBtn.setAttribute('aria-label', 'Aufnahme läuft…');
         defaultPlaceholder = textareaEl.getAttribute('placeholder') || defaultPlaceholder;
         textareaEl.setAttribute('placeholder', 'Aufnahme läuft…');
     }
@@ -277,9 +290,6 @@
         micBtn.setAttribute('aria-pressed','false');
         micBtn.title = 'Nachricht diktieren (de-DE)';
         micBtn.setAttribute('aria-label', 'Nachricht diktieren (de-DE)');
-        micBtn.title = 'Aufnahme läuft…';
-        micBtn.setAttribute('aria-label', 'Aufnahme läuft…');
-
         // Restaurar placeholder
         textareaEl.setAttribute('placeholder', defaultPlaceholder);
         if (!silent && textareaEl) dumpBufferToTextarea(textareaEl);
@@ -330,9 +340,8 @@
             </div>
             <div class="chat-messages"></div>
             <div class="chat-input">
-                <textarea placeholder="Text oder Sprache eingeben – mit Senden abschicken …" rows="1"></textarea>
-                <!-- MIC se inyecta por JS -->
-                <button type="submit">Senden</button>
+                <textarea placeholder="Schreiben Sie uns hier..." rows="1"></textarea>
+                <!-- Mic y Enviar se inyectan por JS para mantener el orden -->
             </div>
             <div class="chat-footer">
                 <a href="${config.branding.poweredBy.link}" target="_blank">${config.branding.poweredBy.text}</a>
@@ -363,7 +372,6 @@
     }
     const messagesContainer = chatContainer.querySelector('.chat-messages');
     const textareaEl = chatContainer.querySelector('textarea');
-    const sendButton = chatContainer.querySelector('button[type="submit"]');
 
     // Auto-resize hasta 400px
     function autoResize(el) {
@@ -374,14 +382,14 @@
     textareaEl.addEventListener('input', () => autoResize(textareaEl));
     autoResize(textareaEl);
 
-    // === MIC UI START === (SVG gradiente 135° #854fff -> #dd0c0d)
+    // === Inyectar MIC (compacto) ===
     const micBtn = document.createElement('button');
     micBtn.type = 'button';
     micBtn.className = 'mic-icon-btn';
     micBtn.title = 'Nachricht diktieren (de-DE)';
     micBtn.setAttribute('aria-pressed','false');
     micBtn.innerHTML = `
-<svg width="20" height="20" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+<svg width="18" height="18" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
   <defs>
     <linearGradient id="micGrad" x1="1" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#854fff"/>
@@ -395,10 +403,32 @@
     <line x1="24" y1="58" x2="40" y2="58"/>
   </g>
 </svg>`;
+
+    // === Inyectar SEND (flecha arriba compacta) ===
+    const sendBtn = document.createElement('button');
+    sendBtn.type = 'submit';
+    sendBtn.className = 'btn-icon';
+    sendBtn.title = 'Senden';
+    sendBtn.setAttribute('aria-label','Senden');
+    sendBtn.innerHTML = `
+<svg viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <defs>
+    <linearGradient id="sendGrad" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#854fff"/>
+      <stop offset="100%" stop-color="#dd0c0d"/>
+    </linearGradient>
+  </defs>
+  <path d="M12 19V5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+  <path d="M6 11l6-6 6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>`;
+
+    // Insertar en orden: textarea | mic | send
     const chatInput = chatContainer.querySelector('.chat-input');
-    chatInput.insertBefore(micBtn, sendButton);
+    chatInput.appendChild(micBtn);
+    chatInput.appendChild(sendBtn);
+
+    // Eventos de mic
     micBtn.addEventListener('click', () => { isListening ? stopListening() : startListening(); });
-    // === MIC UI END ===
 
     function generateUUID() { return crypto.randomUUID(); }
 
@@ -471,9 +501,12 @@
         }
     }
 
+    const newChatBtn = chatContainer.querySelector('.new-chat-btn');
+    const messagesContainer = chatContainer.querySelector('.chat-messages');
     newChatBtn.addEventListener('click', startNewConversation);
-    
-    sendButton.addEventListener('click', () => {
+
+    // Enviar (click)
+    sendBtn.addEventListener('click', () => {
         if (isListening) stopListening();
         const message = textareaEl.value.trim();
         if (message) {
@@ -482,7 +515,8 @@
             autoResize(textareaEl);
         }
     });
-    
+
+    // Enviar (Enter sin Shift)
     textareaEl.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
@@ -496,13 +530,14 @@
         }
     });
     
+    const toggleButton = widgetContainer.querySelector('.chat-toggle');
     toggleButton.addEventListener('click', () => {
         const wasOpen = chatContainer.classList.contains('open');
         chatContainer.classList.toggle('open');
         if (wasOpen && isListening) stopListening(true);
     });
 
-    // Add close button handlers
+    // Cerrar
     const closeButtons = chatContainer.querySelectorAll('.close-button');
     closeButtons.forEach(button => {
         button.addEventListener('click', () => {
