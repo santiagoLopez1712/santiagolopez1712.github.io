@@ -206,20 +206,23 @@
             background: var(--chat--color-background);
             border-top: 1px solid rgba(133, 79, 255, 0.1);
             display: flex;
-            gap: 8px;
+            gap: 8px;  /* Espacio entre el textarea y el botón */
         }
-
+        
         .n8n-chat-widget .chat-input textarea {
-            flex: 1;
+            flex-grow: 1;  /* Hace que el textarea crezca para ocupar espacio disponible */
             padding: 12px;
             border: 1px solid rgba(133, 79, 255, 0.2);
             border-radius: 8px;
             background: var(--chat--color-background);
             color: var(--chat--color-font);
-            resize: none;
+            resize: none;  /* Evita el redimensionamiento manual */
             font-family: inherit;
             font-size: 14px;
+            min-height: 40px; /* Altura mínima */
+            overflow: hidden; /* Evita las barras de desplazamiento */
         }
+
 
         .n8n-chat-widget .chat-input textarea::placeholder {
             color: var(--chat--color-font);
@@ -496,6 +499,11 @@
     }
     const messagesContainer = chatContainer.querySelector('.chat-messages');
     const textarea = chatContainer.querySelector('textarea');
+
+    textarea.addEventListener('input', () => {
+        textarea.style.height = 'auto';  // Resetea la altura a 'auto' para que se ajuste al contenido
+        textarea.style.height = `${textarea.scrollHeight}px`;  // Ajusta la altura según el contenido
+    });
     const sendButton = chatContainer.querySelector('button[type="submit"]');
 
     function generateUUID() {
