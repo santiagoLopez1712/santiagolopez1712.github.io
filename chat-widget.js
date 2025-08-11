@@ -59,8 +59,8 @@
         .n8n-chat-widget .new-chat-btn {
             display: flex; align-items: center; justify-content: center; gap: 8px;
             width: 100%; padding: 16px 24px;
-            background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
-            color: white; border: none; border-radius: 8px; cursor: pointer;
+            background: transparent;
+            color: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
             font-size: 16px; transition: transform 0.3s; font-weight: 500; font-family: inherit; margin-bottom: 12px;
         }
         .n8n-chat-widget .new-chat-btn:hover { transform: scale(1.02); }
