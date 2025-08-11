@@ -225,8 +225,6 @@
         }
 
 
-
-
         .n8n-chat-widget .chat-input textarea::placeholder {
             color: var(--chat--color-font);
             opacity: 0.6;
