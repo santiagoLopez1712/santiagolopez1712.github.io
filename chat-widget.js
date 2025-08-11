@@ -750,4 +750,4 @@ const styles = `
         });
     });
 })();
-</script>
+
