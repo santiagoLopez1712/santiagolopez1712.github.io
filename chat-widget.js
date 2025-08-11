@@ -216,10 +216,13 @@
             border-radius: 8px;
             background: var(--chat--color-background);
             color: var(--chat--color-font);
-            resize: none;
+            resize: none;  /* Deshabilita el redimensionamiento manual */
             font-family: inherit;
             font-size: 14px;
+            min-height: 40px; /* Altura mínima para evitar que el cuadro se haga demasiado pequeño */
+            overflow: hidden; /* Evita que aparezcan barras de desplazamiento */
         }
+
 
         .n8n-chat-widget .chat-input textarea::placeholder {
             color: var(--chat--color-font);
@@ -496,6 +499,10 @@
     }
     const messagesContainer = chatContainer.querySelector('.chat-messages');
     const textarea = chatContainer.querySelector('textarea');
+    textarea.addEventListener('input', () => {
+        textarea.style.height = 'auto';  // Resetea la altura a 'auto' para que se ajuste al contenido
+        textarea.style.height = `${textarea.scrollHeight}px`;  // Ajusta la altura según el contenido
+    });  
     const sendButton = chatContainer.querySelector('button[type="submit"]');
 
     function generateUUID() {
