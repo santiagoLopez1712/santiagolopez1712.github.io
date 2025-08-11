@@ -330,7 +330,7 @@
             </div>
             <div class="chat-messages"></div>
             <div class="chat-input">
-                <textarea placeholder="Schreiben Sie uns hier..." rows="1"></textarea>
+                <textarea placeholder="Text oder Sprache eingeben – mit Senden abschicken …" rows="1"></textarea>
                 <!-- MIC se inyecta por JS -->
                 <button type="submit">Senden</button>
             </div>
