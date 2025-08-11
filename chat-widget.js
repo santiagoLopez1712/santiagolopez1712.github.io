@@ -612,42 +612,68 @@
         `;
 
         // Añadir al chat input al lado del botón enviar
-        const chatInputDiv = chatContainer.querySelector('.chat-input');
-        chatInputDiv.insertBefore(micButton, sendButton);
-;
+        // Ya tienes estas líneas definidas:
+const chatInputDiv = chatContainer.querySelector('.chat-input');
+const textarea = chatInputDiv.querySelector('textarea');
+const sendButton = chatInputDiv.querySelector('button[type="submit"]');
 
-        let recognizing = false;
+// Crear botón micrófono con SVG (colocado a la izquierda del botón enviar)
+const micButton = document.createElement('button');
+micButton.type = 'button';
+micButton.className = 'mic-btn';
+micButton.title = 'Nachricht diktieren';
+micButton.style.background = `linear-gradient(135deg, ${config.style.primaryColor} 0%, ${config.style.secondaryColor} 100%)`;
+micButton.style.border = 'none';
+micButton.style.borderRadius = '8px';
+micButton.style.padding = '0 16px';
+micButton.style.color = 'white';
+micButton.style.cursor = 'pointer';
+micButton.style.display = 'flex';
+micButton.style.alignItems = 'center';
+micButton.style.justifyContent = 'center';
+micButton.style.marginRight = '8px';  // margen a la derecha para separar del textarea
+micButton.style.minWidth = '40px';
+micButton.style.height = '40px';
+micButton.style.transition = 'opacity 0.3s ease';
 
-        micButton.addEventListener('click', () => {
-            if (recognizing) {
-                recognition.stop();
-                return;
-            }
-            recognition.start();
-        });
+micButton.innerHTML = `
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 14 0h-2zm-5 7a7 7 0 0 0 7-7h-2a5 5 0 0 1-10 0H5a7 7 0 0 0 7 7z"/>
+    </svg>
+`;
 
-        recognition.addEventListener('start', () => {
-            recognizing = true;
-            micButton.style.opacity = '0.7';
-        });
+// Insertar micrófono a la izquierda del botón enviar
+chatInputDiv.insertBefore(micButton, sendButton);
 
-        recognition.addEventListener('end', () => {
-            recognizing = false;
-            micButton.style.opacity = '1';
-        });
+// Aquí va la lógica de reconocimiento de voz (speech recognition)
+let recognizing = false;
 
-        recognition.addEventListener('result', e => {
-            const lastResultIndex = e.results.length - 1;
-            const transcript = e.results[lastResultIndex][0].transcript.trim();
-            if (transcript) {
-                // Añade el texto dictado al textarea
-                if (textarea.value.length > 0 && !textarea.value.endsWith(' ')) {
-                    textarea.value += ' ';
-                }
-                textarea.value += transcript;
-                textarea.focus();
-            }
-        });
+micButton.addEventListener('click', () => {
+    if (recognizing) {
+        recognition.stop();
+        return;
     }
+    recognition.start();
+});
 
-})();
+recognition.addEventListener('start', () => {
+    recognizing = true;
+    micButton.style.opacity = '0.7';
+});
+
+recognition.addEventListener('end', () => {
+    recognizing = false;
+    micButton.style.opacity = '1';
+});
+
+recognition.addEventListener('result', e => {
+    const lastResultIndex = e.results.length - 1;
+    const transcript = e.results[lastResultIndex][0].transcript.trim();
+    if (transcript) {
+        if (textarea.value.length > 0 && !textarea.value.endsWith(' ')) {
+            textarea.value += ' ';
+        }
+        textarea.value += transcript;
+        textarea.focus();
+    }
+});
