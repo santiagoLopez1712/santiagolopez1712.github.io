@@ -200,86 +200,103 @@
 
     let currentSessionId = '';
 
-    // === VOICE START ===
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    let recognition, isListening = false;
-    let bufferText = "";      // acumulamos mientras grabas
-    let resultCursor = 0;     // no reprocesar resultados
-    let defaultPlaceholder = "Schreiben Sie uns hier...";
+   // === VOICE START ===
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition, isListening = false;
+let bufferText = "";      // acumulamos mientras grabas
+let resultCursor = 0;     // no reprocesar resultados
+let lastInterim = "";     // <-- NUEVO: último interino visto
 
-    function correctGerman(raw) {
-        let text = (raw || "").replace(/\s+/g," ").trim();
-        if (!text) return "";
-        if (!/[.!?…]$/.test(text)) text += ".";
-        text = text.replace(/(^|[.!?]\s+)([a-zäöüß])/g, (_,p1,p2)=> p1 + p2.toUpperCase());
-        const conns = ["aber","jedoch","denn","sondern","allerdings","trotzdem","hingegen","wobei"];
-        conns.forEach(w=>{
-            const re = new RegExp(`\\s${w}\\s`, "gi");
-            text = text.replace(re, m => (/, \s*$/i.test(m.slice(0,2)) ? m : `, ${w} `));
-        });
-        return text.trim();
-    }
-    function collapseRepeats(t) {
-        t = t.replace(/\b([A-Za-zÄÖÜäöüß\-']+)(\s+\1){1,}\b/gu, "$1"); // palabra
-        const pat = n => new RegExp(String.raw`\b((?:[A-Za-zÄÖÜäöüß\-']+\s+){${n-1}}[A-Za-zÄÖÜäöüß\-']+)(?:\s+\1){1,}\b`,'giu');
-        [4,3,2].forEach(n=> t = t.replace(pat(n),"$1"));
-        return t;
-    }
-    function smartMerge(base, add) {
-        return collapseRepeats((base + " " + add).replace(/\s+/g," ").trim());
-    }
-    function dumpBufferToTextarea(textarea) {
-        const cleaned = correctGerman(bufferText);
-        if (!cleaned) return;
-        const base = textarea.value.trim();
-        textarea.value = base ? (base + " " + cleaned) : cleaned;
-        autoResize(textarea);
-        bufferText = ""; // reset
-    }
-    function startListening() {
-        if (!SR) { alert("Spracherkennung wird in diesem Browser nicht unterstützt."); return; }
-        recognition = new SR();
-        recognition.lang = 'de-DE';
-        recognition.continuous = true;
-        recognition.interimResults = true;
-        recognition.maxAlternatives = 3;
-        bufferText = "";
-        resultCursor = 0;
+function correctGerman(raw) {
+    let text = (raw || "").replace(/\s+/g," ").trim();
+    if (!text) return "";
+    if (!/[.!?…]$/.test(text)) text += ".";
+    text = text.replace(/(^|[.!?]\s+)([a-zäöüß])/g, (_,p1,p2)=> p1 + p2.toUpperCase());
+    const conns = ["aber","jedoch","denn","sondern","allerdings","trotzdem","hingegen","wobei"];
+    conns.forEach(w=>{
+        const re = new RegExp(`\\s${w}\\s`, "gi");
+        text = text.replace(re, m => (/, \s*$/i.test(m.slice(0,2)) ? m : `, ${w} `));
+    });
+    return text.trim();
+}
+function collapseRepeats(t) {
+    t = t.replace(/\b([A-Za-zÄÖÜäöüß\-']+)(\s+\1){1,}\b/gu, "$1"); // palabra
+    const pat = n => new RegExp(String.raw`\b((?:[A-Za-zÄÖÜäöüß\-']+\s+){${n-1}}[A-Za-zÄÖÜäöüß\-']+)(?:\s+\1){1,}\b`,'giu');
+    [4,3,2].forEach(n=> t = t.replace(pat(n),"$1"));
+    return t;
+}
+function smartMerge(base, add) {
+    return collapseRepeats((base + " " + add).replace(/\s+/g," ").trim());
+}
+function dumpBufferToTextarea(textarea) {
+    const cleaned = correctGerman(bufferText);
+    if (!cleaned) return;
+    const base = textarea.value.trim();
+    textarea.value = base ? (base + " " + cleaned) : cleaned;
+    autoResize(textarea);
+    bufferText = ""; // reset
+}
 
-        recognition.onresult = (ev) => {
-            // Solo acumulamos finales en buffer; no tocamos textarea
-            for (let i = resultCursor; i < ev.results.length; i++) {
-                const res = ev.results[i];
-                let best = res[0].transcript;
-                if (recognition.maxAlternatives && res.length > 1) {
-                    best = [...res].map(a=>a.transcript).sort((a,b)=>b.length-a.length)[0] || best;
-                }
-                if (res.isFinal) bufferText = smartMerge(bufferText, best);
+function startListening() {
+    if (!SR) { alert("Spracherkennung wird in diesem Browser nicht unterstützt."); return; }
+    recognition = new SR();
+    recognition.lang = 'de-DE';
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 3;
+
+    bufferText = "";
+    resultCursor = 0;
+    lastInterim = "";   // <-- NUEVO: resetear interino al iniciar
+
+    recognition.onresult = (ev) => {
+        // Acumular finales y GUARDAR el último interino
+        for (let i = resultCursor; i < ev.results.length; i++) {
+            const res = ev.results[i];
+            let best = res[0].transcript;
+            if (recognition.maxAlternatives && res.length > 1) {
+                best = [...res].map(a=>a.transcript).sort((a,b)=>b.length-a.length)[0] || best;
             }
-            resultCursor = ev.results.length;
-        };
-        recognition.onerror = () => stopListening(true);
-        recognition.onend = () => stopListening(); // al finalizar volcamos
+            if (res.isFinal) {
+                bufferText = smartMerge(bufferText, best);
+                lastInterim = ""; // <-- NUEVO: al consolidar final, limpiamos interino
+            } else {
+                lastInterim = best; // <-- NUEVO: guardamos el más reciente
+            }
+        }
+        resultCursor = ev.results.length;
+    };
 
-        recognition.start();
-        isListening = true;
-        micBtn.classList.add('pulse');
-        micBtn.setAttribute('aria-pressed','true');
-        // Placeholder "Aufnahme läuft…"
-        defaultPlaceholder = textareaEl.getAttribute('placeholder') || defaultPlaceholder;
-        textareaEl.setAttribute('placeholder', 'Aufnahme läuft…');
+    recognition.onerror = () => stopListening(true);
+    recognition.onend = () => stopListening(); // al finalizar volcamos
+
+    recognition.start();
+    isListening = true;
+    micBtn.classList.add('pulse');
+    micBtn.setAttribute('aria-pressed','true');
+    // Placeholder "Aufnahme läuft…"
+    defaultPlaceholder = textareaEl.getAttribute('placeholder') || defaultPlaceholder;
+    textareaEl.setAttribute('placeholder', 'Aufnahme läuft…');
+}
+
+function stopListening(silent=false) {
+    if (!isListening) return;
+    try { recognition && recognition.stop(); } catch {}
+    isListening = false;
+    micBtn.classList.remove('pulse');
+    micBtn.setAttribute('aria-pressed','false');
+    // Restaurar placeholder
+    textareaEl.setAttribute('placeholder', defaultPlaceholder);
+
+    // <-- NUEVO: si no hubo finales, volcamos el último interino
+    if (lastInterim) {
+        bufferText = smartMerge(bufferText, lastInterim);
+        lastInterim = "";
     }
-    function stopListening(silent=false) {
-        if (!isListening) return;
-        try { recognition && recognition.stop(); } catch {}
-        isListening = false;
-        micBtn.classList.remove('pulse');
-        micBtn.setAttribute('aria-pressed','false');
-        // Restaurar placeholder
-        textareaEl.setAttribute('placeholder', defaultPlaceholder);
-        if (!silent && textareaEl) dumpBufferToTextarea(textareaEl);
-    }
-    // === VOICE END ===
+
+    if (!silent && textareaEl) dumpBufferToTextarea(textareaEl);
+}
+// === VOICE END ===
 
     // Create widget container
     const widgetContainer = document.createElement('div');
