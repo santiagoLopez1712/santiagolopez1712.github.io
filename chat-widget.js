@@ -396,55 +396,20 @@
             fontColor: '#333333'
         }
     };
-    
-    // Función para iniciar el widget
-    function initChatWidget() {
-        // Evitar inicializaciones múltiples
-        if (window.N8NChatWidgetInitialized) return;
-        window.N8NChatWidgetInitialized = true;
-    
-        // Unir config por defecto con config de usuario
-        const userConfig = window.ChatWidgetConfig || {};
-        const config = {
-            webhook: { ...defaultConfig.webhook, ...userConfig.webhook },
-            branding: { ...defaultConfig.branding, ...userConfig.branding },
-            style: { ...defaultConfig.style, ...userConfig.style }
-        };
-    
-        // Validar que la URL del webhook exista
-        if (!config.webhook.url) {
-            console.error("❌ No se ha configurado la URL del webhook en window.ChatWidgetConfig.webhook.url");
-            return;
-        }
-    
-        console.log("✅ Chat widget inicializado con URL:", config.webhook.url);
-    
-        let currentSessionId = '';
-    
-        // Aquí iría el resto de tu lógica para renderizar el chat y hacer fetch()
-    }
-    
-    // Si window.ChatWidgetConfig ya existe, inicializamos
-    if (window.ChatWidgetConfig) {
-        initChatWidget();
-    } else {
-        // Si no existe aún, escuchamos cambios en el objeto
-        Object.defineProperty(window, 'ChatWidgetConfig', {
-            configurable: true,
-            enumerable: true,
-            set(value) {
-                // Guardar el valor en una variable interna
-                Object.defineProperty(window, 'ChatWidgetConfig', {
-                    value,
-                    writable: true,
-                    configurable: true,
-                    enumerable: true
-                });
-                // Inicializar cuando se asigne por primera vez
-                initChatWidget();
-            }
-        });
-    }
+
+    // Merge user config with defaults
+    const config = window.ChatWidgetConfig ? 
+        {
+            webhook: { ...defaultConfig.webhook, ...window.ChatWidgetConfig.webhook },
+            branding: { ...defaultConfig.branding, ...window.ChatWidgetConfig.branding },
+            style: { ...defaultConfig.style, ...window.ChatWidgetConfig.style }
+        } : defaultConfig;
+
+    // Prevent multiple initializations
+    if (window.N8NChatWidgetInitialized) return;
+    window.N8NChatWidgetInitialized = true;
+
+    let currentSessionId = '';
 
 
     // Create widget container
