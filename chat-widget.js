@@ -94,19 +94,13 @@
             font-weight: 600;
             margin-bottom: 28px;
             line-height: 1.3;
-
-            /* 1. Aplica el gradiente como fondo */
             background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
-    
-            /* 2. Recorta el fondo a la forma del texto (con prefijo para compatibilidad) */
             -webkit-background-clip: text;
             background-clip: text;
-    
-            /* 3. Hace que el color del texto sea transparente para mostrar el fondo */
             color: transparent;
         }
 
-       .n8n-chat-widget .new-chat-btn {
+        .n8n-chat-widget .new-chat-btn {
             display: flex;
             align-items: center;
             justify-content: center;
@@ -207,6 +201,7 @@
             border-top: 1px solid rgba(133, 79, 255, 0.1);
             display: flex;
             gap: 8px;
+            align-items: center;
         }
 
         .n8n-chat-widget .chat-input textarea {
@@ -219,10 +214,7 @@
             resize: none;
             font-family: inherit;
             font-size: 14px;
-            overflow: hidden;
         }
-
-
 
         .n8n-chat-widget .chat-input textarea::placeholder {
             color: var(--chat--color-font);
@@ -239,6 +231,7 @@
             transition: transform 0.2s;
             font-family: inherit;
             font-weight: 500;
+            height: 40px;
         }
 
         .n8n-chat-widget .chat-input button:hover {
@@ -299,22 +292,21 @@
             opacity: 1;
         }
 
-       .n8n-chat-widget .privacy-checkbox {
+        .n8n-chat-widget .privacy-checkbox {
             display: flex;
             justify-content: center;
-            align-items: center; /* Alinea el checkbox y el texto verticalmente */
-            text-align: left; /* Asegura que el texto no esté centrado si hay saltos de línea */
+            align-items: center;
+            text-align: left;
             margin-top: 1.5rem;
             margin-bottom: 20px;
             font-family: inherit;
         }
 
-       .n8n-chat-widget .privacy-checkbox input[type="checkbox"] {
-            /* Esto está BIEN. Oculta el checkbox original para poder darle un estilo personalizado */
+        .n8n-chat-widget .privacy-checkbox input[type="checkbox"] {
             display: none;
         }
 
-       .n8n-chat-widget .privacy-checkbox label {
+        .n8n-chat-widget .privacy-checkbox label {
             position: relative;
             padding-left: 28px;
             font-size: 14px;
@@ -325,8 +317,7 @@
             opacity: 0.7;
         }
 
-        /* Esta es la caja del checkbox personalizado */
-       .n8n-chat-widget .privacy-checkbox label::before {
+        .n8n-chat-widget .privacy-checkbox label::before {
             content: "";
             position: absolute;
             left: 0;
@@ -340,34 +331,54 @@
             box-shadow: 0 2px 4px rgba(133, 79, 255, 0.1);
         }
 
-        /* Estilo cuando el checkbox está marcado */
-       .n8n-chat-widget .privacy-checkbox input[type="checkbox"]:checked + label::before {
+        .n8n-chat-widget .privacy-checkbox input[type="checkbox"]:checked + label::before {
             background: linear-gradient(135deg, var(--chat--color-primary), var(--chat--color-secondary));
             border-color: transparent;
         }
         
-        /* El símbolo de check (palomita) */
-       .n8n-chat-widget .privacy-checkbox input[type="checkbox"]:checked + label::after {
+        .n8n-chat-widget .privacy-checkbox input[type="checkbox"]:checked + label::after {
             content: "✔";
             position: absolute;
             left: 4px;
-            top: 4px;  /* Ajuste ligero para centrar mejor */
+            top: 4px;
             font-size: 12px;
             color: #fff;
         }
 
-        /* Estilo para el enlace dentro del label */
-       .n8n-chat-widget .privacy-checkbox a {
-            color: var(--chat--color-primary); /* Usa el color primario para consistencia */
+        .n8n-chat-widget .privacy-checkbox a {
+            color: var(--chat--color-primary);
             text-decoration: underline;
             transition: color 0.2s;
         }
         
-       .n8n-chat-widget .privacy-checkbox a:hover {
+        .n8n-chat-widget .privacy-checkbox a:hover {
             color: var(--chat--color-secondary);
         }
 
-
+        /* Estilos sutiles para el botón y canvas de voz */
+        .n8n-chat-widget .voice-btn {
+            background: #ffffff;
+            color: var(--chat--color-primary);
+            border: 1px solid rgba(133,79,255,0.25);
+            border-radius: 8px;
+            padding: 0 12px;
+            height: 40px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+        .n8n-chat-widget .voice-btn.listening {
+            background: #ffeefc;
+            color: #b1006b;
+            border-color: rgba(177,0,107,0.35);
+        }
+        .n8n-chat-widget .voice-canvas {
+            width: 72px;
+            height: 28px;
+            display: inline-block;
+        }
     `;
 
     // Load Geist font
@@ -420,6 +431,143 @@
 
     let currentSessionId = '';
 
+    // === VOICE START ===
+    // Estado y utilidades de voz (alemán)
+    let recognition;
+    let isListening = false;
+    let audioCtx, analyser, micSource, rafId;
+    let voiceBtn, voiceWaveCanvas, textarea, sendButton;
+
+    function correctGerman(raw) {
+        let text = (raw || "").replace(/\s+/g, " ").trim();
+        if (!text) return "";
+        if (!/[.!?…]$/.test(text)) text += ".";
+        text = text.replace(/(^|[.!?]\s+)([a-zäöüß])/g, (_, p1, p2) => p1 + p2.toUpperCase());
+        const conns = ["aber", "jedoch", "denn", "sondern", "allerdings", "trotzdem", "hingegen", "wobei"];
+        conns.forEach((w) => {
+            const re = new RegExp(`\\s${w}\\s`, "gi");
+            text = text.replace(re, (m) => (/, \s*$/i.test(m.slice(0, 2)) ? m : `, ${w} `));
+        });
+        return text.trim();
+    }
+
+    function drawWave(canvas) {
+        const ctx = canvas.getContext("2d");
+        const bufferLength = analyser.fftSize;
+        const dataArray = new Uint8Array(bufferLength);
+
+        function render() {
+            analyser.getByteTimeDomainData(dataArray);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "#854fff";
+            ctx.beginPath();
+            const sliceWidth = canvas.width / bufferLength;
+            let x = 0;
+            for (let i = 0; i < bufferLength; i++) {
+                const v = dataArray[i] / 128.0;
+                const y = v * canvas.height / 2;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+                x += sliceWidth;
+            }
+            ctx.lineTo(canvas.width, canvas.height / 2);
+            ctx.stroke();
+            rafId = requestAnimationFrame(render);
+        }
+        render();
+    }
+
+    async function startListening() {
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SR) {
+            alert("Spracherkennung wird in diesem Browser nicht unterstützt.");
+            return;
+        }
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioCtx.createAnalyser();
+            analyser.fftSize = 2048;
+            micSource = audioCtx.createMediaStreamSource(stream);
+            micSource.connect(analyser);
+
+            recognition = new SR();
+            recognition.lang = "de-DE";
+            recognition.continuous = true;
+            recognition.interimResults = true;
+
+            recognition.onresult = (event) => {
+                let interim = "";
+                let currentText = textarea.value;
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const res = event.results[i];
+                    const txt = res[0].transcript;
+                    if (res.isFinal) {
+                        currentText = correctGerman((currentText + " " + txt).trim());
+                    } else {
+                        interim += txt;
+                    }
+                }
+                textarea.value = currentText + (interim ? " " + interim : "");
+                textarea.dispatchEvent(new Event('input')); // por si alguien escucha cambios
+            };
+
+            recognition.onerror = (e) => {
+                console.warn("Speech error:", e?.error || e);
+                stopListening(); // Limpia recursos
+            };
+
+            recognition.onend = () => {
+                // Al terminar, aplicamos una última limpieza de puntuación
+                textarea.value = correctGerman(textarea.value);
+                textarea.dispatchEvent(new Event('input'));
+                // Y detenemos audio/animación si no se ha hecho ya
+                if (isListening) stopListening();
+            };
+
+            // UI/animación
+            voiceBtn.classList.add('listening');
+            voiceBtn.textContent = "● Stop";
+            drawWave(voiceWaveCanvas);
+
+            recognition.start();
+            isListening = true;
+        } catch (err) {
+            console.error("Mic error:", err);
+            alert("Mikrofon-Zugriff wurde verweigert oder ist nicht verfügbar.");
+            stopListening(true);
+        }
+    }
+
+    function stopListening(silent) {
+        if (recognition) {
+            try { recognition.stop(); } catch {}
+        }
+        if (audioCtx) {
+            try {
+                micSource?.mediaStream?.getTracks()?.forEach(t => t.stop());
+                audioCtx.close();
+            } catch {}
+        }
+        if (rafId) cancelAnimationFrame(rafId);
+        // Limpia canvas
+        if (voiceWaveCanvas) {
+            const g = voiceWaveCanvas.getContext("2d");
+            g && g.clearRect(0,0,voiceWaveCanvas.width, voiceWaveCanvas.height);
+        }
+        isListening = false;
+        if (voiceBtn) {
+            voiceBtn.classList.remove('listening');
+            voiceBtn.textContent = "🎤";
+        }
+        if (!silent && textarea) {
+            textarea.value = correctGerman(textarea.value);
+            textarea.dispatchEvent(new Event('input'));
+        }
+    }
+    // === VOICE END ===
+
     // Create widget container
     const widgetContainer = document.createElement('div');
     widgetContainer.className = 'n8n-chat-widget';
@@ -467,6 +615,7 @@
             <div class="chat-messages"></div>
             <div class="chat-input">
                 <textarea placeholder="Schreiben Sie uns hier..." rows="1"></textarea>
+                <!-- VOICE UI se inyecta por JS justo antes del botón Senden -->
                 <button type="submit">Senden</button>
             </div>
             <div class="chat-footer">
@@ -491,19 +640,44 @@
     const newChatBtn = chatContainer.querySelector('.new-chat-btn');
     const chatInterface = chatContainer.querySelector('.chat-interface');
     const privacyCheckbox = chatContainer.querySelector('#datenschutz'); 
-        if (privacyCheckbox) {
-            privacyCheckbox.addEventListener('change', function() {
-                // Habilita o deshabilita el botón basado en el estado del checkbox
-                newChatBtn.disabled = !this.checked;
+    if (privacyCheckbox) {
+        privacyCheckbox.addEventListener('change', function() {
+            newChatBtn.disabled = !this.checked;
         });
     }
     const messagesContainer = chatContainer.querySelector('.chat-messages');
-    const textarea = chatContainer.querySelector('textarea');
-    textarea.addEventListener('input', () => {
-        textarea.style.height = 'auto';  // Resetea la altura a 'auto' para que se ajuste al contenido
-        textarea.style.height = `${textarea.scrollHeight}px`;  // Ajusta la altura según el contenido
-    });  
-    const sendButton = chatContainer.querySelector('button[type="submit"]');
+    textarea = chatContainer.querySelector('textarea');
+    sendButton = chatContainer.querySelector('button[type="submit"]');
+
+    // === VOICE UI START ===
+    // Crear botón de voz y canvas y colocarlos a la IZQUIERDA de "Senden"
+    voiceBtn = document.createElement("button");
+    voiceBtn.type = "button";
+    voiceBtn.className = "voice-btn";
+    voiceBtn.setAttribute("aria-pressed", "false");
+    voiceBtn.setAttribute("title", "Spracheingabe (de-DE) an/aus");
+    voiceBtn.textContent = "🎤";
+
+    voiceWaveCanvas = document.createElement("canvas");
+    voiceWaveCanvas.className = "voice-canvas";
+    voiceWaveCanvas.width = 96;   // más ancho para que se vea mejor
+    voiceWaveCanvas.height = 28;
+
+    // Insertar ambos justo antes del botón Senden
+    sendButton.parentNode.insertBefore(voiceBtn, sendButton);
+    sendButton.parentNode.insertBefore(voiceWaveCanvas, sendButton);
+
+    // Toggle escucha al hacer clic
+    voiceBtn.addEventListener("click", () => {
+        if (isListening) {
+            stopListening();
+            voiceBtn.setAttribute("aria-pressed", "false");
+        } else {
+            startListening();
+            voiceBtn.setAttribute("aria-pressed", "true");
+        }
+    });
+    // === VOICE UI END ===
 
     function generateUUID() {
         return crypto.randomUUID();
@@ -543,11 +717,9 @@
                 Wie kann ich Ihnen heute weiterhelfen?
                 Möchten Sie einen Termin vereinbaren – telefonisch, per Videocall oder vor Ort?
                 Oder haben Sie eine allgemeine Anfrage zu unseren Leistungen?
- 
             `;
             messagesContainer.appendChild(optInMessage);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
 
         } catch (error) {
             console.error('Error:', error);
@@ -596,25 +768,33 @@
     
     sendButton.addEventListener('click', () => {
         const message = textarea.value.trim();
-        if (message) {
-            sendMessage(message);
-            textarea.value = '';
-        }
+        if (!message) return;
+
+        // Si está escuchando, paramos y limpiamos puntuación antes de enviar
+        if (isListening) stopListening();
+
+        sendMessage(message);
+        textarea.value = '';
     });
     
     textarea.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             const message = textarea.value.trim();
-            if (message) {
-                sendMessage(message);
-                textarea.value = '';
-            }
+            if (!message) return;
+
+            if (isListening) stopListening();
+
+            sendMessage(message);
+            textarea.value = '';
         }
     });
     
     toggleButton.addEventListener('click', () => {
+        const wasOpen = chatContainer.classList.contains('open');
         chatContainer.classList.toggle('open');
+        // Si se cierra el widget, detenemos escucha si estaba activa
+        if (wasOpen && isListening) stopListening(true);
     });
 
     // Add close button handlers
@@ -622,6 +802,7 @@
     closeButtons.forEach(button => {
         button.addEventListener('click', () => {
             chatContainer.classList.remove('open');
+            if (isListening) stopListening(true);
         });
     });
 })();
