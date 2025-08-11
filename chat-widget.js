@@ -206,7 +206,7 @@
             background: var(--chat--color-background);
             border-top: 1px solid rgba(133, 79, 255, 0.1);
             display: flex;
-            flex-direction: column;  /* Asegura que los elementos estén en columna */
+            /* flex-direction: column;   Asegura que los elementos estén en columna */
             gap: 8px;  /* Espacio entre el textarea y el botón */
         }
         
