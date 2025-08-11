@@ -3,10 +3,10 @@
     // Create and inject styles
     const styles = `
         .n8n-chat-widget {
-            --n8n-chat-primary-color: var(--n8n-chat-primary-color, #854fff);
-            --n8n-chat-secondary-color: var(--n8n-chat-secondary-color, #6b3fd4);
-            --n8n-chat-background-color: var(--n8n-chat-background-color, #ffffff);
-            --n8n-chat-font-color: var(--n8n-chat-font-color, #333333);
+            --chat--color-primary: var(--n8n-chat-primary-color, #854fff);
+            --chat--color-secondary: var(--n8n-chat-secondary-color, #6b3fd4);
+            --chat--color-background: var(--n8n-chat-background-color, #ffffff);
+            --chat--color-font: var(--n8n-chat-font-color, #333333);
             font-family: futura-pt;
         }
 
@@ -18,7 +18,7 @@
             display: none;
             width: 380px;
             height: 600px;
-            background: var(--n8n-chat-background-color);
+            background: var(--chat--color-background);
             border-radius: 12px;
             box-shadow: 0 8px 32px rgba(133, 79, 255, 0.15);
             border: 1px solid rgba(133, 79, 255, 0.2);
@@ -52,7 +52,7 @@
             transform: translateY(-50%);
             background: none;
             border: none;
-            color: var(--n8n-chat-font-color);
+            color: var(--chat--color-font);
             cursor: pointer;
             padding: 4px;
             display: flex;
@@ -75,7 +75,7 @@
         .n8n-chat-widget .brand-header span {
             font-size: 18px;
             font-weight: 500;
-            color: var(--n8n-chat-font-color);
+            color: var(--chat--color-font);
         }
 
         .n8n-chat-widget .new-conversation {
@@ -94,20 +94,26 @@
             font-weight: 600;
             margin-bottom: 28px;
             line-height: 1.3;
-            background: linear-gradient(135deg, var(--n8n-chat-primary-color) 0%, var(--n8n-chat-secondary-color) 100%);
+
+            /* 1. Aplica el gradiente como fondo */
+            background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
+    
+            /* 2. Recorta el fondo a la forma del texto (con prefijo para compatibilidad) */
             -webkit-background-clip: text;
             background-clip: text;
+    
+            /* 3. Hace que el color del texto sea transparente para mostrar el fondo */
             color: transparent;
         }
 
-        .n8n-chat-widget .new-chat-btn {
+       .n8n-chat-widget .new-chat-btn {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
             width: 100%;
             padding: 16px 24px;
-            background: linear-gradient(135deg, var(--n8n-chat-primary-color) 0%, var(--n8n-chat-secondary-color) 100%);
+            background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
             color: white;
             border: none;
             border-radius: 8px;
@@ -146,7 +152,7 @@
             font-size: 14px;
             color: #000;
             opacity: 0.7;
-            margin-bottom: 28px;
+            margin-bottom:28px;
             font-weight: 400;
         }
 
@@ -164,7 +170,7 @@
             flex: 1;
             overflow-y: auto;
             padding: 20px;
-            background: var(--n8n-chat-background-color);
+            background: var(--chat--color-background);
             display: flex;
             flex-direction: column;
         }
@@ -180,7 +186,7 @@
         }
 
         .n8n-chat-widget .chat-message.user {
-            background: linear-gradient(135deg, var(--n8n-chat-primary-color) 0%, var(--n8n-chat-secondary-color) 100%);
+            background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
             color: white;
             align-self: flex-end;
             box-shadow: 0 4px 12px rgba(133, 79, 255, 0.2);
@@ -188,42 +194,43 @@
         }
 
         .n8n-chat-widget .chat-message.bot {
-            background: var(--n8n-chat-background-color);
+            background: var(--chat--color-background);
             border: 1px solid rgba(133, 79, 255, 0.2);
-            color: var(--n8n-chat-font-color);
+            color: var(--chat--color-font);
             align-self: flex-start;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
         .n8n-chat-widget .chat-input {
             padding: 16px;
-            background: var(--n8n-chat-background-color);
+            background: var(--chat--color-background);
             border-top: 1px solid rgba(133, 79, 255, 0.1);
             display: flex;
-            gap: 8px;
+            gap: 8px;  /* Espacio entre el textarea y el botón */
         }
         
         .n8n-chat-widget .chat-input textarea {
-            flex-grow: 1;
+            flex-grow: 1;  /* Hace que el textarea crezca para ocupar espacio disponible */
             padding: 12px;
             border: 1px solid rgba(133, 79, 255, 0.2);
             border-radius: 8px;
-            background: var(--n8n-chat-background-color);
-            color: var(--n8n-chat-font-color);
-            resize: none;
+            background: var(--chat--color-background);
+            color: var(--chat--color-font);
+            resize: none;  /* Evita el redimensionamiento manual */
             font-family: inherit;
             font-size: 14px;
-            min-height: 40px;
-            overflow: hidden;
+            min-height: 40px; /* Altura mínima */
+            overflow: hidden; /* Evita las barras de desplazamiento */
         }
 
+
         .n8n-chat-widget .chat-input textarea::placeholder {
-            color: var(--n8n-chat-font-color);
+            color: var(--chat--color-font);
             opacity: 0.6;
         }
 
         .n8n-chat-widget .chat-input button {
-            background: linear-gradient(135deg, var(--n8n-chat-primary-color) 0%, var(--n8n-chat-secondary-color) 100%);
+            background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
             color: white;
             border: none;
             border-radius: 8px;
@@ -245,7 +252,7 @@
             width: 60px;
             height: 60px;
             border-radius: 12px;
-            background: linear-gradient(135deg, var(--n8n-chat-primary-color) 0%, var(--n8n-chat-secondary-color) 100%);
+            background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
             color: white;
             border: none;
             cursor: pointer;
@@ -275,12 +282,12 @@
         .n8n-chat-widget .chat-footer {
             padding: 8px;
             text-align: center;
-            background: var(--n8n-chat-background-color);
+            background: var(--chat--color-background);
             border-top: 1px solid rgba(133, 79, 255, 0.1);
         }
 
         .n8n-chat-widget .chat-footer a {
-            color: var(--n8n-chat-primary-color);
+            color: var(--chat--color-primary);
             text-decoration: none;
             font-size: 12px;
             opacity: 0.8;
@@ -292,21 +299,22 @@
             opacity: 1;
         }
 
-        .n8n-chat-widget .privacy-checkbox {
+       .n8n-chat-widget .privacy-checkbox {
             display: flex;
             justify-content: center;
-            align-items: center;
-            text-align: left;
+            align-items: center; /* Alinea el checkbox y el texto verticalmente */
+            text-align: left; /* Asegura que el texto no esté centrado si hay saltos de línea */
             margin-top: 1.5rem;
             margin-bottom: 20px;
             font-family: inherit;
         }
 
-        .n8n-chat-widget .privacy-checkbox input[type="checkbox"] {
+       .n8n-chat-widget .privacy-checkbox input[type="checkbox"] {
+            /* Esto está BIEN. Oculta el checkbox original para poder darle un estilo personalizado */
             display: none;
         }
 
-        .n8n-chat-widget .privacy-checkbox label {
+       .n8n-chat-widget .privacy-checkbox label {
             position: relative;
             padding-left: 28px;
             font-size: 14px;
@@ -317,7 +325,8 @@
             opacity: 0.7;
         }
 
-        .n8n-chat-widget .privacy-checkbox label::before {
+        /* Esta es la caja del checkbox personalizado */
+       .n8n-chat-widget .privacy-checkbox label::before {
             content: "";
             position: absolute;
             left: 0;
@@ -331,29 +340,34 @@
             box-shadow: 0 2px 4px rgba(133, 79, 255, 0.1);
         }
 
-        .n8n-chat-widget .privacy-checkbox input[type="checkbox"]:checked + label::before {
-            background: linear-gradient(135deg, var(--n8n-chat-primary-color), var(--n8n-chat-secondary-color));
+        /* Estilo cuando el checkbox está marcado */
+       .n8n-chat-widget .privacy-checkbox input[type="checkbox"]:checked + label::before {
+            background: linear-gradient(135deg, var(--chat--color-primary), var(--chat--color-secondary));
             border-color: transparent;
         }
         
-        .n8n-chat-widget .privacy-checkbox input[type="checkbox"]:checked + label::after {
+        /* El símbolo de check (palomita) */
+       .n8n-chat-widget .privacy-checkbox input[type="checkbox"]:checked + label::after {
             content: "✔";
             position: absolute;
             left: 4px;
-            top: 4px;
+            top: 4px;  /* Ajuste ligero para centrar mejor */
             font-size: 12px;
             color: #fff;
         }
 
-        .n8n-chat-widget .privacy-checkbox a {
-            color: var(--n8n-chat-primary-color);
+        /* Estilo para el enlace dentro del label */
+       .n8n-chat-widget .privacy-checkbox a {
+            color: var(--chat--color-primary); /* Usa el color primario para consistencia */
             text-decoration: underline;
             transition: color 0.2s;
         }
         
-        .n8n-chat-widget .privacy-checkbox a:hover {
-            color: var(--n8n-chat-secondary-color);
+       .n8n-chat-widget .privacy-checkbox a:hover {
+            color: var(--chat--color-secondary);
         }
+
+
     `;
 
     // Load Geist font
@@ -384,8 +398,8 @@
             }
         },
         style: {
-            primaryColor: '#854fff',
-            secondaryColor: '#6b3fd4',
+            primaryColor: '',
+            secondaryColor: '',
             position: 'right',
             backgroundColor: '#ffffff',
             fontColor: '#333333'
@@ -416,12 +430,10 @@
     widgetContainer.style.setProperty('--n8n-chat-background-color', config.style.backgroundColor);
     widgetContainer.style.setProperty('--n8n-chat-font-color', config.style.fontColor);
 
-    // Create chat container
     const chatContainer = document.createElement('div');
     chatContainer.className = `chat-container${config.style.position === 'left' ? ' position-left' : ''}`;
-
-    // New conversation HTML (welcome screen)
-    const newConversationHTML = `
+    
+  const newConversationHTML = `
         <div class="brand-header">
             <img src="${config.branding.logo}" alt="${config.branding.name}">
             <span>${config.branding.name}</span>
@@ -445,9 +457,13 @@
         </div>
     `;
 
-    // Chat interface HTML (chat window)
     const chatInterfaceHTML = `
         <div class="chat-interface">
+            <div class="brand-header">
+                <img src="${config.branding.logo}" alt="${config.branding.name}">
+                <span>${config.branding.name}</span>
+                <button class="close-button">×</button>
+            </div>
             <div class="chat-messages"></div>
             <div class="chat-input">
                 <textarea placeholder="Schreiben Sie uns hier..." rows="1"></textarea>
@@ -461,7 +477,6 @@
     
     chatContainer.innerHTML = newConversationHTML + chatInterfaceHTML;
     
-    // Create toggle button (open/close chat)
     const toggleButton = document.createElement('button');
     toggleButton.className = `chat-toggle${config.style.position === 'left' ? ' position-left' : ''}`;
     toggleButton.innerHTML = `
@@ -473,175 +488,217 @@
     widgetContainer.appendChild(toggleButton);
     document.body.appendChild(widgetContainer);
 
-    // Element references
     const newChatBtn = chatContainer.querySelector('.new-chat-btn');
-    const privacyCheckbox = chatContainer.querySelector('#datenschutz');
-    const newConversationSection = chatContainer.querySelector('.new-conversation');
     const chatInterface = chatContainer.querySelector('.chat-interface');
-    const closeButtons = chatContainer.querySelectorAll('.close-button');
-    const toggleBtn = toggleButton;
-    const chatMessages = chatContainer.querySelector('.chat-messages');
-    const textarea = chatContainer.querySelector('textarea');
-    const sendBtn = chatContainer.querySelector('button[type="submit"]');
-
-    // Enable "Start" button only if privacy is accepted
-    privacyCheckbox.addEventListener('change', () => {
-        newChatBtn.disabled = !privacyCheckbox.checked;
-    });
-
-    // Open chat window
-    toggleBtn.addEventListener('click', () => {
-        chatContainer.classList.add('open');
-        toggleBtn.style.display = 'none';
-        newConversationSection.style.display = 'block';
-        chatInterface.classList.remove('active');
-        textarea.value = '';
-        chatMessages.innerHTML = '';
-        currentSessionId = '';
-    });
-
-    // Close chat window (from close buttons)
-    closeButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            chatContainer.classList.remove('open');
-            toggleBtn.style.display = 'flex';
-            newConversationSection.style.display = 'block';
-            chatInterface.classList.remove('active');
-            textarea.value = '';
-            chatMessages.innerHTML = '';
-            currentSessionId = '';
+    const privacyCheckbox = chatContainer.querySelector('#datenschutz'); 
+        if (privacyCheckbox) {
+            privacyCheckbox.addEventListener('change', function() {
+                // Habilita o deshabilita el botón basado en el estado del checkbox
+                newChatBtn.disabled = !this.checked;
         });
-    });
-
-    // Start new chat on new chat button click
-    newChatBtn.addEventListener('click', () => {
-        if (!privacyCheckbox.checked) return;
-        newConversationSection.style.display = 'none';
-        chatInterface.classList.add('active');
-        textarea.focus();
-        startNewSession();
-    });
-
-    // Start new session function
-    function startNewSession() {
-        currentSessionId = `session-${Date.now()}`;
-        chatMessages.innerHTML = '';
     }
+    const messagesContainer = chatContainer.querySelector('.chat-messages');
+    const textarea = chatContainer.querySelector('textarea');
 
-    // Append message to chat
-    function appendMessage(text, sender = 'bot') {
-        const msgDiv = document.createElement('div');
-        msgDiv.classList.add('chat-message', sender);
-        msgDiv.textContent = text;
-        chatMessages.appendChild(msgDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    // Send message function
-    async function sendMessage(text) {
-        if (!text.trim()) return;
-        appendMessage(text, 'user');
-        textarea.value = '';
-        
-        // Call your webhook API here:
-        try {
-            const response = await fetch(config.webhook.url + (config.webhook.route || ''), {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ sessionId: currentSessionId, message: text })
-            });
-            const data = await response.json();
-            if (data.reply) {
-                appendMessage(data.reply, 'bot');
-            } else {
-                appendMessage('Keine Antwort erhalten.', 'bot');
+    textarea.addEventListener('input', () => {
+        textarea.style.height = 'auto';  // Resetea la altura a 'auto' para que se ajuste al contenido
+        textarea.style.height = `${textarea.scrollHeight}px`;  // Ajusta la altura según el contenido
+    });
+    const sendButton = chatContainer.querySelector('button[type="submit"]');
+    // Después de const sendButton = chatContainer.querySelector('button[type="submit"]');
+    const micButton = document.createElement('button');
+    micButton.type = 'button';
+    micButton.innerHTML = '🎤';
+    micButton.style.padding = '0 10px';
+    micButton.style.fontSize = '18px';
+    micButton.title = 'Spracheingabe starten/stoppen';
+    sendButton.before(micButton); // Insertamos antes del botón enviar
+    
+    let recognition;
+    let isRecording = false;
+    
+    // Inicializar SpeechRecognition si está disponible
+    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.lang = 'de-DE'; // Idioma alemán
+        recognition.continuous = true;
+        recognition.interimResults = true;
+    
+        recognition.onresult = (event) => {
+            let transcript = '';
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                transcript += event.results[i][0].transcript;
             }
+            textarea.value = transcript.trim();
+            textarea.style.height = 'auto';
+            textarea.style.height = `${textarea.scrollHeight}px`;
+        };
+    
+        recognition.onerror = (event) => {
+            console.error('Speech recognition error:', event.error);
+            stopRecording();
+        };
+    
+        recognition.onend = () => {
+            if (isRecording) stopRecording();
+        };
+    } else {
+        micButton.disabled = true;
+        micButton.title = 'Spracherkennung nicht unterstützt';
+    }
+    
+    function startRecording() {
+        if (!recognition) return;
+        isRecording = true;
+        micButton.style.background = 'red';
+        micButton.textContent = '⏹️';
+        recognition.start();
+    }
+    
+    function stopRecording() {
+        if (!recognition) return;
+        isRecording = false;
+        micButton.style.background = '';
+        micButton.textContent = '🎤';
+        recognition.stop();
+    
+        // Enviar mensaje automáticamente si hay texto
+        const message = textarea.value.trim();
+        if (message) {
+            sendMessage(message);
+            textarea.value = '';
+        }
+    }
+    
+    micButton.addEventListener('click', () => {
+        if (isRecording) {
+            stopRecording();
+        } else {
+            startRecording();
+        }
+    });
+
+
+    function generateUUID() {
+        return crypto.randomUUID();
+    }
+
+    
+
+    async function startNewConversation() {
+        currentSessionId = generateUUID();
+        const data = [{
+            action: "loadPreviousSession",
+            sessionId: currentSessionId,
+            route: config.webhook.route,
+            metadata: {
+                userId: ""
+            }
+        }];
+
+        try {
+            const response = await fetch(config.webhook.url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            const responseData = await response.json();
+            chatContainer.querySelector('.brand-header').style.display = 'none';
+            chatContainer.querySelector('.new-conversation').style.display = 'none';
+            chatInterface.classList.add('active');
+            
+            // Begrüßung
+            const optInMessage = document.createElement('div');
+            optInMessage.className = 'chat-message bot';
+            optInMessage.innerHTML = `
+                Hallo! 👋 Ich bin Ihr persönlicher Assistent der Agentur für Kommunikation AMARETIS.
+                Wir sind eine Full-Service-Werbeagentur mit Sitz in Göttingen und arbeiten für Kundinnen und Kunden in ganz Deutschland.
+                Wie kann ich Ihnen heute weiterhelfen?
+                Möchten Sie einen Termin vereinbaren – telefonisch, per Videocall oder vor Ort?
+                Oder haben Sie eine allgemeine Anfrage zu unseren Leistungen?
+ 
+            `;
+            messagesContainer.appendChild(optInMessage);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+
         } catch (error) {
-            appendMessage('Fehler beim Senden der Nachricht.', 'bot');
-            console.error(error);
+            console.error('Error:', error);
         }
     }
 
-    sendBtn.addEventListener('click', () => {
-        sendMessage(textarea.value);
-    });
+    async function sendMessage(message) {
+        const messageData = {
+            action: "sendMessage",
+            sessionId: currentSessionId,
+            route: config.webhook.route,
+            chatInput: message,
+            metadata: {
+                userId: ""
+            }
+        };
 
-    textarea.addEventListener('keydown', e => {
+        const userMessageDiv = document.createElement('div');
+        userMessageDiv.className = 'chat-message user';
+        userMessageDiv.textContent = message;
+        messagesContainer.appendChild(userMessageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+        try {
+            const response = await fetch(config.webhook.url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(messageData)
+            });
+            
+            const data = await response.json();
+            
+            const botMessageDiv = document.createElement('div');
+            botMessageDiv.className = 'chat-message bot';
+            botMessageDiv.textContent = Array.isArray(data) ? data[0].output : data.output;
+            messagesContainer.appendChild(botMessageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+    newChatBtn.addEventListener('click', startNewConversation);
+    
+    sendButton.addEventListener('click', () => {
+        const message = textarea.value.trim();
+        if (message) {
+            sendMessage(message);
+            textarea.value = '';
+        }
+    });
+    
+    textarea.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
-            sendMessage(textarea.value);
+            const message = textarea.value.trim();
+            if (message) {
+                sendMessage(message);
+                textarea.value = '';
+            }
         }
     });
+    
+    toggleButton.addEventListener('click', () => {
+        chatContainer.classList.toggle('open');
+    });
 
-    // Speech recognition setup
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechRecognition) {
-        const recognition = new SpeechRecognition();
-        recognition.lang = 'de-DE'; // Cambiar según necesidad
-        recognition.interimResults = false; // Solo resultados finales
-        recognition.continuous = false; // Se para tras detectar
-        
-        // Crear botón micrófono con SVG
-        const micButton = document.createElement('button');
-        micButton.type = 'button';
-        micButton.className = 'mic-btn';
-        micButton.title = 'Nachricht diktieren';
-        micButton.style.background = `linear-gradient(135deg, ${config.style.primaryColor} 0%, ${config.style.secondaryColor} 100%)`;
-        micButton.style.border = 'none';
-        micButton.style.borderRadius = '8px';
-        micButton.style.padding = '0 16px';
-        micButton.style.color = 'white';
-        micButton.style.cursor = 'pointer';
-        micButton.style.display = 'flex';
-        micButton.style.alignItems = 'center';
-        micButton.style.justifyContent = 'center';
-        micButton.style.marginLeft = '8px';
-        micButton.style.minWidth = '40px';
-        micButton.style.height = '40px';
-        micButton.style.transition = 'opacity 0.3s ease';
-
-        micButton.innerHTML = `
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 14 0h-2zm-5 7a7 7 0 0 0 7-7h-2a5 5 0 0 1-10 0H5a7 7 0 0 0 7 7z"/>
-            </svg>
-        `;
-
-        // Añadir al chat input al lado del botón enviar
-        const chatInputDiv = chatContainer.querySelector('.chat-input');
-        chatInputDiv.appendChild(micButton);
-
-        let recognizing = false;
-
-        micButton.addEventListener('click', () => {
-            if (recognizing) {
-                recognition.stop();
-                return;
-            }
-            recognition.start();
+    // Add close button handlers
+    const closeButtons = chatContainer.querySelectorAll('.close-button');
+    closeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            chatContainer.classList.remove('open');
         });
-
-        recognition.addEventListener('start', () => {
-            recognizing = true;
-            micButton.style.opacity = '0.7';
-        });
-
-        recognition.addEventListener('end', () => {
-            recognizing = false;
-            micButton.style.opacity = '1';
-        });
-
-        recognition.addEventListener('result', e => {
-            const lastResultIndex = e.results.length - 1;
-            const transcript = e.results[lastResultIndex][0].transcript.trim();
-            if (transcript) {
-                // Añade el texto dictado al textarea
-                if (textarea.value.length > 0 && !textarea.value.endsWith(' ')) {
-                    textarea.value += ' ';
-                }
-                textarea.value += transcript;
-                textarea.focus();
-            }
-        });
-    }
-
+    });
 })();
