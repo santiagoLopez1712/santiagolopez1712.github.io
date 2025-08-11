@@ -206,20 +206,38 @@
             background: var(--chat--color-background);
             border-top: 1px solid rgba(133, 79, 255, 0.1);
             display: flex;
+            flex-direction: row;  /* Se asegura de que el textarea y el botón estén en la misma fila */
+            align-items: flex-start;  /* Alinea el contenido al principio */
             gap: 8px;
         }
-
+        
         .n8n-chat-widget .chat-input textarea {
-            flex: 1;
+            flex-grow: 1;  /* Permite que el textarea ocupe el espacio disponible */
             padding: 12px;
             border: 1px solid rgba(133, 79, 255, 0.2);
             border-radius: 8px;
             background: var(--chat--color-background);
             color: var(--chat--color-font);
-            resize: none;
+            resize: none;  /* Evita que el usuario cambie el tamaño manualmente */
             font-family: inherit;
             font-size: 14px;
+            min-height: 40px;  /* Altura mínima */
+            overflow: hidden;  /* Evita las barras de desplazamiento */
+            display: block;  /* Asegura que el textarea se expanda verticalmente */
         }
+        
+        .n8n-chat-widget .chat-input button {
+            background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0 20px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            font-family: inherit;
+            font-weight: 500;
+        }
+
 
 
 
