@@ -224,25 +224,6 @@
             opacity: 0.6;
         }
         
-        /* Eliminar estilos del botón de enviar original */
-        /*
-        .n8n-chat-widget .chat-input button {
-            background: linear-gradient(135deg, var(--n8n-chat-primary-color) 0%, var(--n8n-chat-secondary-color) 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 0 20px;
-            cursor: pointer;
-            transition: transform 0.2s;
-            font-family: inherit;
-            font-weight: 500;
-        }
-
-        .n8n-chat-widget .chat-input button:hover {
-            transform: scale(1.05);
-        }
-        */
-
         .n8n-chat-widget .chat-toggle {
             position: fixed;
             bottom: 20px;
@@ -434,7 +415,7 @@
         </div>
         <div class="new-conversation">
             <h2 class="welcome-text">${config.branding.welcomeText}</h2>
-            <p class="response-text">${config.branding.responseTimeText}</p>      
+            <p class="response-text">${config.branding.responseTimeText}</p>        
             <div class="privacy-checkbox">
                 <input type="checkbox" id="datenschutz" name="datenschutz">
                 <label for="datenschutz">
@@ -486,7 +467,6 @@
     const toggleBtn = toggleButton;
     const chatMessages = chatContainer.querySelector('.chat-messages');
     const textarea = chatContainer.querySelector('textarea');
-    // const sendBtn = chatContainer.querySelector('button[type="submit"]'); // Antiguo botón, lo eliminaremos
 
     // Habilitar botón "Start" si se acepta la política de privacidad
     privacyCheckbox.addEventListener('change', () => {
@@ -549,7 +529,9 @@
         
         // Llamada a la API de webhook:
         try {
-            const response = await fetch(config.webhook.url + (config.webhook.route || ''), {
+            // FIX: Construye la URL del webhook correctamente con un separador '/'
+            const webhookUrl = `${config.webhook.url}/${config.webhook.route || ''}`;
+            const response = await fetch(webhookUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ sessionId: currentSessionId, message: text })
