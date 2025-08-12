@@ -3,10 +3,10 @@
     // Create and inject styles
     const styles = `
         .n8n-chat-widget {
-            --n8n-chat-primary-color: var(--n8n-chat-primary-color, #854fff);
-            --n8n-chat-secondary-color: var(--n8n-chat-secondary-color, #6b3fd4);
-            --n8n-chat-background-color: var(--n8n-chat-background-color, #ffffff);
-            --n8n-chat-font-color: var(--n8n-chat-font-color, #333333);
+            --chat--color-primary: var(--n8n-chat-primary-color, #854fff);
+            --chat--color-secondary: var(--n8n-chat-secondary-color, #6b3fd4);
+            --chat--color-background: var(--n8n-chat-background-color, #ffffff);
+            --chat--color-font: var(--n8n-chat-font-color, #333333);
             font-family: futura-pt;
         }
 
@@ -18,7 +18,7 @@
             display: none;
             width: 380px;
             height: 600px;
-            background: var(--n8n-chat-background-color);
+            background: var(--chat--color-background);
             border-radius: 12px;
             box-shadow: 0 8px 32px rgba(133, 79, 255, 0.15);
             border: 1px solid rgba(133, 79, 255, 0.2);
@@ -52,7 +52,7 @@
             transform: translateY(-50%);
             background: none;
             border: none;
-            color: var(--n8n-chat-font-color);
+            color: var(--chat--color-font);
             cursor: pointer;
             padding: 4px;
             display: flex;
@@ -75,7 +75,7 @@
         .n8n-chat-widget .brand-header span {
             font-size: 18px;
             font-weight: 500;
-            color: var(--n8n-chat-font-color);
+            color: var(--chat--color-font);
         }
 
         .n8n-chat-widget .new-conversation {
@@ -94,20 +94,26 @@
             font-weight: 600;
             margin-bottom: 28px;
             line-height: 1.3;
-            background: linear-gradient(135deg, var(--n8n-chat-primary-color) 0%, var(--n8n-chat-secondary-color) 100%);
+
+            /* 1. Aplica el gradiente como fondo */
+            background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
+            
+            /* 2. Recorta el fondo a la forma del texto (con prefijo para compatibilidad) */
             -webkit-background-clip: text;
             background-clip: text;
+            
+            /* 3. Hace que el color del texto sea transparente para mostrar el fondo */
             color: transparent;
         }
 
-        .n8n-chat-widget .new-chat-btn {
+       .n8n-chat-widget .new-chat-btn {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
             width: 100%;
             padding: 16px 24px;
-            background: linear-gradient(135deg, var(--n8n-chat-primary-color) 0%, var(--n8n-chat-secondary-color) 100%);
+            background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
             color: white;
             border: none;
             border-radius: 8px;
@@ -146,7 +152,7 @@
             font-size: 14px;
             color: #000;
             opacity: 0.7;
-            margin-bottom: 28px;
+            margin-bottom:28px;
             font-weight: 400;
         }
 
@@ -164,7 +170,7 @@
             flex: 1;
             overflow-y: auto;
             padding: 20px;
-            background: var(--n8n-chat-background-color);
+            background: var(--chat--color-background);
             display: flex;
             flex-direction: column;
         }
@@ -180,7 +186,7 @@
         }
 
         .n8n-chat-widget .chat-message.user {
-            background: linear-gradient(135deg, var(--n8n-chat-primary-color) 0%, var(--n8n-chat-secondary-color) 100%);
+            background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
             color: white;
             align-self: flex-end;
             box-shadow: 0 4px 12px rgba(133, 79, 255, 0.2);
@@ -188,20 +194,19 @@
         }
 
         .n8n-chat-widget .chat-message.bot {
-            background: var(--n8n-chat-background-color);
+            background: var(--chat--color-background);
             border: 1px solid rgba(133, 79, 255, 0.2);
-            color: var(--n8n-chat-font-color);
+            color: var(--chat--color-font);
             align-self: flex-start;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
         .n8n-chat-widget .chat-input {
             padding: 16px;
-            background: var(--n8n-chat-background-color);
+            background: var(--chat--color-background);
             border-top: 1px solid rgba(133, 79, 255, 0.1);
             display: flex;
             gap: 8px;
-            align-items: center; /* Nuevo: para alinear verticalmente los botones */
         }
         
         .n8n-chat-widget .chat-input textarea {
@@ -209,39 +214,57 @@
             padding: 12px;
             border: 1px solid rgba(133, 79, 255, 0.2);
             border-radius: 8px;
-            background: var(--n8n-chat-background-color);
-            color: var(--n8n-chat-font-color);
+            background: var(--chat--color-background);
+            color: var(--chat--color-font);
             resize: none;
             font-family: inherit;
             font-size: 14px;
             min-height: 40px;
             overflow: hidden;
-            line-height: 1.5; /* Nuevo: para un mejor espaciado del texto */
         }
 
+
         .n8n-chat-widget .chat-input textarea::placeholder {
-            color: var(--n8n-chat-font-color);
+            color: var(--chat--color-font);
             opacity: 0.6;
         }
-        
-        /* Eliminar estilos del botón de enviar original */
-        /*
+
         .n8n-chat-widget .chat-input button {
-            background: linear-gradient(135deg, var(--n8n-chat-primary-color) 0%, var(--n8n-chat-secondary-color) 100%);
+            background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
             color: white;
             border: none;
             border-radius: 8px;
-            padding: 0 20px;
+            padding: 12px; /* Padding ajustado para iconos */
             cursor: pointer;
             transition: transform 0.2s;
             font-family: inherit;
             font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 44px; /* Altura fija para alinear con el textarea */
+            width: 44px; /* Ancho fijo para botones cuadrados */
+        }
+        
+        /* Estilos específicos para los iconos SVG dentro de los botones */
+        .n8n-chat-widget .chat-input button svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
         }
 
         .n8n-chat-widget .chat-input button:hover {
             transform: scale(1.05);
         }
-        */
+        
+        /* Estilo para el botón de micrófono cuando está grabando */
+        .n8n-chat-widget .chat-input .mic-button.recording {
+            background: red;
+        }
 
         .n8n-chat-widget .chat-toggle {
             position: fixed;
@@ -250,7 +273,7 @@
             width: 60px;
             height: 60px;
             border-radius: 12px;
-            background: linear-gradient(135deg, var(--n8n-chat-primary-color) 0%, var(--n8n-chat-secondary-color) 100%);
+            background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
             color: white;
             border: none;
             cursor: pointer;
@@ -280,12 +303,12 @@
         .n8n-chat-widget .chat-footer {
             padding: 8px;
             text-align: center;
-            background: var(--n8n-chat-background-color);
+            background: var(--chat--color-background);
             border-top: 1px solid rgba(133, 79, 255, 0.1);
         }
 
         .n8n-chat-widget .chat-footer a {
-            color: var(--n8n-chat-primary-color);
+            color: var(--chat--color-primary);
             text-decoration: none;
             font-size: 12px;
             opacity: 0.8;
@@ -297,7 +320,7 @@
             opacity: 1;
         }
 
-        .n8n-chat-widget .privacy-checkbox {
+       .n8n-chat-widget .privacy-checkbox {
             display: flex;
             justify-content: center;
             align-items: center;
@@ -307,11 +330,11 @@
             font-family: inherit;
         }
 
-        .n8n-chat-widget .privacy-checkbox input[type="checkbox"] {
+       .n8n-chat-widget .privacy-checkbox input[type="checkbox"] {
             display: none;
         }
 
-        .n8n-chat-widget .privacy-checkbox label {
+       .n8n-chat-widget .privacy-checkbox label {
             position: relative;
             padding-left: 28px;
             font-size: 14px;
@@ -322,7 +345,7 @@
             opacity: 0.7;
         }
 
-        .n8n-chat-widget .privacy-checkbox label::before {
+       .n8n-chat-widget .privacy-checkbox label::before {
             content: "";
             position: absolute;
             left: 0;
@@ -336,12 +359,12 @@
             box-shadow: 0 2px 4px rgba(133, 79, 255, 0.1);
         }
 
-        .n8n-chat-widget .privacy-checkbox input[type="checkbox"]:checked + label::before {
-            background: linear-gradient(135deg, var(--n8n-chat-primary-color), var(--n8n-chat-secondary-color));
+       .n8n-chat-widget .privacy-checkbox input[type="checkbox"]:checked + label::before {
+            background: linear-gradient(135deg, var(--chat--color-primary), var(--chat--color-secondary));
             border-color: transparent;
         }
         
-        .n8n-chat-widget .privacy-checkbox input[type="checkbox"]:checked + label::after {
+       .n8n-chat-widget .privacy-checkbox input[type="checkbox"]:checked + label::after {
             content: "✔";
             position: absolute;
             left: 4px;
@@ -350,14 +373,14 @@
             color: #fff;
         }
 
-        .n8n-chat-widget .privacy-checkbox a {
-            color: var(--n8n-chat-primary-color);
+       .n8n-chat-widget .privacy-checkbox a {
+            color: var(--chat--color-primary);
             text-decoration: underline;
             transition: color 0.2s;
         }
         
-        .n8n-chat-widget .privacy-checkbox a:hover {
-            color: var(--n8n-chat-secondary-color);
+       .n8n-chat-widget .privacy-checkbox a:hover {
+            color: var(--chat--color-secondary);
         }
     `;
 
@@ -389,8 +412,8 @@
             }
         },
         style: {
-            primaryColor: '#854fff',
-            secondaryColor: '#6b3fd4',
+            primaryColor: '',
+            secondaryColor: '',
             position: 'right',
             backgroundColor: '#ffffff',
             fontColor: '#333333'
@@ -398,7 +421,7 @@
     };
 
     // Merge user config with defaults
-    const config = window.ChatWidgetConfig ? 
+    const config = window.ChatWidgetConfig ?
         {
             webhook: { ...defaultConfig.webhook, ...window.ChatWidgetConfig.webhook },
             branding: { ...defaultConfig.branding, ...window.ChatWidgetConfig.branding },
@@ -421,11 +444,9 @@
     widgetContainer.style.setProperty('--n8n-chat-background-color', config.style.backgroundColor);
     widgetContainer.style.setProperty('--n8n-chat-font-color', config.style.fontColor);
 
-    // Create chat container
     const chatContainer = document.createElement('div');
     chatContainer.className = `chat-container${config.style.position === 'left' ? ' position-left' : ''}`;
-
-    // New conversation HTML (welcome screen)
+    
     const newConversationHTML = `
         <div class="brand-header">
             <img src="${config.branding.logo}" alt="${config.branding.name}">
@@ -434,7 +455,7 @@
         </div>
         <div class="new-conversation">
             <h2 class="welcome-text">${config.branding.welcomeText}</h2>
-            <p class="response-text">${config.branding.responseTimeText}</p>      
+            <p class="response-text">${config.branding.responseTimeText}</p>   
             <div class="privacy-checkbox">
                 <input type="checkbox" id="datenschutz" name="datenschutz">
                 <label for="datenschutz">
@@ -446,17 +467,28 @@
                     <path fill="currentColor" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/>
                 </svg>
                 Starten Sie Ihre Anfrage!
-            </button>          
+            </button>             
         </div>
     `;
 
-    // Chat interface HTML (chat window)
     const chatInterfaceHTML = `
         <div class="chat-interface">
+            <div class="brand-header">
+                <img src="${config.branding.logo}" alt="${config.branding.name}">
+                <span>${config.branding.name}</span>
+                <button class="close-button">×</button>
+            </div>
             <div class="chat-messages"></div>
             <div class="chat-input">
                 <textarea placeholder="Schreiben Sie uns hier..." rows="1"></textarea>
-                </div>
+                <button type="submit">
+                    <!-- Botón de envío, ahora con SVG -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send">
+                        <path d="m22 2-7 19-7-9-7-7 19-7z"></path>
+                        <path d="M11 13 2 9"></path>
+                    </svg>
+                </button>
+            </div>
             <div class="chat-footer">
                 <a href="${config.branding.poweredBy.link}" target="_blank">${config.branding.poweredBy.text}</a>
             </div>
@@ -465,7 +497,6 @@
     
     chatContainer.innerHTML = newConversationHTML + chatInterfaceHTML;
     
-    // Create toggle button (open/close chat)
     const toggleButton = document.createElement('button');
     toggleButton.className = `chat-toggle${config.style.position === 'left' ? ' position-left' : ''}`;
     toggleButton.innerHTML = `
@@ -477,207 +508,224 @@
     widgetContainer.appendChild(toggleButton);
     document.body.appendChild(widgetContainer);
 
-    // Element references
     const newChatBtn = chatContainer.querySelector('.new-chat-btn');
-    const privacyCheckbox = chatContainer.querySelector('#datenschutz');
-    const newConversationSection = chatContainer.querySelector('.new-conversation');
     const chatInterface = chatContainer.querySelector('.chat-interface');
-    const closeButtons = chatContainer.querySelectorAll('.close-button');
-    const toggleBtn = toggleButton;
-    const chatMessages = chatContainer.querySelector('.chat-messages');
-    const textarea = chatContainer.querySelector('textarea');
-    // const sendBtn = chatContainer.querySelector('button[type="submit"]'); // Antiguo botón, lo eliminaremos
-
-    // Habilitar botón "Start" si se acepta la política de privacidad
-    privacyCheckbox.addEventListener('change', () => {
-        newChatBtn.disabled = !privacyCheckbox.checked;
-    });
-
-    // Abrir ventana de chat
-    toggleBtn.addEventListener('click', () => {
-        chatContainer.classList.add('open');
-        toggleBtn.style.display = 'none';
-        newConversationSection.style.display = 'block';
-        chatInterface.classList.remove('active');
-        textarea.value = '';
-        chatMessages.innerHTML = '';
-        currentSessionId = '';
-    });
-
-    // Cerrar ventana de chat
-    closeButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            chatContainer.classList.remove('open');
-            toggleBtn.style.display = 'flex';
-            newConversationSection.style.display = 'block';
-            chatInterface.classList.remove('active');
-            textarea.value = '';
-            chatMessages.innerHTML = '';
-            currentSessionId = '';
+    const privacyCheckbox = chatContainer.querySelector('#datenschutz'); 
+        if (privacyCheckbox) {
+            privacyCheckbox.addEventListener('change', function() {
+                // Habilita o deshabilita el botón basado en el estado del checkbox
+                newChatBtn.disabled = !this.checked;
         });
+    }
+    const messagesContainer = chatContainer.querySelector('.chat-messages');
+    const textarea = chatContainer.querySelector('textarea');
+
+    textarea.addEventListener('input', () => {
+        textarea.style.height = 'auto';
+        textarea.style.height = `${textarea.scrollHeight}px`;
     });
 
-    // Iniciar nuevo chat al hacer clic en el botón de "Nuevo Chat"
-    newChatBtn.addEventListener('click', () => {
-        if (!privacyCheckbox.checked) return;
-        newConversationSection.style.display = 'none';
-        chatInterface.classList.add('active');
-        textarea.focus();
-        startNewSession();
-    });
+    const sendButton = chatContainer.querySelector('button[type="submit"]');
 
-    // Función para iniciar una nueva sesión
-    function startNewSession() {
-        currentSessionId = `session-${Date.now()}`;
-        chatMessages.innerHTML = '';
-    }
+    // Definición de los iconos SVG
+    const micSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mic">
+                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                        <line x1="12" y1="19" x2="12" y2="23"></line>
+                        <line x1="8" y1="23" x2="16" y2="23"></line>
+                    </svg>`;
+    const stopSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square">
+                        <rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect>
+                    </svg>`;
 
-    // Función para agregar un mensaje al chat
-    function appendMessage(text, sender = 'bot') {
-        const msgDiv = document.createElement('div');
-        msgDiv.classList.add('chat-message', sender);
-        msgDiv.textContent = text;
-        chatMessages.appendChild(msgDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    // Función para enviar un mensaje
-    async function sendMessage(text) {
-        if (!text.trim()) return;
-        appendMessage(text, 'user');
-        textarea.value = '';
-        
-        // Llamada a la API de webhook:
-        try {
-            const response = await fetch(config.webhook.url + (config.webhook.route || ''), {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ sessionId: currentSessionId, message: text })
-            });
-            const data = await response.json();
-            if (data.reply) {
-                appendMessage(data.reply, 'bot');
-            } else {
-                appendMessage('Keine Antwort erhalten.', 'bot');
+    // Creación y estilización del nuevo botón de micrófono
+    const micButton = document.createElement('button');
+    micButton.type = 'button';
+    micButton.classList.add('mic-button');
+    micButton.innerHTML = micSVG; // Usamos el SVG del micrófono
+    micButton.title = 'Spracheingabe starten/stoppen';
+    sendButton.before(micButton); // Insertamos antes del botón de enviar
+    
+    let recognition;
+    let isRecording = false;
+    
+    // Inicializar SpeechRecognition si está disponible
+    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.lang = 'de-DE'; // Idioma alemán
+        recognition.continuous = true;
+        recognition.interimResults = true;
+    
+        recognition.onresult = (event) => {
+            let transcript = '';
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                transcript += event.results[i][0].transcript;
             }
+            textarea.value = transcript.trim();
+            textarea.style.height = 'auto';
+            textarea.style.height = `${textarea.scrollHeight}px`;
+        };
+    
+        recognition.onerror = (event) => {
+            console.error('Speech recognition error:', event.error);
+            stopRecording();
+        };
+    
+        recognition.onend = () => {
+            if (isRecording) stopRecording();
+        };
+    } else {
+        micButton.disabled = true;
+        micButton.title = 'Spracherkennung nicht unterstützt';
+    }
+    
+    function startRecording() {
+        if (!recognition) return;
+        isRecording = true;
+        micButton.classList.add('recording'); // Clase para cambiar el color de fondo
+        micButton.innerHTML = stopSVG; // Cambiar a icono de stop
+        recognition.start();
+    }
+    
+    function stopRecording() {
+        if (!recognition) return;
+        isRecording = false;
+        micButton.classList.remove('recording');
+        micButton.innerHTML = micSVG; // Volver a icono de micrófono
+        recognition.stop();
+    
+        const message = textarea.value.trim();
+        if (message) {
+            sendMessage(message);
+            textarea.value = '';
+        }
+    }
+    
+    micButton.addEventListener('click', () => {
+        if (isRecording) {
+            stopRecording();
+        } else {
+            startRecording();
+        }
+    });
+
+
+    function generateUUID() {
+        return crypto.randomUUID();
+    }
+
+    async function startNewConversation() {
+        currentSessionId = generateUUID();
+        const data = [{
+            action: "loadPreviousSession",
+            sessionId: currentSessionId,
+            route: config.webhook.route,
+            metadata: {
+                userId: ""
+            }
+        }];
+
+        try {
+            const response = await fetch(config.webhook.url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            const responseData = await response.json();
+            chatContainer.querySelector('.brand-header').style.display = 'none';
+            chatContainer.querySelector('.new-conversation').style.display = 'none';
+            chatInterface.classList.add('active');
+            
+            // Begrüßung
+            const optInMessage = document.createElement('div');
+            optInMessage.className = 'chat-message bot';
+            optInMessage.innerHTML = `
+                Hallo! 👋 Ich bin Ihr persönlicher Assistent der Agentur für Kommunikation AMARETIS.
+                Wir sind eine Full-Service-Werbeagentur mit Sitz in Göttingen und arbeiten für Kundinnen und Kunden in ganz Deutschland.
+                Wie kann ich Ihnen heute weiterhelfen?
+                Möchten Sie einen Termin vereinbaren – telefonisch, per Videocall oder vor Ort?
+                Oder haben Sie eine allgemeine Anfrage zu unseren Leistungen?
+            `;
+            messagesContainer.appendChild(optInMessage);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
         } catch (error) {
-            appendMessage('Fehler beim Senden der Nachricht.', 'bot');
-            console.error(error);
+            console.error('Error:', error);
         }
     }
 
-    // Creación y estilización del nuevo botón de enviar (senden)
-    const sendBtn = document.createElement('button');
-    sendBtn.type = 'submit';
-    sendBtn.className = 'send-btn';
-    sendBtn.title = 'Nachricht senden';
+    async function sendMessage(message) {
+        const messageData = {
+            action: "sendMessage",
+            sessionId: currentSessionId,
+            route: config.webhook.route,
+            chatInput: message,
+            metadata: {
+                userId: ""
+            }
+        };
 
-    // Aplicar los mismos estilos que el botón del micrófono
-    sendBtn.style.background = `linear-gradient(135deg, ${config.style.primaryColor} 0%, ${config.style.secondaryColor} 100%)`;
-    sendBtn.style.border = 'none';
-    sendBtn.style.borderRadius = '8px';
-    sendBtn.style.padding = '0 16px';
-    sendBtn.style.color = 'white';
-    sendBtn.style.cursor = 'pointer';
-    sendBtn.style.display = 'flex';
-    sendBtn.style.alignItems = 'center';
-    sendBtn.style.justifyContent = 'center';
-    sendBtn.style.minWidth = '40px';
-    sendBtn.style.height = '40px';
-    sendBtn.style.transition = 'transform 0.2s';
+        const userMessageDiv = document.createElement('div');
+        userMessageDiv.className = 'chat-message user';
+        userMessageDiv.textContent = message;
+        messagesContainer.appendChild(userMessageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-    // SVG del botón de enviar (avión de papel)
-    sendBtn.innerHTML = `
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" fill="white"/>
-        </svg>
-    `;
+        try {
+            const response = await fetch(config.webhook.url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(messageData)
+            });
+            
+            const data = await response.json();
+            
+            const botMessageDiv = document.createElement('div');
+            botMessageDiv.className = 'chat-message bot';
+            botMessageDiv.textContent = Array.isArray(data) ? data[0].output : data.output;
+            messagesContainer.appendChild(botMessageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
 
-    // Añadir el nuevo botón de enviar al input
-    const chatInputDiv = chatContainer.querySelector('.chat-input');
-    chatInputDiv.appendChild(sendBtn);
-
-    // Event listeners
-    sendBtn.addEventListener('click', () => {
-        sendMessage(textarea.value);
+    newChatBtn.addEventListener('click', startNewConversation);
+    
+    sendButton.addEventListener('click', () => {
+        const message = textarea.value.trim();
+        if (message) {
+            sendMessage(message);
+            textarea.value = '';
+        }
     });
-
-    textarea.addEventListener('keydown', e => {
+    
+    textarea.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
-            sendMessage(textarea.value);
+            const message = textarea.value.trim();
+            if (message) {
+                sendMessage(message);
+                textarea.value = '';
+            }
         }
     });
+    
+    toggleButton.addEventListener('click', () => {
+        chatContainer.classList.toggle('open');
+    });
 
-    // Configuración del reconocimiento de voz
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechRecognition) {
-        const recognition = new SpeechRecognition();
-        recognition.lang = 'de-DE'; // Cambiar según necesidad
-        recognition.interimResults = false; // Solo resultados finales
-        recognition.continuous = false; // Se para tras detectar
-        
-        // Crear botón micrófono con SVG
-        const micButton = document.createElement('button');
-        micButton.type = 'button';
-        micButton.className = 'mic-btn';
-        micButton.title = 'Nachricht diktieren';
-
-        // Aplicar los mismos estilos que el botón de enviar
-        micButton.style.background = `linear-gradient(135deg, ${config.style.primaryColor} 0%, ${config.style.secondaryColor} 100%)`;
-        micButton.style.border = 'none';
-        micButton.style.borderRadius = '8px';
-        micButton.style.padding = '0 16px';
-        micButton.style.color = 'white';
-        micButton.style.cursor = 'pointer';
-        micButton.style.display = 'flex';
-        micButton.style.alignItems = 'center';
-        micButton.style.justifyContent = 'center';
-        micButton.style.minWidth = '40px';
-        micButton.style.height = '40px';
-        micButton.style.transition = 'opacity 0.3s ease';
-
-        micButton.innerHTML = `
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 14 0h-2zm-5 7a7 7 0 0 0 7-7h-2a5 5 0 0 1-10 0H5a7 7 0 0 0 7 7z"/>
-            </svg>
-        `;
-
-        // Añadir el botón de micrófono
-        // He cambiado el orden para que aparezca antes del botón de enviar
-        chatInputDiv.insertBefore(micButton, sendBtn);
-
-        let recognizing = false;
-
-        micButton.addEventListener('click', () => {
-            if (recognizing) {
-                recognition.stop();
-                return;
-            }
-            recognition.start();
+    // Add close button handlers
+    const closeButtons = chatContainer.querySelectorAll('.close-button');
+    closeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            chatContainer.classList.remove('open');
         });
-
-        recognition.addEventListener('start', () => {
-            recognizing = true;
-            micButton.style.opacity = '0.7';
-        });
-
-        recognition.addEventListener('end', () => {
-            recognizing = false;
-            micButton.style.opacity = '1';
-        });
-
-        recognition.addEventListener('result', e => {
-            const lastResultIndex = e.results.length - 1;
-            const transcript = e.results[lastResultIndex][0].transcript.trim();
-            if (transcript) {
-                // Añade el texto dictado al textarea
-                if (textarea.value.length > 0 && !textarea.value.endsWith(' ')) {
-                    textarea.value += ' ';
-                }
-                textarea.value += transcript;
-                textarea.focus();
-            }
-        });
-    }
+    });
 })();
