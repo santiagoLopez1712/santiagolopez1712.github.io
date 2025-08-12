@@ -1,7 +1,7 @@
 // Chat Widget Script
 (function() {
     // Create and inject styles
-    const styles = 
+    const styles = `
         .n8n-chat-widget {
             --n8n-chat-primary-color: var(--n8n-chat-primary-color, #854fff);
             --n8n-chat-secondary-color: var(--n8n-chat-secondary-color, #6b3fd4);
@@ -359,7 +359,7 @@
         .n8n-chat-widget .privacy-checkbox a:hover {
             color: var(--n8n-chat-secondary-color);
         }
-    ;
+    `;
 
     // Load Geist font
     const fontLink = document.createElement('link');
@@ -423,10 +423,10 @@
 
     // Create chat container
     const chatContainer = document.createElement('div');
-    chatContainer.className = chat-container${config.style.position === 'left' ? ' position-left' : ''};
+    chatContainer.className = `chat-container${config.style.position === 'left' ? ' position-left' : ''}`;
 
     // New conversation HTML (welcome screen)
-    const newConversationHTML = 
+    const newConversationHTML = `
         <div class="brand-header">
             <img src="${config.branding.logo}" alt="${config.branding.name}">
             <span>${config.branding.name}</span>
@@ -448,10 +448,10 @@
                 Starten Sie Ihre Anfrage!
             </button>          
         </div>
-    ;
+    `;
 
     // Chat interface HTML (chat window)
-    const chatInterfaceHTML = 
+    const chatInterfaceHTML = `
         <div class="chat-interface">
             <div class="chat-messages"></div>
             <div class="chat-input">
@@ -461,17 +461,17 @@
                 <a href="${config.branding.poweredBy.link}" target="_blank">${config.branding.poweredBy.text}</a>
             </div>
         </div>
-    ;
+    `;
     
     chatContainer.innerHTML = newConversationHTML + chatInterfaceHTML;
     
     // Create toggle button (open/close chat)
     const toggleButton = document.createElement('button');
-    toggleButton.className = chat-toggle${config.style.position === 'left' ? ' position-left' : ''};
-    toggleButton.innerHTML = 
+    toggleButton.className = `chat-toggle${config.style.position === 'left' ? ' position-left' : ''}`;
+    toggleButton.innerHTML = `
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
             <path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.476 0-2.886-.313-4.156-.878l-3.156.586.586-3.156A7.962 7.962 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/>
-        </svg>;
+        </svg>`;
     
     widgetContainer.appendChild(chatContainer);
     widgetContainer.appendChild(toggleButton);
@@ -528,7 +528,7 @@
 
     // Función para iniciar una nueva sesión
     function startNewSession() {
-        currentSessionId = session-${Date.now()};
+        currentSessionId = `session-${Date.now()}`;
         chatMessages.innerHTML = '';
     }
 
@@ -573,7 +573,7 @@
     sendBtn.title = 'Nachricht senden';
 
     // Aplicar los mismos estilos que el botón del micrófono
-    sendBtn.style.background = linear-gradient(135deg, ${config.style.primaryColor} 0%, ${config.style.secondaryColor} 100%);
+    sendBtn.style.background = `linear-gradient(135deg, ${config.style.primaryColor} 0%, ${config.style.secondaryColor} 100%)`;
     sendBtn.style.border = 'none';
     sendBtn.style.borderRadius = '8px';
     sendBtn.style.padding = '0 16px';
@@ -587,11 +587,11 @@
     sendBtn.style.transition = 'transform 0.2s';
 
     // SVG del botón de enviar (avión de papel)
-    sendBtn.innerHTML = 
+    sendBtn.innerHTML = `
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" fill="white"/>
         </svg>
-    ;
+    `;
 
     // Añadir el nuevo botón de enviar al input
     const chatInputDiv = chatContainer.querySelector('.chat-input');
@@ -624,7 +624,7 @@
         micButton.title = 'Nachricht diktieren';
 
         // Aplicar los mismos estilos que el botón de enviar
-        micButton.style.background = linear-gradient(135deg, ${config.style.primaryColor} 0%, ${config.style.secondaryColor} 100%);
+        micButton.style.background = `linear-gradient(135deg, ${config.style.primaryColor} 0%, ${config.style.secondaryColor} 100%)`;
         micButton.style.border = 'none';
         micButton.style.borderRadius = '8px';
         micButton.style.padding = '0 16px';
@@ -637,11 +637,11 @@
         micButton.style.height = '40px';
         micButton.style.transition = 'opacity 0.3s ease';
 
-        micButton.innerHTML = 
+        micButton.innerHTML = `
             <svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 14 0h-2zm-5 7a7 7 0 0 0 7-7h-2a5 5 0 0 1-10 0H5a7 7 0 0 0 7 7z"/>
             </svg>
-        ;
+        `;
 
         // Añadir el botón de micrófono
         // He cambiado el orden para que aparezca antes del botón de enviar
