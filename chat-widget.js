@@ -398,18 +398,28 @@
     };
 
     // Merge user config with defaults
-    const config = window.ChatWidgetConfig ? 
-        {
-            webhook: { ...defaultConfig.webhook, ...window.ChatWidgetConfig.webhook },
-            branding: { ...defaultConfig.branding, ...window.ChatWidgetConfig.branding },
-            style: { ...defaultConfig.style, ...window.ChatWidgetConfig.style }
-        } : defaultConfig;
+    // Esperar a que ChatWidgetConfig exista antes de iniciar
+function initChatWidget() {
+    if (!window.ChatWidgetConfig) {
+        return setTimeout(initChatWidget, 50);
+    }
 
-    // Prevent multiple initializations
+    const config = {
+        webhook: { ...defaultConfig.webhook, ...window.ChatWidgetConfig.webhook },
+        branding: { ...defaultConfig.branding, ...window.ChatWidgetConfig.branding },
+        style: { ...defaultConfig.style, ...window.ChatWidgetConfig.style }
+    };
+
     if (window.N8NChatWidgetInitialized) return;
     window.N8NChatWidgetInitialized = true;
 
     let currentSessionId = '';
+
+    // 🔹 Aquí sigue TODO el resto de tu código original que maneja el chat
+}
+
+initChatWidget();
+
 
     // Create widget container
     const widgetContainer = document.createElement('div');
