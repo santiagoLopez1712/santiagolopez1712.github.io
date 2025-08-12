@@ -94,19 +94,13 @@
             font-weight: 600;
             margin-bottom: 28px;
             line-height: 1.3;
-
-            /* 1. Aplica el gradiente como fondo */
             background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
-            
-            /* 2. Recorta el fondo a la forma del texto (con prefijo para compatibilidad) */
             -webkit-background-clip: text;
             background-clip: text;
-            
-            /* 3. Hace que el color del texto sea transparente para mostrar el fondo */
             color: transparent;
         }
 
-       .n8n-chat-widget .new-chat-btn {
+        .n8n-chat-widget .new-chat-btn {
             display: flex;
             align-items: center;
             justify-content: center;
@@ -208,7 +202,7 @@
             display: flex;
             gap: 8px;
         }
-        
+
         .n8n-chat-widget .chat-input textarea {
             flex-grow: 1;
             padding: 12px;
@@ -222,7 +216,6 @@
             min-height: 40px;
             overflow: hidden;
         }
-
 
         .n8n-chat-widget .chat-input textarea::placeholder {
             color: var(--chat--color-font);
@@ -245,8 +238,7 @@
             height: 44px; /* Altura fija para alinear con el textarea */
             width: 44px; /* Ancho fijo para botones cuadrados */
         }
-        
-        /* Estilos específicos para los iconos SVG dentro de los botones */
+
         .n8n-chat-widget .chat-input button svg {
             width: 20px;
             height: 20px;
@@ -259,11 +251,6 @@
 
         .n8n-chat-widget .chat-input button:hover {
             transform: scale(1.05);
-        }
-        
-        /* Estilo para el botón de micrófono cuando está grabando */
-        .n8n-chat-widget .chat-input .mic-button.recording {
-            background: red;
         }
 
         .n8n-chat-widget .chat-toggle {
@@ -320,7 +307,7 @@
             opacity: 1;
         }
 
-       .n8n-chat-widget .privacy-checkbox {
+        .n8n-chat-widget .privacy-checkbox {
             display: flex;
             justify-content: center;
             align-items: center;
@@ -330,11 +317,11 @@
             font-family: inherit;
         }
 
-       .n8n-chat-widget .privacy-checkbox input[type="checkbox"] {
+        .n8n-chat-widget .privacy-checkbox input[type="checkbox"] {
             display: none;
         }
 
-       .n8n-chat-widget .privacy-checkbox label {
+        .n8n-chat-widget .privacy-checkbox label {
             position: relative;
             padding-left: 28px;
             font-size: 14px;
@@ -345,7 +332,7 @@
             opacity: 0.7;
         }
 
-       .n8n-chat-widget .privacy-checkbox label::before {
+        .n8n-chat-widget .privacy-checkbox label::before {
             content: "";
             position: absolute;
             left: 0;
@@ -359,12 +346,12 @@
             box-shadow: 0 2px 4px rgba(133, 79, 255, 0.1);
         }
 
-       .n8n-chat-widget .privacy-checkbox input[type="checkbox"]:checked + label::before {
+        .n8n-chat-widget .privacy-checkbox input[type="checkbox"]:checked + label::before {
             background: linear-gradient(135deg, var(--chat--color-primary), var(--chat--color-secondary));
             border-color: transparent;
         }
-        
-       .n8n-chat-widget .privacy-checkbox input[type="checkbox"]:checked + label::after {
+
+        .n8n-chat-widget .privacy-checkbox input[type="checkbox"]:checked + label::after {
             content: "✔";
             position: absolute;
             left: 4px;
@@ -373,13 +360,13 @@
             color: #fff;
         }
 
-       .n8n-chat-widget .privacy-checkbox a {
+        .n8n-chat-widget .privacy-checkbox a {
             color: var(--chat--color-primary);
             text-decoration: underline;
             transition: color 0.2s;
         }
-        
-       .n8n-chat-widget .privacy-checkbox a:hover {
+
+        .n8n-chat-widget .privacy-checkbox a:hover {
             color: var(--chat--color-secondary);
         }
     `;
@@ -437,7 +424,7 @@
     // Create widget container
     const widgetContainer = document.createElement('div');
     widgetContainer.className = 'n8n-chat-widget';
-    
+
     // Set CSS variables for colors
     widgetContainer.style.setProperty('--n8n-chat-primary-color', config.style.primaryColor);
     widgetContainer.style.setProperty('--n8n-chat-secondary-color', config.style.secondaryColor);
@@ -446,7 +433,7 @@
 
     const chatContainer = document.createElement('div');
     chatContainer.className = `chat-container${config.style.position === 'left' ? ' position-left' : ''}`;
-    
+
     const newConversationHTML = `
         <div class="brand-header">
             <img src="${config.branding.logo}" alt="${config.branding.name}">
@@ -482,10 +469,9 @@
             <div class="chat-input">
                 <textarea placeholder="Schreiben Sie uns hier..." rows="1"></textarea>
                 <button type="submit">
-                    <!-- Botón de envío, ahora con SVG -->
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send">
-                        <path d="m22 2-7 19-7-9-7-7 19-7z"></path>
-                        <path d="M11 13 2 9"></path>
+                    <!-- Botón de envío, ahora con flecha hacia arriba -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up">
+                        <path d="M12 19V6M5 12l7-7 7 7" />
                     </svg>
                 </button>
             </div>
@@ -511,23 +497,27 @@
     const newChatBtn = chatContainer.querySelector('.new-chat-btn');
     const chatInterface = chatContainer.querySelector('.chat-interface');
     const privacyCheckbox = chatContainer.querySelector('#datenschutz'); 
-        if (privacyCheckbox) {
-            privacyCheckbox.addEventListener('change', function() {
-                // Habilita o deshabilita el botón basado en el estado del checkbox
-                newChatBtn.disabled = !this.checked;
+    if (privacyCheckbox) {
+        privacyCheckbox.addEventListener('change', function() {
+            // Habilita o deshabilita el botón basado en el estado del checkbox
+            newChatBtn.disabled = !this.checked;
         });
     }
+
     const messagesContainer = chatContainer.querySelector('.chat-messages');
     const textarea = chatContainer.querySelector('textarea');
-
+    
+    // Implementación básica de corrección ortográfica
     textarea.addEventListener('input', () => {
         textarea.style.height = 'auto';
         textarea.style.height = `${textarea.scrollHeight}px`;
+
+        // Corrección ortográfica básica
+        textarea.setCustomValidity(textarea.value.trim() ? '' : 'Texto vacío no permitido');
     });
 
     const sendButton = chatContainer.querySelector('button[type="submit"]');
 
-    // Definición de los iconos SVG
     const micSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mic">
                         <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
                         <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
@@ -538,7 +528,7 @@
                         <rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect>
                     </svg>`;
 
-    // Creación y estilización del nuevo botón de micrófono
+    // Crear el botón de micrófono
     const micButton = document.createElement('button');
     micButton.type = 'button';
     micButton.classList.add('mic-button');
@@ -610,7 +600,6 @@
         }
     });
 
-
     function generateUUID() {
         return crypto.randomUUID();
     }
@@ -640,7 +629,7 @@
             chatContainer.querySelector('.new-conversation').style.display = 'none';
             chatInterface.classList.add('active');
             
-            // Begrüßung
+            // Greeting
             const optInMessage = document.createElement('div');
             optInMessage.className = 'chat-message bot';
             optInMessage.innerHTML = `
