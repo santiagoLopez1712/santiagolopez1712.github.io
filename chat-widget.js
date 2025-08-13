@@ -1,4 +1,3 @@
-<script>
 // Chat Widget Script
 (function() {
     // Create and inject styles
@@ -372,7 +371,7 @@
         }
     `;
 
-    // Load Geist font
+    // Load font
     const fontLink = document.createElement('link');
     fontLink.rel = 'stylesheet';
     fontLink.href = 'https://cdn.jsdelivr.net/npm/geist@1.0.0/dist/fonts/geist-sans/style.css';
@@ -383,73 +382,31 @@
     styleSheet.textContent = styles;
     document.head.appendChild(styleSheet);
 
-    // Helpers
-    function normalizeLang(code) {
-        const c = (code || '').toLowerCase();
-        if (c.startsWith('de')) return 'de-DE';
-        if (c.startsWith('es')) return 'es-ES';
-        if (c.startsWith('en')) return 'en-US';
-        return 'de-DE';
-    }
-    function uuidv4() {
-        if (crypto && typeof crypto.randomUUID === 'function') return crypto.randomUUID();
-        // fallback simple
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(r) {
-            const v = Math.random()*16|0, y = r === 'x' ? v : (v&0x3|0x8);
-            return y.toString(16);
-        });
-    }
-
-    // Default configuration
+    // Default config
     const defaultConfig = {
-        webhook: {
-            url: '',
-            route: ''
-        },
+        webhook: { url: '', route: '' },
         branding: {
-            logo: '',
-            name: '',
-            welcomeText: '',
-            responseTimeText: '',
-            poweredBy: {
-                text: 'Powered by AMARETIS AI',
-                link: 'https://www.amaretis.de'
-            }
+            logo: '', name: '', welcomeText: '', responseTimeText: '',
+            poweredBy: { text: 'Powered by AMARETIS AI', link: 'https://www.amaretis.de' }
         },
-        style: {
-            primaryColor: '',
-            secondaryColor: '',
-            position: 'right',
-            backgroundColor: '#ffffff',
-            fontColor: '#333333'
-        },
-        settings: {
-            language: 'de-DE',
-            autoSendOnMicStop: true // <- vuelve a enviar automáticamente al parar el dictado
-        }
+        style: { primaryColor: '', secondaryColor: '', position: 'right', backgroundColor: '#ffffff', fontColor: '#333333' }
     };
 
-    // Merge user config with defaults
     const config = window.ChatWidgetConfig ?
         {
             webhook: { ...defaultConfig.webhook, ...window.ChatWidgetConfig.webhook },
             branding: { ...defaultConfig.branding, ...window.ChatWidgetConfig.branding },
-            style: { ...defaultConfig.style, ...window.ChatWidgetConfig.style },
-            settings: { ...defaultConfig.settings, ...(window.ChatWidgetConfig.settings || {}) }
+            style: { ...defaultConfig.style, ...window.ChatWidgetConfig.style }
         } : defaultConfig;
 
-    // Prevent multiple initializations
     if (window.N8NChatWidgetInitialized) return;
     window.N8NChatWidgetInitialized = true;
 
     let currentSessionId = '';
-    let currentLang = normalizeLang((config.settings && config.settings.language) || (navigator.language || 'de-DE'));
 
-    // Create widget container
     const widgetContainer = document.createElement('div');
     widgetContainer.className = 'n8n-chat-widget';
 
-    // Set CSS variables for colors
     widgetContainer.style.setProperty('--n8n-chat-primary-color', config.style.primaryColor);
     widgetContainer.style.setProperty('--n8n-chat-secondary-color', config.style.secondaryColor);
     widgetContainer.style.setProperty('--n8n-chat-background-color', config.style.backgroundColor);
@@ -491,12 +448,11 @@
             </div>
             <div class="chat-messages"></div>
             <div class="chat-input">
-                <textarea placeholder="Schreiben Sie uns hier..." rows="1" spellcheck="true"></textarea>
-                <button type="submit" aria-label="Enviar">
+                <textarea placeholder="Schreiben Sie uns hier..." rows="1"></textarea>
+                <button type="submit">
                     <!-- Flecha hacia la derecha -->
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="lucide lucide-arrow-right">
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                        <polyline points="12 5 19 12 12 19"></polyline>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14M12 5l7 7-7 7" />
                     </svg>
                 </button>
             </div>
@@ -505,16 +461,13 @@
             </div>
         </div>
     `;
-    
+
     chatContainer.innerHTML = newConversationHTML + chatInterfaceHTML;
-    
+
     const toggleButton = document.createElement('button');
     toggleButton.className = `chat-toggle${config.style.position === 'left' ? ' position-left' : ''}`;
-    toggleButton.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.476 0-2.886-.313-4.156-.878l-3.156.586.586-3.156A7.962 7.962 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/>
-        </svg>`;
-    
+    toggleButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.476 0-2.886-.313-4.156-.878l-3.156.586.586-3.156A7.962 7.962 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/></svg>`;
+
     widgetContainer.appendChild(chatContainer);
     widgetContainer.appendChild(toggleButton);
     document.body.appendChild(widgetContainer);
@@ -522,109 +475,33 @@
     const newChatBtn = chatContainer.querySelector('.new-chat-btn');
     const chatInterface = chatContainer.querySelector('.chat-interface');
     const privacyCheckbox = chatContainer.querySelector('#datenschutz'); 
+    const messagesContainer = chatContainer.querySelector('.chat-messages');
+    const textarea = chatContainer.querySelector('textarea');
+    const sendButton = chatContainer.querySelector('button[type="submit"]');
+
     if (privacyCheckbox) {
         privacyCheckbox.addEventListener('change', function() {
             newChatBtn.disabled = !this.checked;
         });
     }
 
-    const messagesContainer = chatContainer.querySelector('.chat-messages');
-    const textarea = chatContainer.querySelector('textarea');
-
-    // ======= Corrección ortográfica básica (ES/EN/DE) =======
-    function normalizeSpaces(str) {
-        return str
-            .replace(/\s+/g, ' ')
-            .replace(/\s+([,.;:!?])/g, '$1')
-            .replace(/([,.;:!?])(?!\s|$)/g, '$1 ')
-            .replace(/\s+$/,'')
-            .replace(/^\s+/, '');
-    }
-    function capitalizeSentenceStarts(str) {
-        return str.replace(/(^|[.!?]\s+)([a-zäöüßáéíóúàèìòùñç])/g, (m, p1, p2) => p1 + p2.toUpperCase());
-    }
-    function ensureTerminalPunctuation(str) {
-        return /[.!?…]$/.test(str.trim()) ? str.trim() : (str.trim() + '.');
-    }
-    function fixEnglishI(str){
-        return str
-            .replace(/(^|\s)i(\s|$)/g, '$1I$2')
-            .replace(/(^|\s)i(['’][a-z]+)/g, (m, p1, p2)=> p1 + 'I' + p2);
-    }
-    function fixSpanishInverted(str){
-        const t = str.trim();
-        if (/[?]$/.test(t) && !/¿/.test(t)) return '¿' + t;
-        if (/[!]$/.test(t) && !/¡/.test(t)) return '¡' + t;
-        return str;
-    }
-    function germanCapitalizeAfterDeterminers(str){
-        const det = '(der|die|das|dem|den|des|ein|eine|einer|einem|einen|eines|mein|dein|sein|ihr|unser|euer|Ihr)';
-        return str.replace(new RegExp(`\\b${det}\\s+([a-zäöüß][\\wäöüß-]*)`, 'g'),
-            (m, d, w) => `${d} ${w.charAt(0).toUpperCase()}${w.slice(1)}`);
-    }
-    function basicNormalize(text, lang) {
-        if (!text) return text;
-        let t = text;
-        t = normalizeSpaces(t);
-        t = capitalizeSentenceStarts(t);
-        const l = (lang || '').toLowerCase();
-        if (l.startsWith('en')) {
-            t = fixEnglishI(t);
-        } else if (l.startsWith('es')) {
-            t = fixSpanishInverted(t);
-        } else if (l.startsWith('de')) {
-            t = germanCapitalizeAfterDeterminers(t);
-        }
-        if (!/[!?…]$/.test(t.trim())) {
-            t = ensureTerminalPunctuation(t);
-        }
-        return t;
-    }
-
-    // Debounce corrección al tipear
-    let inputNormalizeTimer = null;
     textarea.addEventListener('input', () => {
         textarea.style.height = 'auto';
         textarea.style.height = `${textarea.scrollHeight}px`;
-        if (inputNormalizeTimer) clearTimeout(inputNormalizeTimer);
-        inputNormalizeTimer = setTimeout(() => {
-            if (!isRecording) {
-                const before = textarea.value;
-                const after = basicNormalize(before, currentLang);
-                if (after !== before) {
-                    textarea.value = after;
-                    try {
-                        textarea.selectionStart = textarea.selectionEnd = textarea.value.length;
-                    } catch (_) {}
-                }
-            }
-        }, 400);
+        textarea.setCustomValidity(textarea.value.trim() ? '' : 'Texto vacío no permitido');
     });
 
-    // Validación mínima
-    textarea.addEventListener('blur', () => {
-        if (textarea.value.trim() === '') {
-            textarea.setCustomValidity('Texto vacío no permitido');
-        } else {
-            textarea.setCustomValidity('');
-        }
-    });
-
-    // Botón enviar (flecha derecha)
-    const sendButton = chatContainer.querySelector('button[type="submit"]');
-
-    // Iconos mic/stop
-    const micSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="lucide lucide-mic">
+    // Micrófono
+    const micSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
                         <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
                         <line x1="12" y1="19" x2="12" y2="23"></line>
                         <line x1="8" y1="23" x2="16" y2="23"></line>
                     </svg>`;
-    const stopSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="lucide lucide-square">
+    const stopSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect>
                     </svg>`;
 
-    // Crear botón de micrófono (mismo estilo que el de enviar)
     const micButton = document.createElement('button');
     micButton.type = 'button';
     micButton.classList.add('mic-button');
@@ -632,229 +509,120 @@
     micButton.title = 'Spracheingabe starten/stoppen';
     sendButton.before(micButton);
 
-    // ======= Speech Recognition con concatenación =======
     let recognition;
     let isRecording = false;
-    let committedText = '';
-    let lastDisplayedValue = '';
 
-    function setRecognitionLang(lang) {
-        if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            try { if (recognition) recognition.abort(); } catch(e){}
-            recognition = new SpeechRecognition();
-            recognition.lang = normalizeLang(lang || 'de-DE');
-            recognition.continuous = true;
-            recognition.interimResults = true;
+    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.lang = 'de-DE';
+        recognition.continuous = true;
+        recognition.interimResults = true;
 
-            recognition.onresult = (event) => {
-                let finalChunk = '';
-                let interimChunk = '';
+        recognition.onresult = (event) => {
+            let fragment = '';
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                fragment += event.results[i][0].transcript;
+            }
+            fragment = fragment.trim();
+            // Concatenar fragmentos con corrección básica
+            if (fragment) {
+                textarea.value += (textarea.value ? ' ' : '') + fragment;
+                textarea.style.height = 'auto';
+                textarea.style.height = `${textarea.scrollHeight}px`;
+            }
+        };
 
-                for (let i = event.resultIndex; i < event.results.length; i++) {
-                    const res = event.results[i];
-                    const txt = res[0].transcript;
-                    if (res.isFinal) {
-                        finalChunk += txt;
-                    } else {
-                        interimChunk += txt;
-                    }
-                }
+        recognition.onerror = (event) => {
+            console.error('Speech recognition error:', event.error);
+            stopRecording();
+        };
 
-                if (finalChunk) {
-                    const joiner = committedText && !/[ \n]$/.test(committedText) ? ' ' : '';
-                    committedText = basicNormalize((committedText + joiner + finalChunk).trim(), currentLang);
-                }
-
-                const joiner2 = (committedText && interimChunk && !/[ \n]$/.test(committedText)) ? ' ' : '';
-                const displayValue = (committedText + joiner2 + interimChunk).trim();
-
-                if (displayValue !== lastDisplayedValue) {
-                    textarea.value = displayValue;
-                    textarea.style.height = 'auto';
-                    textarea.style.height = `${textarea.scrollHeight}px`;
-                    lastDisplayedValue = displayValue;
-                }
-            };
-
-            recognition.onerror = (event) => {
-                console.error('Speech recognition error:', event.error);
-                stopRecording();
-            };
-
-            recognition.onend = () => {
-                if (isRecording) stopRecording();
-            };
-        } else {
-            micButton.disabled = true;
-            micButton.title = 'Spracherkennung nicht unterstützt';
-        }
+        recognition.onend = () => {
+            if (isRecording) stopRecording();
+        };
+    } else {
+        micButton.disabled = true;
+        micButton.title = 'Spracherkennung nicht unterstützt';
     }
 
-    setRecognitionLang(currentLang);
-    
     function startRecording() {
         if (!recognition) return;
         isRecording = true;
         micButton.classList.add('recording');
         micButton.innerHTML = stopSVG;
-        committedText = textarea.value || '';
-        lastDisplayedValue = committedText;
-        try { recognition.start(); } catch(e) { console.warn(e); }
+        recognition.start();
     }
-    
+
     function stopRecording() {
         if (!recognition) return;
         isRecording = false;
         micButton.classList.remove('recording');
         micButton.innerHTML = micSVG;
-        try { recognition.stop(); } catch(e) { console.warn(e); }
-
-        // Normaliza lo que quedó en pantalla
-        if (textarea.value.trim()) {
-            textarea.value = basicNormalize(textarea.value, currentLang);
-            textarea.style.height = 'auto';
-            textarea.style.height = `${textarea.scrollHeight}px`;
-        }
-
-        // RESTAURADO: Envío automático al parar el dictado (configurable)
-        if (config.settings.autoSendOnMicStop) {
-            const finalMsg = textarea.value.trim();
-            if (finalMsg) {
-                const norm = basicNormalize(finalMsg, currentLang);
-                textarea.value = '';
-                committedText = '';
-                lastDisplayedValue = '';
-                sendMessage(norm);
-            }
-        }
+        recognition.stop();
     }
-    
+
     micButton.addEventListener('click', () => {
-        if (isRecording) {
-            stopRecording();
-        } else {
-            startRecording();
-        }
+        if (isRecording) stopRecording();
+        else startRecording();
     });
 
-    // Exponer función para cambiar idioma en runtime
-    window.ChatWidgetSetLanguage = function(langCode) {
-        if (typeof langCode !== 'string' || !langCode) return;
-        currentLang = normalizeLang(langCode);
-        setRecognitionLang(currentLang);
-        if (isRecording) {
-            try { recognition.start(); } catch(e){}
-        }
-    };
-
-    function generateUUID() {
-        return uuidv4();
-    }
+    function generateUUID() { return crypto.randomUUID(); }
 
     async function startNewConversation() {
         currentSessionId = generateUUID();
-        const data = [{
-            action: "loadPreviousSession",
-            sessionId: currentSessionId,
-            route: config.webhook.route,
-            metadata: { userId: "" }
-        }];
-
+        const data = [{ action: "loadPreviousSession", sessionId: currentSessionId, route: config.webhook.route, metadata: { userId: "" } }];
         try {
-            const response = await fetch(config.webhook.url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-
-            await response.json();
+            const response = await fetch(config.webhook.url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+            const responseData = await response.json();
             chatContainer.querySelector('.brand-header').style.display = 'none';
             chatContainer.querySelector('.new-conversation').style.display = 'none';
             chatInterface.classList.add('active');
-            
+
             const optInMessage = document.createElement('div');
             optInMessage.className = 'chat-message bot';
             optInMessage.innerHTML = `
                 Hallo! 👋 Ich bin Ihr persönlicher Assistent der Agentur für Kommunikation AMARETIS.
-                Wir sind eine Full-Service-Werbeagentur mit Sitz in Göttingen und arbeiten für Kundinnen und Kund*innen in ganz Deutschland.
+                Wir sind eine Full-Service-Werbeagentur mit Sitz in Göttingen und arbeiten für Kundinnen und Kunden in ganz Deutschland.
                 Wie kann ich Ihnen heute weiterhelfen?
-                Möchten Sie einen Termin vereinbaren – telefonisch, per Videocall oder vor Ort?
-                Oder haben Sie eine allgemeine Anfrage zu unseren Leistungen?
             `;
             messagesContainer.appendChild(optInMessage);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-        } catch (error) {
-            console.error('Error:', error);
-        }
+        } catch (error) { console.error('Error:', error); }
     }
 
     async function sendMessage(message) {
-        const cleaned = basicNormalize(message, currentLang);
-
-        const messageData = {
-            action: "sendMessage",
-            sessionId: currentSessionId,
-            route: config.webhook.route,
-            chatInput: cleaned,
-            metadata: { userId: "" }
-        };
-
+        const messageData = { action: "sendMessage", sessionId: currentSessionId, route: config.webhook.route, chatInput: message, metadata: { userId: "" } };
         const userMessageDiv = document.createElement('div');
         userMessageDiv.className = 'chat-message user';
-        userMessageDiv.textContent = cleaned;
+        userMessageDiv.textContent = message;
         messagesContainer.appendChild(userMessageDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
         try {
-            const response = await fetch(config.webhook.url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(messageData)
-            });
-            
+            const response = await fetch(config.webhook.url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(messageData) });
             const data = await response.json();
             const botMessageDiv = document.createElement('div');
             botMessageDiv.className = 'chat-message bot';
             botMessageDiv.textContent = Array.isArray(data) ? data[0].output : data.output;
             messagesContainer.appendChild(botMessageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        } catch (error) {
-            console.error('Error:', error);
-        }
+        } catch (error) { console.error('Error:', error); }
     }
 
     newChatBtn.addEventListener('click', startNewConversation);
-    
-    const submit = () => {
+
+    sendButton.addEventListener('click', () => {
         const message = textarea.value.trim();
-        if (message) {
-            const norm = basicNormalize(message, currentLang);
-            textarea.value = '';
-            sendMessage(norm);
-        }
-    };
+        if (message) { sendMessage(message); textarea.value = ''; }
+    });
 
-    sendButton.addEventListener('click', submit);
-    
     textarea.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            submit();
-        }
-    });
-    
-    toggleButton.addEventListener('click', () => {
-        chatContainer.classList.toggle('open');
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); const message = textarea.value.trim(); if (message) { sendMessage(message); textarea.value = ''; } }
     });
 
-    // Add close button handlers
+    toggleButton.addEventListener('click', () => { chatContainer.classList.toggle('open'); });
+
     const closeButtons = chatContainer.querySelectorAll('.close-button');
-    closeButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            chatContainer.classList.remove('open');
-        });
-    });
+    closeButtons.forEach(button => { button.addEventListener('click', () => { chatContainer.classList.remove('open'); }); });
 })();
-</script>
