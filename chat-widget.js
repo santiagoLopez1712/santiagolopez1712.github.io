@@ -519,21 +519,44 @@
         recognition.continuous = true;
         recognition.interimResults = true;
 
+        // Configuración de idioma y segmentador
+        const userLang = navigator.language || 'de-DE';
+        const segmenter = new Intl.Segmenter(userLang, { granularity: 'word' });
+        
+        // Función básica de corrección ortográfica y puntuación
+        function correctText(text) {
+            const words = [...segmenter.segment(text)];
+            return words.map(w => {
+                let word = w.segment;
+                // Mayúscula inicial de oración
+                if (w.index === 0 || /[.!?]\s*$/.test(text.slice(0, w.index))) {
+                    word = word.charAt(0).toUpperCase() + word.slice(1);
+                }
+                // Punto final si termina sin puntuación
+                if (w.isWordLike && w.index + word.length === text.length) {
+                    if (!/[.!?]$/.test(word)) word += '.';
+                }
+                return word;
+            }).join(' ');
+        }
+        
         recognition.onresult = (event) => {
             for (let i = event.resultIndex; i < event.results.length; i++) {
                 const transcript = event.results[i][0].transcript.trim();
+        
                 if (event.results[i].isFinal) {
-                    // Concatenar solo resultados finales
-                    textarea.value += (textarea.value ? ' ' : '') + transcript;
+                    // Concatenar solo fragmentos finales con corrección básica
+                    const corrected = correctText(transcript);
+                    textarea.value += (textarea.value ? ' ' : '') + corrected;
                     textarea.style.height = 'auto';
                     textarea.style.height = `${textarea.scrollHeight}px`;
-                }
-                // Si quieres mostrar resultados intermedios en tiempo real:
-                else {
-                     console.log("Interim: ", transcript);
+                } else {
+                    // Opcional: mostrar sugerencias en tiempo real
+                    // console.log("Interim suggestion:", correctText(transcript));
                 }
             }
         };
+
 
 
         recognition.onerror = (event) => {
