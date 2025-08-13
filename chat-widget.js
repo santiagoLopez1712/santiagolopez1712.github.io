@@ -1,3 +1,4 @@
+<script>
 // Chat Widget Script
 (function() {
     // Create and inject styles
@@ -227,7 +228,7 @@
             color: white;
             border: none;
             border-radius: 8px;
-            padding: 12px; /* Padding ajustado para iconos */
+            padding: 12px;
             cursor: pointer;
             transition: transform 0.2s;
             font-family: inherit;
@@ -235,8 +236,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 44px; /* Altura fija para alinear con el textarea */
-            width: 44px; /* Ancho fijo para botones cuadrados */
+            height: 44px;
+            width: 44px;
         }
 
         .n8n-chat-widget .chat-input button svg {
@@ -404,6 +405,10 @@
             position: 'right',
             backgroundColor: '#ffffff',
             fontColor: '#333333'
+        },
+        settings: {
+            // Idioma por defecto (puedes sobreescribir con window.ChatWidgetConfig.settings.language)
+            language: 'de-DE' 
         }
     };
 
@@ -412,7 +417,8 @@
         {
             webhook: { ...defaultConfig.webhook, ...window.ChatWidgetConfig.webhook },
             branding: { ...defaultConfig.branding, ...window.ChatWidgetConfig.branding },
-            style: { ...defaultConfig.style, ...window.ChatWidgetConfig.style }
+            style: { ...defaultConfig.style, ...window.ChatWidgetConfig.style },
+            settings: { ...defaultConfig.settings, ...(window.ChatWidgetConfig.settings || {}) }
         } : defaultConfig;
 
     // Prevent multiple initializations
@@ -420,6 +426,7 @@
     window.N8NChatWidgetInitialized = true;
 
     let currentSessionId = '';
+    let currentLang = (config.settings && config.settings.language) || (navigator.language || 'de-DE');
 
     // Create widget container
     const widgetContainer = document.createElement('div');
@@ -467,11 +474,12 @@
             </div>
             <div class="chat-messages"></div>
             <div class="chat-input">
-                <textarea placeholder="Schreiben Sie uns hier..." rows="1"></textarea>
-                <button type="submit">
-                    <!-- Botón de envío, ahora con flecha hacia arriba -->
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up">
-                        <path d="M12 19V6M5 12l7-7 7 7" />
+                <textarea placeholder="Schreiben Sie uns hier..." rows="1" spellcheck="true"></textarea>
+                <button type="submit" aria-label="Enviar">
+                    <!-- Flecha hacia la derecha -->
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="lucide lucide-arrow-right">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
                     </svg>
                 </button>
             </div>
@@ -499,32 +507,123 @@
     const privacyCheckbox = chatContainer.querySelector('#datenschutz'); 
     if (privacyCheckbox) {
         privacyCheckbox.addEventListener('change', function() {
-            // Habilita o deshabilita el botón basado en el estado del checkbox
             newChatBtn.disabled = !this.checked;
         });
     }
 
     const messagesContainer = chatContainer.querySelector('.chat-messages');
     const textarea = chatContainer.querySelector('textarea');
-    
-    // Implementación básica de corrección ortográfica
+
+    // ======= Corrección ortográfica básica (ES/EN/DE) =======
+    function normalizeSpaces(str) {
+        return str
+            .replace(/\s+/g, ' ')           // espacios múltiples -> uno
+            .replace(/\s+([,.;:!?])/g, '$1')// quitar espacio antes de puntuación
+            .replace(/([,.;:!?])(?!\s|$)/g, '$1 ') // asegurar un espacio tras puntuación (si no fin)
+            .replace(/\s+$/,'')             // quitar espacios al final
+            .replace(/^\s+/, '');           // quitar espacios al inicio
+    }
+
+    function capitalizeSentenceStarts(str) {
+        // Mayúscula al inicio del texto y tras .!? (manejo simple)
+        return str.replace(/(^|[.!?]\s+)([a-zäöüßáéíóúàèìòùñç])/g, (m, p1, p2) => p1 + p2.toUpperCase());
+    }
+
+    function ensureTerminalPunctuation(str) {
+        // Si no termina en .!? entonces añade punto
+        return /[.!?…]$/.test(str.trim()) ? str.trim() : (str.trim() + '.');
+    }
+
+    function fixEnglishI(str){
+        // Capitaliza el pronombre inglés "I" cuando va solo o en contracciones
+        return str
+            .replace(/(^|\s)i(\s|$)/g, '$1I$2')
+            .replace(/(^|\s)i(['’][a-z]+)/g, (m, p1, p2)=> p1 + 'I' + p2);
+    }
+
+    function fixSpanishInverted(str){
+        // Si una oración termina en ? o ! y no tiene ¿/¡ al inicio de esa oración, añadir de forma simple.
+        // Implementación simple para la última oración.
+        const t = str.trim();
+        if (/[?]$/.test(t) && !/¿/.test(t)) return '¿' + t;
+        if (/[!]$/.test(t) && !/¡/.test(t)) return '¡' + t;
+        return str;
+    }
+
+    function germanCapitalizeAfterDeterminers(str){
+        // Heurística simple: capitaliza la palabra tras determinantes/artículos comunes
+        const det = '(der|die|das|dem|den|des|ein|eine|einer|einem|einen|eines|mein|dein|sein|ihr|unser|euer|Ihr)';
+        return str.replace(new RegExp(`\\b${det}\\s+([a-zäöüß][\\wäöüß-]*)`, 'g'), (m, d, w) => `${d} ${w.charAt(0).toUpperCase()}${w.slice(1)}`);
+    }
+
+    function basicNormalize(text, lang) {
+        if (!text) return text;
+        let t = text;
+
+        // Normalización general
+        t = normalizeSpaces(t);
+        t = capitalizeSentenceStarts(t);
+
+        // Ajustes por idioma
+        const l = (lang || '').toLowerCase();
+        if (l.startsWith('en')) {
+            t = fixEnglishI(t);
+        } else if (l.startsWith('es')) {
+            t = fixSpanishInverted(t);
+        } else if (l.startsWith('de')) {
+            t = germanCapitalizeAfterDeterminers(t);
+            // Asegurar mayúscula de "Ich" al inicio de oración (ya lo hace capitalizeSentenceStarts)
+        }
+
+        // Evitar añadir punto si termina en ?, !, …
+        if (!/[!?…]$/.test(t.trim())) {
+            t = ensureTerminalPunctuation(t);
+        }
+
+        return t;
+    }
+
+    // Debounce corrección al tipear (evita saltos de cursor)
+    let inputNormalizeTimer = null;
     textarea.addEventListener('input', () => {
         textarea.style.height = 'auto';
         textarea.style.height = `${textarea.scrollHeight}px`;
 
-        // Corrección ortográfica básica
-        textarea.setCustomValidity(textarea.value.trim() ? '' : 'Texto vacío no permitido');
+        if (inputNormalizeTimer) clearTimeout(inputNormalizeTimer);
+        inputNormalizeTimer = setTimeout(() => {
+            if (!isRecording) {
+                const start = textarea.selectionStart;
+                const end = textarea.selectionEnd;
+                const before = textarea.value;
+                const after = basicNormalize(before, currentLang);
+                if (after !== before) {
+                    textarea.value = after;
+                    // Recolocar cursor al final (más seguro)
+                    textarea.selectionStart = textarea.selectionEnd = textarea.value.length;
+                }
+            }
+        }, 400);
+    });
+
+    // Validación mínima
+    textarea.addEventListener('blur', () => {
+        if (textarea.value.trim() === '') {
+            textarea.setCustomValidity('Texto vacío no permitido');
+        } else {
+            textarea.setCustomValidity('');
+        }
     });
 
     const sendButton = chatContainer.querySelector('button[type="submit"]');
 
-    const micSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mic">
+    // Iconos mic/stop
+    const micSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="lucide lucide-mic">
                         <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
                         <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
                         <line x1="12" y1="19" x2="12" y2="23"></line>
                         <line x1="8" y1="23" x2="16" y2="23"></line>
                     </svg>`;
-    const stopSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square">
+    const stopSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="lucide lucide-square">
                         <rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect>
                     </svg>`;
 
@@ -532,39 +631,72 @@
     const micButton = document.createElement('button');
     micButton.type = 'button';
     micButton.classList.add('mic-button');
-    micButton.innerHTML = micSVG; // Usamos el SVG del micrófono
+    micButton.innerHTML = micSVG;
     micButton.title = 'Spracheingabe starten/stoppen';
-    sendButton.before(micButton); // Insertamos antes del botón de enviar
-    
+    sendButton.before(micButton);
+
+    // ======= Speech Recognition con concatenación =======
     let recognition;
     let isRecording = false;
-    
-    // Inicializar SpeechRecognition si está disponible
-    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+    let committedText = ''; // texto ya "confirmado" por resultados finales
+    let lastDisplayedValue = ''; // para evitar re-render innecesario
+
+    function setRecognitionLang(lang) {
+        if (recognition) {
+            try { recognition.abort(); } catch(e){}
+        }
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) return;
         recognition = new SpeechRecognition();
-        recognition.lang = 'de-DE'; // Idioma alemán
+        recognition.lang = lang || 'de-DE';
         recognition.continuous = true;
         recognition.interimResults = true;
-    
+
         recognition.onresult = (event) => {
-            let transcript = '';
+            let finalChunk = '';
+            let interimChunk = '';
+
             for (let i = event.resultIndex; i < event.results.length; i++) {
-                transcript += event.results[i][0].transcript;
+                const res = event.results[i];
+                const txt = res[0].transcript;
+                if (res.isFinal) {
+                    finalChunk += txt;
+                } else {
+                    interimChunk += txt;
+                }
             }
-            textarea.value = transcript.trim();
-            textarea.style.height = 'auto';
-            textarea.style.height = `${textarea.scrollHeight}px`;
+
+            // Si hay finales, los "comiteamos" con normalización y concatenación
+            if (finalChunk) {
+                const joiner = committedText && !/[ \n]$/.test(committedText) ? ' ' : '';
+                committedText = basicNormalize((committedText + joiner + finalChunk).trim(), currentLang);
+            }
+
+            // Lo que se muestra es committed + interim (sin normalizar en exceso el interim)
+            const joiner2 = (committedText && interimChunk && !/[ \n]$/.test(committedText)) ? ' ' : '';
+            const displayValue = (committedText + joiner2 + interimChunk).trim();
+
+            if (displayValue !== lastDisplayedValue) {
+                textarea.value = displayValue;
+                textarea.style.height = 'auto';
+                textarea.style.height = `${textarea.scrollHeight}px`;
+                lastDisplayedValue = displayValue;
+            }
         };
-    
+
         recognition.onerror = (event) => {
             console.error('Speech recognition error:', event.error);
             stopRecording();
         };
-    
+
         recognition.onend = () => {
             if (isRecording) stopRecording();
         };
+    }
+
+    // Inicializar si disponible
+    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+        setRecognitionLang(currentLang);
     } else {
         micButton.disabled = true;
         micButton.title = 'Spracherkennung nicht unterstützt';
@@ -573,22 +705,25 @@
     function startRecording() {
         if (!recognition) return;
         isRecording = true;
-        micButton.classList.add('recording'); // Clase para cambiar el color de fondo
-        micButton.innerHTML = stopSVG; // Cambiar a icono de stop
-        recognition.start();
+        micButton.classList.add('recording');
+        micButton.innerHTML = stopSVG;
+        committedText = textarea.value || '';
+        lastDisplayedValue = committedText;
+        try { recognition.start(); } catch(e) { console.warn(e); }
     }
     
     function stopRecording() {
         if (!recognition) return;
         isRecording = false;
         micButton.classList.remove('recording');
-        micButton.innerHTML = micSVG; // Volver a icono de micrófono
-        recognition.stop();
-    
-        const message = textarea.value.trim();
-        if (message) {
-            sendMessage(message);
-            textarea.value = '';
+        micButton.innerHTML = micSVG;
+        try { recognition.stop(); } catch(e) { console.warn(e); }
+
+        // Al parar, normalizamos todo lo que quedó en pantalla
+        if (textarea.value.trim()) {
+            textarea.value = basicNormalize(textarea.value, currentLang);
+            textarea.style.height = 'auto';
+            textarea.style.height = `${textarea.scrollHeight}px`;
         }
     }
     
@@ -599,6 +734,20 @@
             startRecording();
         }
     });
+
+    // Exponer función para cambiar idioma en runtime
+    window.ChatWidgetSetLanguage = function(langCode) {
+        if (typeof langCode !== 'string' || !langCode) return;
+        currentLang = langCode;
+        if (recognition) {
+            const wasRecording = isRecording;
+            try { recognition.abort(); } catch(e){}
+            setRecognitionLang(currentLang);
+            if (wasRecording) {
+                startRecording();
+            }
+        }
+    };
 
     function generateUUID() {
         return crypto.randomUUID();
@@ -634,7 +783,7 @@
             optInMessage.className = 'chat-message bot';
             optInMessage.innerHTML = `
                 Hallo! 👋 Ich bin Ihr persönlicher Assistent der Agentur für Kommunikation AMARETIS.
-                Wir sind eine Full-Service-Werbeagentur mit Sitz in Göttingen und arbeiten für Kundinnen und Kunden in ganz Deutschland.
+                Wir sind eine Full-Service-Werbeagentur mit Sitz in Göttingen und arbeiten für Kundinnen und Kund*innen in ganz Deutschland.
                 Wie kann ich Ihnen heute weiterhelfen?
                 Möchten Sie einen Termin vereinbaren – telefonisch, per Videocall oder vor Ort?
                 Oder haben Sie eine allgemeine Anfrage zu unseren Leistungen?
@@ -648,11 +797,13 @@
     }
 
     async function sendMessage(message) {
+        const cleaned = basicNormalize(message, currentLang);
+
         const messageData = {
             action: "sendMessage",
             sessionId: currentSessionId,
             route: config.webhook.route,
-            chatInput: message,
+            chatInput: cleaned,
             metadata: {
                 userId: ""
             }
@@ -660,7 +811,7 @@
 
         const userMessageDiv = document.createElement('div');
         userMessageDiv.className = 'chat-message user';
-        userMessageDiv.textContent = message;
+        userMessageDiv.textContent = cleaned;
         messagesContainer.appendChild(userMessageDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
@@ -685,24 +836,26 @@
         }
     }
 
+    const newChatBtn = chatContainer.querySelector('.new-chat-btn');
     newChatBtn.addEventListener('click', startNewConversation);
     
-    sendButton.addEventListener('click', () => {
+    const submit = () => {
         const message = textarea.value.trim();
         if (message) {
-            sendMessage(message);
+            // Normaliza antes de enviar
+            const norm = basicNormalize(message, currentLang);
             textarea.value = '';
+            sendMessage(norm);
         }
-    });
+    };
+
+    const sendButtonEl = chatContainer.querySelector('button[type="submit"]');
+    sendButtonEl.addEventListener('click', submit);
     
     textarea.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
-            const message = textarea.value.trim();
-            if (message) {
-                sendMessage(message);
-                textarea.value = '';
-            }
+            submit();
         }
     });
     
@@ -718,3 +871,4 @@
         });
     });
 })();
+</script>
