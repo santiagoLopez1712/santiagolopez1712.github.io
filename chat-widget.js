@@ -524,35 +524,41 @@
         const segmenter = new Intl.Segmenter(userLang, { granularity: 'word' });
         
         // Función básica de corrección ortográfica y puntuación
-        function correctText(text) {
+        // Función avanzada de corrección y sugerencias en tiempo real
+        function correctTextRealtime(text) {
             const words = [...segmenter.segment(text)];
-            return words.map(w => {
+            let corrected = '';
+            words.forEach((w, idx) => {
                 let word = w.segment;
-                // Mayúscula inicial de oración
-                if (w.index === 0 || /[.!?]\s*$/.test(text.slice(0, w.index))) {
+                // Mayúscula al inicio de oración
+                if (idx === 0 || /[.!?]\s*$/.test(corrected)) {
                     word = word.charAt(0).toUpperCase() + word.slice(1);
                 }
-                // Punto final si termina sin puntuación
-                if (w.isWordLike && w.index + word.length === text.length) {
-                    if (!/[.!?]$/.test(word)) word += '.';
-                }
-                return word;
-            }).join(' ');
+                corrected += word;
+                // Añadir espacio si no es el último
+                if (idx < words.length - 1) corrected += ' ';
+            });
+            // Añadir punto final si no termina con puntuación
+            if (corrected && !/[.!?]$/.test(corrected)) corrected += '.';
+            return corrected;
         }
+
         
         recognition.onresult = (event) => {
             for (let i = event.resultIndex; i < event.results.length; i++) {
                 const transcript = event.results[i][0].transcript.trim();
         
                 if (event.results[i].isFinal) {
-                    // Concatenar solo fragmentos finales con corrección básica
-                    const corrected = correctText(transcript);
+                    // Concatenar fragmentos finales con corrección en tiempo real
+                    const corrected = correctTextRealtime(transcript);
                     textarea.value += (textarea.value ? ' ' : '') + corrected;
                     textarea.style.height = 'auto';
                     textarea.style.height = `${textarea.scrollHeight}px`;
                 } else {
-                    // Opcional: mostrar sugerencias en tiempo real
-                    // console.log("Interim suggestion:", correctText(transcript));
+                    // Mostrar sugerencias en tiempo real sin sobrescribir lo anterior
+                    const interimCorrected = correctTextRealtime(transcript);
+                    // Si quieres, puedes mostrarlo en placeholder:
+                    textarea.placeholder = interimCorrected;
                 }
             }
         };
