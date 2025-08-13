@@ -451,11 +451,6 @@
 
     const chatInterfaceHTML = `
         <div class="chat-interface">
-            <div class="brand-header">
-                <img src="${config.branding.logo}" alt="${config.branding.name}">
-                <span>${config.branding.name}</span>
-                <button class="close-button">×</button>
-            </div>
             <div class="chat-messages"></div>
             <div class="chat-input">
                 <textarea placeholder="Text oder Sprache eingeben…" rows="1"></textarea>
