@@ -2,14 +2,15 @@
 (function() {
     // Create and inject styles
     const styles = `
-         .n8n-chat-widget {
+        .n8n-chat-widget {
             --chat--color-primary: var(--n8n-chat-primary-color, #854fff);
             --chat--color-secondary: var(--n8n-chat-secondary-color, #6b3fd4);
             --chat--color-background: var(--n8n-chat-background-color, #ffffff);
             --chat--color-font: var(--n8n-chat-font-color, #333333);
             font-family: futura-pt;
-         }
-         .n8n-chat-widget .chat-container {
+        }
+
+        .n8n-chat-widget .chat-container {
             position: fixed;
             bottom: 20px;
             right: 20px;
@@ -415,6 +416,7 @@
 
     const widgetContainer = document.createElement('div');
     widgetContainer.className = 'n8n-chat-widget';
+
     widgetContainer.style.setProperty('--n8n-chat-primary-color', config.style.primaryColor);
     widgetContainer.style.setProperty('--n8n-chat-secondary-color', config.style.secondaryColor);
     widgetContainer.style.setProperty('--n8n-chat-background-color', config.style.backgroundColor);
@@ -458,6 +460,7 @@
             <div class="chat-input">
                 <textarea placeholder="Text oder Sprache eingeben…" rows="1"></textarea>
                 <button type="submit">
+                    <!-- Flecha hacia la derecha -->
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M5 12h14M12 5l7 7-7 7" />
                     </svg>
@@ -498,7 +501,7 @@
         textarea.setCustomValidity(textarea.value.trim() ? '' : 'Texto vacío no permitido');
     });
 
-    // Micrófono multiplataforma
+    // Micrófono
     const micSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
                         <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
@@ -519,23 +522,69 @@
     let recognition;
     let isRecording = false;
 
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition || null;
-    if (SpeechRecognition) {
+    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition = new SpeechRecognition();
-        recognition.lang = navigator.language || 'de-DE';
+        recognition.lang = 'de-DE';
         recognition.continuous = true;
         recognition.interimResults = true;
 
+        // Configuración de idioma y segmentador
+        const userLang = navigator.language || 'de-DE';
+        const segmenter = new Intl.Segmenter(userLang, { granularity: 'word' });
+        
+        
+        // Función avanzada de corrección y sugerencias en tiempo real
+        function correctTextRealtime(text) {
+            const words = [...segmenter.segment(text)];
+            let corrected = '';
+            words.forEach((w, idx) => {
+                let word = w.segment;
+        
+                // Saltar si es espacio vacío
+                if (!word.trim()) return;
+        
+                // Mayúscula al inicio de oración
+                if (idx === 0 || /[.!?]\s*$/.test(corrected)) {
+                    word = word.charAt(0).toUpperCase() + word.slice(1);
+                }
+        
+                // Evitar espacio antes de puntuación
+                if (/[.,!?]/.test(word)) {
+                    corrected = corrected.trim() + word;
+                } else {
+                    corrected += (corrected ? ' ' : '') + word;
+                }
+            });
+        
+            // Añadir punto final si no termina con puntuación
+            if (corrected && !/[.!?]$/.test(corrected)) corrected += '.';
+        
+            return corrected;
+        }
+
+
+        
         recognition.onresult = (event) => {
             for (let i = event.resultIndex; i < event.results.length; i++) {
                 const transcript = event.results[i][0].transcript.trim();
+        
                 if (event.results[i].isFinal) {
-                    textarea.value += (textarea.value ? ' ' : '') + transcript;
+                    // Concatenar fragmentos finales con corrección en tiempo real
+                    const corrected = correctTextRealtime(transcript);
+                    textarea.value += (textarea.value ? ' ' : '') + corrected;
                     textarea.style.height = 'auto';
                     textarea.style.height = `${textarea.scrollHeight}px`;
+                } else {
+                    // Mostrar sugerencias en tiempo real sin sobrescribir lo anterior
+                    // const interimCorrected = correctTextRealtime(transcript);
+                    // Si quieres, puedes mostrarlo en placeholder:
+                    // textarea.placeholder = interimCorrected;
                 }
             }
         };
+
+
 
         recognition.onerror = (event) => {
             console.error('Speech recognition error:', event.error);
@@ -578,14 +627,18 @@
         const data = [{ action: "loadPreviousSession", sessionId: currentSessionId, route: config.webhook.route, metadata: { userId: "" } }];
         try {
             const response = await fetch(config.webhook.url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-            await response.json();
+            const responseData = await response.json();
             chatContainer.querySelector('.brand-header').style.display = 'none';
             chatContainer.querySelector('.new-conversation').style.display = 'none';
             chatInterface.classList.add('active');
 
             const optInMessage = document.createElement('div');
             optInMessage.className = 'chat-message bot';
-            optInMessage.innerHTML = `Hallo! 👋 Ich bin Ihr persönlicher Assistent der Agentur für Kommunikation AMARETIS. Wie kann ich Ihnen heute weiterhelfen?`;
+            optInMessage.innerHTML = `
+                Hallo! 👋 Ich bin Ihr persönlicher Assistent der Agentur für Kommunikation AMARETIS.
+                Wir sind eine Full-Service-Werbeagentur mit Sitz in Göttingen und arbeiten für Kundinnen und Kunden in ganz Deutschland.
+                Wie kann ich Ihnen heute weiterhelfen?
+            `;
             messagesContainer.appendChild(optInMessage);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         } catch (error) { console.error('Error:', error); }
@@ -611,13 +664,18 @@
     }
 
     newChatBtn.addEventListener('click', startNewConversation);
+
     sendButton.addEventListener('click', () => {
         const message = textarea.value.trim();
         if (message) { sendMessage(message); textarea.value = ''; }
     });
+
     textarea.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); const message = textarea.value.trim(); if (message) { sendMessage(message); textarea.value = ''; } }
     });
+
     toggleButton.addEventListener('click', () => { chatContainer.classList.toggle('open'); });
-    chatContainer.querySelectorAll('.close-button').forEach(button => { button.addEventListener('click', () => { chatContainer.classList.remove('open'); }); });
+
+    const closeButtons = chatContainer.querySelectorAll('.close-button');
+    closeButtons.forEach(button => { button.addEventListener('click', () => { chatContainer.classList.remove('open'); }); });
 })();
