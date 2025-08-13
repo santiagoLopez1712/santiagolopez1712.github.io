@@ -523,25 +523,36 @@
         const userLang = navigator.language || 'de-DE';
         const segmenter = new Intl.Segmenter(userLang, { granularity: 'word' });
         
-        // Función básica de corrección ortográfica y puntuación
+        
         // Función avanzada de corrección y sugerencias en tiempo real
         function correctTextRealtime(text) {
             const words = [...segmenter.segment(text)];
             let corrected = '';
             words.forEach((w, idx) => {
                 let word = w.segment;
+        
+                // Saltar si es espacio vacío
+                if (!word.trim()) return;
+        
                 // Mayúscula al inicio de oración
                 if (idx === 0 || /[.!?]\s*$/.test(corrected)) {
                     word = word.charAt(0).toUpperCase() + word.slice(1);
                 }
-                corrected += word;
-                // Añadir espacio si no es el último
-                if (idx < words.length - 1) corrected += ' ';
+        
+                // Evitar espacio antes de puntuación
+                if (/[.,!?]/.test(word)) {
+                    corrected = corrected.trim() + word;
+                } else {
+                    corrected += (corrected ? ' ' : '') + word;
+                }
             });
+        
             // Añadir punto final si no termina con puntuación
             if (corrected && !/[.!?]$/.test(corrected)) corrected += '.';
+        
             return corrected;
         }
+
 
         
         recognition.onresult = (event) => {
