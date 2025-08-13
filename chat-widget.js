@@ -201,6 +201,7 @@
             border-top: 1px solid rgba(133, 79, 255, 0.1);
             display: flex;
             gap: 8px;
+            align-items: center;
         }
 
         .n8n-chat-widget .chat-input textarea {
@@ -237,6 +238,7 @@
             justify-content: center;
             height: 44px;
             width: 44px;
+            flex-shrink: 0;
         }
 
         .n8n-chat-widget .chat-input button svg {
@@ -252,6 +254,23 @@
         .n8n-chat-widget .chat-input button:hover {
             transform: scale(1.05);
         }
+
+        /* --- NUEVOS ESTILOS PARA EL VISUALIZADOR --- */
+        .n8n-chat-widget #audio-visualizer {
+            flex-grow: 1;
+            height: 44px;
+            background-color: #f8f8f8;
+            border-radius: 8px;
+            display: none;
+            border: 1px solid rgba(133, 79, 255, 0.2);
+        }
+        .n8n-chat-widget .chat-input.is-recording #audio-visualizer {
+            display: block;
+        }
+        .n8n-chat-widget .chat-input.is-recording textarea {
+            display: none;
+        }
+        /* --- FIN DE NUEVOS ESTILOS --- */
 
         .n8n-chat-widget .chat-toggle {
             position: fixed;
@@ -352,21 +371,15 @@
         }
 
         .n8n-chat-widget .privacy-checkbox input[type="checkbox"]:checked + label::after {
-            content: ""; /* Dejamos el contenido vacío */
+            content: "";
             position: absolute;
             display: block;
-            
-            /* Dimensiones y posición de la palomita */
             left: 6px;
             top: 4px;
             width: 5px;
             height: 10px;
-        
-            /* Creamos la forma de palomita con bordes */
-            border: solid white; /* Color blanco */
-            border-width: 0 2.5px 2.5px 0; /* Solo bordes derecho e inferior */
-        
-            /* La rotamos 45 grados para que parezca una palomita */
+            border: solid white;
+            border-width: 0 2.5px 2.5px 0;
             transform: rotate(45deg);
         }
 
@@ -458,9 +471,9 @@
             </div>
             <div class="chat-messages"></div>
             <div class="chat-input">
+                <canvas id="audio-visualizer"></canvas>
                 <textarea placeholder="Text oder Sprache eingeben…" rows="1"></textarea>
                 <button type="submit">
-                    <!-- Flecha hacia la derecha -->
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M5 12h14M12 5l7 7-7 7" />
                     </svg>
@@ -482,12 +495,17 @@
     widgetContainer.appendChild(toggleButton);
     document.body.appendChild(widgetContainer);
 
+    // Selección de elementos del DOM
     const newChatBtn = chatContainer.querySelector('.new-chat-btn');
     const chatInterface = chatContainer.querySelector('.chat-interface');
     const privacyCheckbox = chatContainer.querySelector('#datenschutz'); 
     const messagesContainer = chatContainer.querySelector('.chat-messages');
     const textarea = chatContainer.querySelector('textarea');
     const sendButton = chatContainer.querySelector('button[type="submit"]');
+    const chatInputContainer = chatContainer.querySelector('.chat-input');
+    // --- NUEVA SELECCIÓN DEL CANVAS ---
+    const visualizerCanvas = chatContainer.querySelector('#audio-visualizer');
+
 
     if (privacyCheckbox) {
         privacyCheckbox.addEventListener('change', function() {
@@ -522,6 +540,12 @@
     let recognition;
     let isRecording = false;
 
+    // --- NUEVAS VARIABLES PARA EL VISUALIZADOR ---
+    let audioContext;
+    let analyser;
+    let source;
+    let animationFrameId;
+
     if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition = new SpeechRecognition();
@@ -529,63 +553,18 @@
         recognition.continuous = true;
         recognition.interimResults = true;
 
-        // Configuración de idioma y segmentador
-        const userLang = navigator.language || 'de-DE';
-        const segmenter = new Intl.Segmenter(userLang, { granularity: 'word' });
-        
-        
-        // Función avanzada de corrección y sugerencias en tiempo real
-        function correctTextRealtime(text) {
-            const words = [...segmenter.segment(text)];
-            let corrected = '';
-            words.forEach((w, idx) => {
-                let word = w.segment;
-        
-                // Saltar si es espacio vacío
-                if (!word.trim()) return;
-        
-                // Mayúscula al inicio de oración
-                if (idx === 0 || /[.!?]\s*$/.test(corrected)) {
-                    word = word.charAt(0).toUpperCase() + word.slice(1);
-                }
-        
-                // Evitar espacio antes de puntuación
-                if (/[.,!?]/.test(word)) {
-                    corrected = corrected.trim() + word;
-                } else {
-                    corrected += (corrected ? ' ' : '') + word;
-                }
-            });
-        
-            // Añadir punto final si no termina con puntuación
-            if (corrected && !/[.!?]$/.test(corrected)) corrected += '.';
-        
-            return corrected;
-        }
-
-
-        
         recognition.onresult = (event) => {
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-                const transcript = event.results[i][0].transcript.trim();
-        
-                if (event.results[i].isFinal) {
-                    // Concatenar fragmentos finales con corrección en tiempo real
-                    const corrected = correctTextRealtime(transcript);
-                    textarea.value += (textarea.value ? ' ' : '') + corrected;
-                    textarea.style.height = 'auto';
-                    textarea.style.height = `${textarea.scrollHeight}px`;
-                } else {
-                    // Mostrar sugerencias en tiempo real sin sobrescribir lo anterior
-                    // const interimCorrected = correctTextRealtime(transcript);
-                    // Si quieres, puedes mostrarlo en placeholder:
-                    // textarea.placeholder = interimCorrected;
-                }
-            }
+             for (let i = event.resultIndex; i < event.results.length; i++) {
+                 const transcript = event.results[i][0].transcript.trim();
+                 if (event.results[i].isFinal) {
+                     const corrected = correctTextRealtime(transcript);
+                     textarea.value += (textarea.value ? ' ' : '') + corrected;
+                     textarea.style.height = 'auto';
+                     textarea.style.height = `${textarea.scrollHeight}px`;
+                 }
+             }
         };
-
-
-
+        
         recognition.onerror = (event) => {
             console.error('Speech recognition error:', event.error);
             stopRecording();
@@ -599,20 +578,75 @@
         micButton.title = 'Spracherkennung nicht unterstützt';
     }
 
+    // --- NUEVAS FUNCIONES PARA EL VISUALIZADOR ---
+    function startAudioVisualizer() {
+        if (!visualizerCanvas) return;
+        const canvasCtx = visualizerCanvas.getContext('2d');
+        navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+            .then((stream) => {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                source = audioContext.createMediaStreamSource(stream);
+                source.connect(analyser);
+                analyser.fftSize = 256;
+                const bufferLength = analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+                canvasCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+
+                function draw() {
+                    animationFrameId = requestAnimationFrame(draw);
+                    analyser.getByteFrequencyData(dataArray);
+                    canvasCtx.fillStyle = '#f8f8f8';
+                    canvasCtx.fillRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+                    const barWidth = (visualizerCanvas.width / bufferLength) * 2;
+                    let barHeight;
+                    let x = 0;
+                    for (let i = 0; i < bufferLength; i++) {
+                        barHeight = dataArray[i] / 2.5;
+                        // Usamos el color primario del chat para las barras
+                        canvasCtx.fillStyle = getComputedStyle(widgetContainer).getPropertyValue('--chat--color-primary');
+                        canvasCtx.fillRect(x, visualizerCanvas.height - barHeight, barWidth, barHeight);
+                        x += barWidth + 1;
+                    }
+                }
+                draw();
+            })
+            .catch((err) => { console.error('Mic error:', err); });
+    }
+
+    function stopAudioVisualizer() {
+        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        if (source && source.mediaStream) {
+            source.mediaStream.getTracks().forEach(track => track.stop());
+        }
+        if (audioContext && audioContext.state !== 'closed') {
+            audioContext.close();
+        }
+        if(visualizerCanvas) {
+            const canvasCtx = visualizerCanvas.getContext('2d');
+            canvasCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+        }
+    }
+
+
     function startRecording() {
         if (!recognition) return;
         isRecording = true;
+        chatInputContainer.classList.add('is-recording'); // <-- Muestra el visualizador
         micButton.classList.add('recording');
         micButton.innerHTML = stopSVG;
         recognition.start();
+        startAudioVisualizer(); // <-- Inicia la animación
     }
 
     function stopRecording() {
         if (!recognition) return;
         isRecording = false;
+        chatInputContainer.classList.remove('is-recording'); // <-- Oculta el visualizador
         micButton.classList.remove('recording');
         micButton.innerHTML = micSVG;
         recognition.stop();
+        stopAudioVisualizer(); // <-- Detiene la animación
     }
 
     micButton.addEventListener('click', () => {
@@ -628,7 +662,6 @@
         try {
             const response = await fetch(config.webhook.url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
             const responseData = await response.json();
-            chatContainer.querySelector('.brand-header').style.display = 'none';
             chatContainer.querySelector('.new-conversation').style.display = 'none';
             chatInterface.classList.add('active');
 
@@ -661,6 +694,25 @@
             messagesContainer.appendChild(botMessageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         } catch (error) { console.error('Error:', error); }
+    }
+
+    function correctTextRealtime(text) {
+        const words = [...new Intl.Segmenter(navigator.language || 'de-DE', { granularity: 'word' }).segment(text)];
+        let corrected = '';
+        words.forEach((w, idx) => {
+            let word = w.segment;
+            if (!word.trim()) return;
+            if (idx === 0 || /[.!?]\s*$/.test(corrected)) {
+                word = word.charAt(0).toUpperCase() + word.slice(1);
+            }
+            if (/[.,!?]/.test(word)) {
+                corrected = corrected.trim() + word;
+            } else {
+                corrected += (corrected ? ' ' : '') + word;
+            }
+        });
+        if (corrected && !/[.!?]$/.test(corrected)) corrected += '.';
+        return corrected;
     }
 
     newChatBtn.addEventListener('click', startNewConversation);
