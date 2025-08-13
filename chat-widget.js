@@ -567,7 +567,7 @@
                     textarea.style.height = `${textarea.scrollHeight}px`;
                 } else {
                     // Mostrar sugerencias en tiempo real sin sobrescribir lo anterior
-                    const interimCorrected = correctTextRealtime(transcript);
+                    // const interimCorrected = correctTextRealtime(transcript);
                     // Si quieres, puedes mostrarlo en placeholder:
                     // textarea.placeholder = interimCorrected;
                 }
