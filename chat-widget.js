@@ -358,7 +358,7 @@
             
             /* Dimensiones y posición de la palomita */
             left: 6px;
-            top: 3px;
+            top: 4px;
             width: 5px;
             height: 10px;
         
