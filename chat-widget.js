@@ -569,7 +569,7 @@
                     // Mostrar sugerencias en tiempo real sin sobrescribir lo anterior
                     const interimCorrected = correctTextRealtime(transcript);
                     // Si quieres, puedes mostrarlo en placeholder:
-                    textarea.placeholder = interimCorrected;
+                    // textarea.placeholder = interimCorrected;
                 }
             }
         };
