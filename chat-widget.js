@@ -520,18 +520,21 @@
         recognition.interimResults = true;
 
         recognition.onresult = (event) => {
-            let fragment = '';
             for (let i = event.resultIndex; i < event.results.length; i++) {
-                fragment += event.results[i][0].transcript;
-            }
-            fragment = fragment.trim();
-            // Concatenar fragmentos con corrección básica
-            if (fragment) {
-                textarea.value += (textarea.value ? ' ' : '') + fragment;
-                textarea.style.height = 'auto';
-                textarea.style.height = `${textarea.scrollHeight}px`;
+                const transcript = event.results[i][0].transcript.trim();
+                if (event.results[i].isFinal) {
+                    // Concatenar solo resultados finales
+                    textarea.value += (textarea.value ? ' ' : '') + transcript;
+                    textarea.style.height = 'auto';
+                    textarea.style.height = `${textarea.scrollHeight}px`;
+                }
+                // Si quieres mostrar resultados intermedios en tiempo real:
+                else {
+                     console.log("Interim: ", transcript);
+                }
             }
         };
+
 
         recognition.onerror = (event) => {
             console.error('Speech recognition error:', event.error);
