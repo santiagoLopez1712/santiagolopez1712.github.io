@@ -352,12 +352,22 @@
         }
 
         .n8n-chat-widget .privacy-checkbox input[type="checkbox"]:checked + label::after {
-            content: "✔";
+            content: ""; /* Dejamos el contenido vacío */
             position: absolute;
-            left: 4px;
-            top: 4px;
-            font-size: 12px;
-            color: #fff;
+            display: block;
+            
+            /* Dimensiones y posición de la palomita */
+            left: 6px;
+            top: 3px;
+            width: 5px;
+            height: 10px;
+        
+            /* Creamos la forma de palomita con bordes */
+            border: solid white; /* Color blanco */
+            border-width: 0 2.5px 2.5px 0; /* Solo bordes derecho e inferior */
+        
+            /* La rotamos 45 grados para que parezca una palomita */
+            transform: rotate(45deg);
         }
 
         .n8n-chat-widget .privacy-checkbox a {
