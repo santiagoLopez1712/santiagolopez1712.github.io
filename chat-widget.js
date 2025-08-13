@@ -352,12 +352,22 @@
         }
 
         .n8n-chat-widget .privacy-checkbox input[type="checkbox"]:checked + label::after {
-            content: "✔";
+            content: ""; /* Dejamos el contenido vacío */
             position: absolute;
-            left: 4px;
+            display: block;
+            
+            /* Dimensiones y posición de la palomita */
+            left: 6px;
             top: 4px;
-            font-size: 12px;
-            color: #fff;
+            width: 5px;
+            height: 10px;
+        
+            /* Creamos la forma de palomita con bordes */
+            border: solid white; /* Color blanco */
+            border-width: 0 2.5px 2.5px 0; /* Solo bordes derecho e inferior */
+        
+            /* La rotamos 45 grados para que parezca una palomita */
+            transform: rotate(45deg);
         }
 
         .n8n-chat-widget .privacy-checkbox a {
@@ -519,21 +529,61 @@
         recognition.continuous = true;
         recognition.interimResults = true;
 
+        // Configuración de idioma y segmentador
+        const userLang = navigator.language || 'de-DE';
+        const segmenter = new Intl.Segmenter(userLang, { granularity: 'word' });
+        
+        
+        // Función avanzada de corrección y sugerencias en tiempo real
+        function correctTextRealtime(text) {
+            const words = [...segmenter.segment(text)];
+            let corrected = '';
+            words.forEach((w, idx) => {
+                let word = w.segment;
+        
+                // Saltar si es espacio vacío
+                if (!word.trim()) return;
+        
+                // Mayúscula al inicio de oración
+                if (idx === 0 || /[.!?]\s*$/.test(corrected)) {
+                    word = word.charAt(0).toUpperCase() + word.slice(1);
+                }
+        
+                // Evitar espacio antes de puntuación
+                if (/[.,!?]/.test(word)) {
+                    corrected = corrected.trim() + word;
+                } else {
+                    corrected += (corrected ? ' ' : '') + word;
+                }
+            });
+        
+            // Añadir punto final si no termina con puntuación
+            if (corrected && !/[.!?]$/.test(corrected)) corrected += '.';
+        
+            return corrected;
+        }
+
+
+        
         recognition.onresult = (event) => {
             for (let i = event.resultIndex; i < event.results.length; i++) {
                 const transcript = event.results[i][0].transcript.trim();
+        
                 if (event.results[i].isFinal) {
-                    // Concatenar solo resultados finales
-                    textarea.value += (textarea.value ? ' ' : '') + transcript;
+                    // Concatenar fragmentos finales con corrección en tiempo real
+                    const corrected = correctTextRealtime(transcript);
+                    textarea.value += (textarea.value ? ' ' : '') + corrected;
                     textarea.style.height = 'auto';
                     textarea.style.height = `${textarea.scrollHeight}px`;
-                }
-                // Si quieres mostrar resultados intermedios en tiempo real:
-                else {
-                     console.log("Interim: ", transcript);
+                } else {
+                    // Mostrar sugerencias en tiempo real sin sobrescribir lo anterior
+                    // const interimCorrected = correctTextRealtime(transcript);
+                    // Si quieres, puedes mostrarlo en placeholder:
+                    // textarea.placeholder = interimCorrected;
                 }
             }
         };
+
 
 
         recognition.onerror = (event) => {
