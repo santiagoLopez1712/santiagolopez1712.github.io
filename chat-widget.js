@@ -383,6 +383,23 @@
     styleSheet.textContent = styles;
     document.head.appendChild(styleSheet);
 
+    // Helpers
+    function normalizeLang(code) {
+        const c = (code || '').toLowerCase();
+        if (c.startsWith('de')) return 'de-DE';
+        if (c.startsWith('es')) return 'es-ES';
+        if (c.startsWith('en')) return 'en-US';
+        return 'de-DE';
+    }
+    function uuidv4() {
+        if (crypto && typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+        // fallback simple
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(r) {
+            const v = Math.random()*16|0, y = r === 'x' ? v : (v&0x3|0x8);
+            return y.toString(16);
+        });
+    }
+
     // Default configuration
     const defaultConfig = {
         webhook: {
@@ -407,8 +424,8 @@
             fontColor: '#333333'
         },
         settings: {
-            // Idioma por defecto (puedes sobreescribir con window.ChatWidgetConfig.settings.language)
-            language: 'de-DE' 
+            language: 'de-DE',
+            autoSendOnMicStop: true // <- vuelve a enviar automáticamente al parar el dictado
         }
     };
 
@@ -426,7 +443,7 @@
     window.N8NChatWidgetInitialized = true;
 
     let currentSessionId = '';
-    let currentLang = (config.settings && config.settings.language) || (navigator.language || 'de-DE');
+    let currentLang = normalizeLang((config.settings && config.settings.language) || (navigator.language || 'de-DE'));
 
     // Create widget container
     const widgetContainer = document.createElement('div');
@@ -517,54 +534,39 @@
     // ======= Corrección ortográfica básica (ES/EN/DE) =======
     function normalizeSpaces(str) {
         return str
-            .replace(/\s+/g, ' ')           // espacios múltiples -> uno
-            .replace(/\s+([,.;:!?])/g, '$1')// quitar espacio antes de puntuación
-            .replace(/([,.;:!?])(?!\s|$)/g, '$1 ') // asegurar un espacio tras puntuación (si no fin)
-            .replace(/\s+$/,'')             // quitar espacios al final
-            .replace(/^\s+/, '');           // quitar espacios al inicio
+            .replace(/\s+/g, ' ')
+            .replace(/\s+([,.;:!?])/g, '$1')
+            .replace(/([,.;:!?])(?!\s|$)/g, '$1 ')
+            .replace(/\s+$/,'')
+            .replace(/^\s+/, '');
     }
-
     function capitalizeSentenceStarts(str) {
-        // Mayúscula al inicio del texto y tras .!? (manejo simple)
         return str.replace(/(^|[.!?]\s+)([a-zäöüßáéíóúàèìòùñç])/g, (m, p1, p2) => p1 + p2.toUpperCase());
     }
-
     function ensureTerminalPunctuation(str) {
-        // Si no termina en .!? entonces añade punto
         return /[.!?…]$/.test(str.trim()) ? str.trim() : (str.trim() + '.');
     }
-
     function fixEnglishI(str){
-        // Capitaliza el pronombre inglés "I" cuando va solo o en contracciones
         return str
             .replace(/(^|\s)i(\s|$)/g, '$1I$2')
             .replace(/(^|\s)i(['’][a-z]+)/g, (m, p1, p2)=> p1 + 'I' + p2);
     }
-
     function fixSpanishInverted(str){
-        // Si una oración termina en ? o ! y no tiene ¿/¡ al inicio de esa oración, añadir de forma simple.
-        // Implementación simple para la última oración.
         const t = str.trim();
         if (/[?]$/.test(t) && !/¿/.test(t)) return '¿' + t;
         if (/[!]$/.test(t) && !/¡/.test(t)) return '¡' + t;
         return str;
     }
-
     function germanCapitalizeAfterDeterminers(str){
-        // Heurística simple: capitaliza la palabra tras determinantes/artículos comunes
         const det = '(der|die|das|dem|den|des|ein|eine|einer|einem|einen|eines|mein|dein|sein|ihr|unser|euer|Ihr)';
-        return str.replace(new RegExp(`\\b${det}\\s+([a-zäöüß][\\wäöüß-]*)`, 'g'), (m, d, w) => `${d} ${w.charAt(0).toUpperCase()}${w.slice(1)}`);
+        return str.replace(new RegExp(`\\b${det}\\s+([a-zäöüß][\\wäöüß-]*)`, 'g'),
+            (m, d, w) => `${d} ${w.charAt(0).toUpperCase()}${w.slice(1)}`);
     }
-
     function basicNormalize(text, lang) {
         if (!text) return text;
         let t = text;
-
-        // Normalización general
         t = normalizeSpaces(t);
         t = capitalizeSentenceStarts(t);
-
-        // Ajustes por idioma
         const l = (lang || '').toLowerCase();
         if (l.startsWith('en')) {
             t = fixEnglishI(t);
@@ -572,34 +574,28 @@
             t = fixSpanishInverted(t);
         } else if (l.startsWith('de')) {
             t = germanCapitalizeAfterDeterminers(t);
-            // Asegurar mayúscula de "Ich" al inicio de oración (ya lo hace capitalizeSentenceStarts)
         }
-
-        // Evitar añadir punto si termina en ?, !, …
         if (!/[!?…]$/.test(t.trim())) {
             t = ensureTerminalPunctuation(t);
         }
-
         return t;
     }
 
-    // Debounce corrección al tipear (evita saltos de cursor)
+    // Debounce corrección al tipear
     let inputNormalizeTimer = null;
     textarea.addEventListener('input', () => {
         textarea.style.height = 'auto';
         textarea.style.height = `${textarea.scrollHeight}px`;
-
         if (inputNormalizeTimer) clearTimeout(inputNormalizeTimer);
         inputNormalizeTimer = setTimeout(() => {
             if (!isRecording) {
-                const start = textarea.selectionStart;
-                const end = textarea.selectionEnd;
                 const before = textarea.value;
                 const after = basicNormalize(before, currentLang);
                 if (after !== before) {
                     textarea.value = after;
-                    // Recolocar cursor al final (más seguro)
-                    textarea.selectionStart = textarea.selectionEnd = textarea.value.length;
+                    try {
+                        textarea.selectionStart = textarea.selectionEnd = textarea.value.length;
+                    } catch (_) {}
                 }
             }
         }, 400);
@@ -614,6 +610,7 @@
         }
     });
 
+    // Botón enviar (flecha derecha)
     const sendButton = chatContainer.querySelector('button[type="submit"]');
 
     // Iconos mic/stop
@@ -627,7 +624,7 @@
                         <rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect>
                     </svg>`;
 
-    // Crear el botón de micrófono
+    // Crear botón de micrófono (mismo estilo que el de enviar)
     const micButton = document.createElement('button');
     micButton.type = 'button';
     micButton.classList.add('mic-button');
@@ -638,69 +635,63 @@
     // ======= Speech Recognition con concatenación =======
     let recognition;
     let isRecording = false;
-    let committedText = ''; // texto ya "confirmado" por resultados finales
-    let lastDisplayedValue = ''; // para evitar re-render innecesario
+    let committedText = '';
+    let lastDisplayedValue = '';
 
     function setRecognitionLang(lang) {
-        if (recognition) {
-            try { recognition.abort(); } catch(e){}
-        }
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) return;
-        recognition = new SpeechRecognition();
-        recognition.lang = lang || 'de-DE';
-        recognition.continuous = true;
-        recognition.interimResults = true;
+        if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            try { if (recognition) recognition.abort(); } catch(e){}
+            recognition = new SpeechRecognition();
+            recognition.lang = normalizeLang(lang || 'de-DE');
+            recognition.continuous = true;
+            recognition.interimResults = true;
 
-        recognition.onresult = (event) => {
-            let finalChunk = '';
-            let interimChunk = '';
+            recognition.onresult = (event) => {
+                let finalChunk = '';
+                let interimChunk = '';
 
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-                const res = event.results[i];
-                const txt = res[0].transcript;
-                if (res.isFinal) {
-                    finalChunk += txt;
-                } else {
-                    interimChunk += txt;
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const res = event.results[i];
+                    const txt = res[0].transcript;
+                    if (res.isFinal) {
+                        finalChunk += txt;
+                    } else {
+                        interimChunk += txt;
+                    }
                 }
-            }
 
-            // Si hay finales, los "comiteamos" con normalización y concatenación
-            if (finalChunk) {
-                const joiner = committedText && !/[ \n]$/.test(committedText) ? ' ' : '';
-                committedText = basicNormalize((committedText + joiner + finalChunk).trim(), currentLang);
-            }
+                if (finalChunk) {
+                    const joiner = committedText && !/[ \n]$/.test(committedText) ? ' ' : '';
+                    committedText = basicNormalize((committedText + joiner + finalChunk).trim(), currentLang);
+                }
 
-            // Lo que se muestra es committed + interim (sin normalizar en exceso el interim)
-            const joiner2 = (committedText && interimChunk && !/[ \n]$/.test(committedText)) ? ' ' : '';
-            const displayValue = (committedText + joiner2 + interimChunk).trim();
+                const joiner2 = (committedText && interimChunk && !/[ \n]$/.test(committedText)) ? ' ' : '';
+                const displayValue = (committedText + joiner2 + interimChunk).trim();
 
-            if (displayValue !== lastDisplayedValue) {
-                textarea.value = displayValue;
-                textarea.style.height = 'auto';
-                textarea.style.height = `${textarea.scrollHeight}px`;
-                lastDisplayedValue = displayValue;
-            }
-        };
+                if (displayValue !== lastDisplayedValue) {
+                    textarea.value = displayValue;
+                    textarea.style.height = 'auto';
+                    textarea.style.height = `${textarea.scrollHeight}px`;
+                    lastDisplayedValue = displayValue;
+                }
+            };
 
-        recognition.onerror = (event) => {
-            console.error('Speech recognition error:', event.error);
-            stopRecording();
-        };
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                stopRecording();
+            };
 
-        recognition.onend = () => {
-            if (isRecording) stopRecording();
-        };
+            recognition.onend = () => {
+                if (isRecording) stopRecording();
+            };
+        } else {
+            micButton.disabled = true;
+            micButton.title = 'Spracherkennung nicht unterstützt';
+        }
     }
 
-    // Inicializar si disponible
-    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
-        setRecognitionLang(currentLang);
-    } else {
-        micButton.disabled = true;
-        micButton.title = 'Spracherkennung nicht unterstützt';
-    }
+    setRecognitionLang(currentLang);
     
     function startRecording() {
         if (!recognition) return;
@@ -719,11 +710,23 @@
         micButton.innerHTML = micSVG;
         try { recognition.stop(); } catch(e) { console.warn(e); }
 
-        // Al parar, normalizamos todo lo que quedó en pantalla
+        // Normaliza lo que quedó en pantalla
         if (textarea.value.trim()) {
             textarea.value = basicNormalize(textarea.value, currentLang);
             textarea.style.height = 'auto';
             textarea.style.height = `${textarea.scrollHeight}px`;
+        }
+
+        // RESTAURADO: Envío automático al parar el dictado (configurable)
+        if (config.settings.autoSendOnMicStop) {
+            const finalMsg = textarea.value.trim();
+            if (finalMsg) {
+                const norm = basicNormalize(finalMsg, currentLang);
+                textarea.value = '';
+                committedText = '';
+                lastDisplayedValue = '';
+                sendMessage(norm);
+            }
         }
     }
     
@@ -738,19 +741,15 @@
     // Exponer función para cambiar idioma en runtime
     window.ChatWidgetSetLanguage = function(langCode) {
         if (typeof langCode !== 'string' || !langCode) return;
-        currentLang = langCode;
-        if (recognition) {
-            const wasRecording = isRecording;
-            try { recognition.abort(); } catch(e){}
-            setRecognitionLang(currentLang);
-            if (wasRecording) {
-                startRecording();
-            }
+        currentLang = normalizeLang(langCode);
+        setRecognitionLang(currentLang);
+        if (isRecording) {
+            try { recognition.start(); } catch(e){}
         }
     };
 
     function generateUUID() {
-        return crypto.randomUUID();
+        return uuidv4();
     }
 
     async function startNewConversation() {
@@ -759,26 +758,21 @@
             action: "loadPreviousSession",
             sessionId: currentSessionId,
             route: config.webhook.route,
-            metadata: {
-                userId: ""
-            }
+            metadata: { userId: "" }
         }];
 
         try {
             const response = await fetch(config.webhook.url, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
 
-            const responseData = await response.json();
+            await response.json();
             chatContainer.querySelector('.brand-header').style.display = 'none';
             chatContainer.querySelector('.new-conversation').style.display = 'none';
             chatInterface.classList.add('active');
             
-            // Greeting
             const optInMessage = document.createElement('div');
             optInMessage.className = 'chat-message bot';
             optInMessage.innerHTML = `
@@ -804,9 +798,7 @@
             sessionId: currentSessionId,
             route: config.webhook.route,
             chatInput: cleaned,
-            metadata: {
-                userId: ""
-            }
+            metadata: { userId: "" }
         };
 
         const userMessageDiv = document.createElement('div');
@@ -818,14 +810,11 @@
         try {
             const response = await fetch(config.webhook.url, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(messageData)
             });
             
             const data = await response.json();
-            
             const botMessageDiv = document.createElement('div');
             botMessageDiv.className = 'chat-message bot';
             botMessageDiv.textContent = Array.isArray(data) ? data[0].output : data.output;
@@ -836,21 +825,18 @@
         }
     }
 
-    const newChatBtn = chatContainer.querySelector('.new-chat-btn');
     newChatBtn.addEventListener('click', startNewConversation);
     
     const submit = () => {
         const message = textarea.value.trim();
         if (message) {
-            // Normaliza antes de enviar
             const norm = basicNormalize(message, currentLang);
             textarea.value = '';
             sendMessage(norm);
         }
     };
 
-    const sendButtonEl = chatContainer.querySelector('button[type="submit"]');
-    sendButtonEl.addEventListener('click', submit);
+    sendButton.addEventListener('click', submit);
     
     textarea.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
