@@ -7,7 +7,7 @@
             --chat--color-secondary: var(--n8n-chat-secondary-color, #6b3fd4);
             --chat--color-background: var(--n8n-chat-background-color, #ffffff);
             --chat--color-font: var(--n8n-chat-font-color, #333333);
-            --chat--color-accent: #ff4d4d;
+            --chat--color-accent: #ff4d4d; /* Nuevo color de acento para la grabación */
             font-family: futura-pt;
         }
 
@@ -47,24 +47,9 @@
             flex-shrink: 0;
         }
 
-        /* --- NUEVOS ESTILOS PARA EL CONTENEDOR DEL IDIOMA Y EL ICONO --- */
-        .n8n-chat-widget .lang-selector-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-            margin-left: auto;
-        }
-        .n8n-chat-widget .globe-icon {
-            width: 20px;
-            height: 20px;
-            fill: var(--chat--color-font);
-            stroke: var(--chat--color-font);
-            opacity: 0.6;
-            margin-right: -28px;
-            pointer-events: none;
-        }
         .n8n-chat-widget .language-select {
-            padding: 4px 8px 4px 32px;
+            margin-left: auto;
+            padding: 4px 8px;
             border-radius: 6px;
             border: 1px solid rgba(133, 79, 255, 0.2);
             background: var(--chat--color-background);
@@ -72,10 +57,7 @@
             font-size: 14px;
             font-family: inherit;
             cursor: pointer;
-            appearance: none;
-            -webkit-appearance: none;
         }
-        /* --- FIN DE NUEVOS ESTILOS --- */
 
         .n8n-chat-widget .close-button {
             background: none;
@@ -556,8 +538,9 @@
     window.N8NChatWidgetInitialized = true;
 
     let currentSessionId = '';
-    let currentLang = 'de';
+    let currentLang = 'de'; // Idioma por defecto
 
+    // Mapa para los códigos de idioma correctos
     const langCodes = {
         de: 'de-DE',
         en: 'en-US',
@@ -580,18 +563,11 @@
             <div class="brand-header">
                 <img src="${config.branding.logo}" alt="${config.branding.name}">
                 <span>${config.branding.name}</span>
-                <div class="lang-selector-wrapper">
-                    <svg class="globe-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="2" y1="12" x2="22" y2="12"></line>
-                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-                    </svg>
-                    <select class="language-select">
-                        <option value="de">Deutsch</option>
-                        <option value="en">English</option>
-                        <option value="es">Español</option>
-                    </select>
-                </div>
+                <select class="language-select">
+                    <option value="de">Deutsch</option>
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                </select>
                 <button class="close-button">×</button>
             </div>
             <div class="new-conversation">
@@ -616,18 +592,11 @@
             <div class="brand-header">
                 <img src="${config.branding.logo}" alt="${config.branding.name}">
                 <span>${config.branding.name}</span>
-                <div class="lang-selector-wrapper">
-                    <svg class="globe-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="2" y1="12" x2="22" y2="12"></line>
-                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-                    </svg>
-                    <select class="language-select">
-                        <option value="de">Deutsch</option>
-                        <option value="en">English</option>
-                        <option value="es">Español</option>
-                    </select>
-                </div>
+                <select class="language-select">
+                    <option value="de">Deutsch</option>
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                </select>
                 <button class="close-button">×</button>
             </div>
             <div class="chat-messages"></div>
@@ -664,7 +633,7 @@
     widgetContainer.appendChild(toggleButton);
     document.body.appendChild(widgetContainer);
 
-    // Selección de elementos del DOM después de que se han creado y adjuntado
+    // Selección de elementos del DOM
     const newChatBtn = chatContainer.querySelector('.new-chat-btn');
     const newChatBtnTextSpan = newChatBtn.querySelector('span');
     const newConversationWrapper = chatContainer.querySelector('.new-conversation-wrapper');
@@ -677,20 +646,6 @@
     const chatInputContainer = chatContainer.querySelector('.chat-input');
     const visualizerCanvas = chatContainer.querySelector('#audio-visualizer');
     const languageSelects = chatContainer.querySelectorAll('.language-select');
-    const closeButtons = chatContainer.querySelectorAll('.close-button');
-
-
-    // **Corrección principal: Añadir el eventListener al botón de alternar**
-    toggleButton.addEventListener('click', () => {
-        chatContainer.classList.toggle('open');
-    });
-
-    closeButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            chatContainer.classList.remove('open');
-        });
-    });
-
 
     // SVGs para los iconos
     const micSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -710,12 +665,11 @@
         const langCode = currentLang.split('-')[0];
         const t = translations[langCode] || translations.de;
         
-        chatContainer.querySelector('.new-conversation .welcome-text').textContent = t.welcomeText;
-        chatContainer.querySelector('.new-conversation .response-text').textContent = t.responseTimeText;
+        chatContainer.querySelector('.welcome-text').textContent = t.welcomeText;
+        chatContainer.querySelector('.response-text').textContent = t.responseTimeText;
         chatContainer.querySelector('.privacy-checkbox label').innerHTML = t.privacyLabel;
-        chatContainer.querySelector('.new-chat-btn span').textContent = t.newChatBtnText;
-        
-        chatContainer.querySelector('.chat-input textarea').placeholder = t.placeholder;
+        newChatBtnTextSpan.textContent = t.newChatBtnText;
+        chatContainer.querySelector('textarea').placeholder = t.placeholder;
         chatContainer.querySelector('.mic-button').title = t.micTitle;
         chatContainer.querySelector('.send-button').title = t.sendTitle;
 
@@ -729,6 +683,7 @@
         }
     }
 
+    // Inicializar UI con el idioma por defecto
     updateUI();
 
     let recognition;
@@ -747,15 +702,15 @@
         recognition.interimResults = true;
 
         recognition.onresult = (event) => {
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-                const transcript = event.results[i][0].transcript.trim();
-                if (event.results[i].isFinal) {
-                    const corrected = correctTextRealtime(transcript);
-                    textarea.value += (textarea.value ? ' ' : '') + corrected;
-                    textarea.style.height = 'auto';
-                    textarea.style.height = `${textarea.scrollHeight}px`;
-                }
-            }
+             for (let i = event.resultIndex; i < event.results.length; i++) {
+                 const transcript = event.results[i][0].transcript.trim();
+                 if (event.results[i].isFinal) {
+                     const corrected = correctTextRealtime(transcript);
+                     textarea.value += (textarea.value ? ' ' : '') + corrected;
+                     textarea.style.height = 'auto';
+                     textarea.style.height = `${textarea.scrollHeight}px`;
+                 }
+             }
         };
 
         recognition.onerror = (event) => {
@@ -785,15 +740,18 @@
         micButton.title = translations[currentLang.split('-')[0]].micUnsupported;
     }
 
+    // Lógica para habilitar/deshabilitar el botón de inicio de chat
     privacyCheckbox.addEventListener('change', () => {
         newChatBtn.disabled = !privacyCheckbox.checked;
     });
 
+    // Lógica para cambiar el idioma del reconocimiento de voz y UI
     languageSelects.forEach(select => {
         select.addEventListener('change', (e) => {
             currentLang = e.target.value;
             if (recognition) {
                 recognition.lang = langCodes[currentLang];
+                console.log('Idioma de reconocimiento de voz cambiado a:', recognition.lang);
             }
             updateUI();
         });
@@ -817,83 +775,54 @@
                     analyser.getByteFrequencyData(dataArray);
                     canvasCtx.fillStyle = '#f8f8f8';
                     canvasCtx.fillRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
-                    const barWidth = (visualizerCanvas.width / bufferLength) * 2.5;
+                    const barWidth = (visualizerCanvas.width / bufferLength) * 2;
                     let barHeight;
                     let x = 0;
                     for (let i = 0; i < bufferLength; i++) {
-                        barHeight = dataArray[i];
-                        canvasCtx.fillStyle = `rgb(${barHeight + 100}, 50, 50)`;
-                        canvasCtx.fillRect(x, visualizerCanvas.height - barHeight / 2, barWidth, barHeight / 2);
+                        barHeight = dataArray[i] / 2.5;
+                        canvasCtx.fillStyle = getComputedStyle(widgetContainer).getPropertyValue('--chat--color-primary');
+                        canvasCtx.fillRect(x, visualizerCanvas.height - barHeight, barWidth, barHeight);
                         x += barWidth + 1;
                     }
                 }
                 draw();
             })
-            .catch(e => console.error('Error al iniciar el visualizador de audio:', e));
+            .catch((err) => { console.error('Mic error:', err); });
     }
 
     function stopAudioVisualizer() {
-        if (animationFrameId) {
-            cancelAnimationFrame(animationFrameId);
-            animationFrameId = null;
+        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        if (source && source.mediaStream) {
+            source.mediaStream.getTracks().forEach(track => track.stop());
         }
-        if (source) {
-            source.disconnect();
-            source = null;
-        }
-        if (audioContext) {
+        if (audioContext && audioContext.state !== 'closed') {
             audioContext.close();
-            audioContext = null;
         }
-        if (visualizerCanvas) {
+        if(visualizerCanvas) {
             const canvasCtx = visualizerCanvas.getContext('2d');
             canvasCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
         }
     }
 
     function startRecording() {
-        if (recognition) {
-            isRecording = true;
-            micButton.classList.add('recording');
-            micButton.innerHTML = stopSVG;
-            chatInputContainer.classList.add('is-recording');
-            textarea.disabled = true;
-            sendButton.disabled = true;
-            recognition.start();
-            startAudioVisualizer();
-        }
+        if (!recognition) return;
+        isRecording = true;
+        chatInputContainer.classList.add('is-recording');
+        micButton.classList.add('recording');
+        micButton.innerHTML = stopSVG;
+        recognition.start();
+        startAudioVisualizer();
     }
 
     function stopRecording() {
-        if (recognition) {
-            isRecording = false;
-            micButton.classList.remove('recording');
-            micButton.innerHTML = micSVG;
-            chatInputContainer.classList.remove('is-recording');
-            textarea.disabled = false;
-            sendButton.disabled = false;
-            recognition.stop();
-            stopAudioVisualizer();
-            shouldSendMessageAfterStop = true;
-        }
+        if (!recognition) return;
+        isRecording = false;
+        chatInputContainer.classList.remove('is-recording');
+        micButton.classList.remove('recording');
+        micButton.innerHTML = micSVG;
+        recognition.stop();
+        stopAudioVisualizer();
     }
-
-    function correctTextRealtime(text) {
-        // Implementar lógica de corrección de texto
-        // Por ahora, solo capitalizar la primera letra
-        if (!text) return '';
-        return text.charAt(0).toUpperCase() + text.slice(1);
-    }
-    
-    // Asignación de event listeners para los botones de la interfaz de chat
-    newChatBtn.addEventListener('click', () => {
-        newConversationWrapper.style.display = 'none';
-        chatInterface.classList.add('active');
-        const t = translations[currentLang] || translations.de;
-        const botMessage = createMessageElement(t.botGreeting, 'bot');
-        messagesContainer.appendChild(botMessage);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    });
 
     micButton.addEventListener('click', () => {
         if (isRecording) {
@@ -903,70 +832,100 @@
         }
     });
 
-    // Función para crear un elemento de mensaje en el DOM
-    function createMessageElement(text, sender) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `chat-message ${sender}`;
-        messageDiv.textContent = text;
-        return messageDiv;
+    function generateUUID() { return crypto.randomUUID(); }
+
+    async function startNewConversation() {
+        currentSessionId = generateUUID();
+        const data = [{ action: "loadPreviousSession", sessionId: currentSessionId, route: config.webhook.route, metadata: { userId: "" } }];
+        try {
+            const response = await fetch(config.webhook.url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+            const responseData = await response.json();
+            newConversationWrapper.style.display = 'none';
+            chatInterface.classList.add('active');
+
+            const langCode = currentLang.split('-')[0];
+            const botGreetingMessage = document.createElement('div');
+            botGreetingMessage.className = 'chat-message bot bot-greeting-message';
+            botGreetingMessage.innerHTML = translations[langCode].botGreeting;
+            messagesContainer.appendChild(botGreetingMessage);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        } catch (error) { console.error('Error:', error); }
     }
 
-    // Funciones de envío de mensajes
-    function sendMessage(message) {
-        if (message.trim() === '') return;
-
-        const userMessage = createMessageElement(message, 'user');
-        messagesContainer.appendChild(userMessage);
-        textarea.value = '';
-        textarea.style.height = 'auto';
-
-        const loadingMessage = createMessageElement('...', 'bot');
-        messagesContainer.appendChild(loadingMessage);
-
+    async function sendMessage(message) {
+        const messageData = { action: "sendMessage", sessionId: currentSessionId, route: config.webhook.route, chatInput: message, metadata: { userId: "", lang: currentLang } };
+        const userMessageDiv = document.createElement('div');
+        userMessageDiv.className = 'chat-message user';
+        userMessageDiv.textContent = message;
+        messagesContainer.appendChild(userMessageDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-        fetch(`${config.webhook.url}${config.webhook.route}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ message, sessionId: currentSessionId, lang: currentLang }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            messagesContainer.removeChild(loadingMessage);
-            const botResponse = data.response;
-            const botMessage = createMessageElement(botResponse, 'bot');
-            messagesContainer.appendChild(botMessage);
+        try {
+            const response = await fetch(config.webhook.url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(messageData) });
+            const data = await response.json();
+            const botMessageDiv = document.createElement('div');
+            botMessageDiv.className = 'chat-message bot';
+            botMessageDiv.textContent = Array.isArray(data) ? data[0].output : data.output;
+            messagesContainer.appendChild(botMessageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            messagesContainer.removeChild(loadingMessage);
-            const errorMessage = createMessageElement('Hubo un error al obtener la respuesta. Por favor, inténtelo de nuevo.', 'bot');
-            messagesContainer.appendChild(errorMessage);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        });
+        } catch (error) { console.error('Error:', error); }
     }
 
-    textarea.addEventListener('input', () => {
-        textarea.style.height = 'auto';
-        textarea.style.height = `${textarea.scrollHeight}px`;
-    });
+    function correctTextRealtime(text) {
+        const words = [...new Intl.Segmenter(recognition.lang, { granularity: 'word' }).segment(text)];
+        let corrected = '';
+        words.forEach((w, idx) => {
+            let word = w.segment;
+            if (!word.trim()) return;
+            if (idx === 0 || /[.!?]\s*$/.test(corrected)) {
+                word = word.charAt(0).toUpperCase() + word.slice(1);
+            }
+            if (/[.,!?]/.test(word)) {
+                corrected = corrected.trim() + word;
+            } else {
+                corrected += (corrected ? ' ' : '') + word;
+            }
+        });
+        if (corrected && !/[.!?]$/.test(corrected)) corrected += '.';
+        return corrected;
+    }
 
-    textarea.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            sendMessage(textarea.value);
-            textarea.value = '';
-            textarea.style.height = 'auto';
+    newChatBtn.addEventListener('click', startNewConversation);
+    
+    sendButton.addEventListener('click', () => {
+        if (isRecording) {
+            shouldSendMessageAfterStop = true;
+            stopRecording();
+        } else {
+            const message = textarea.value.trim();
+            if (message) {
+                sendMessage(message);
+                textarea.value = '';
+                textarea.style.height = 'auto';
+            }
         }
     });
 
-    sendButton.addEventListener('click', () => {
-        sendMessage(textarea.value);
-        textarea.value = '';
-        textarea.style.height = 'auto';
+    textarea.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            if (isRecording) {
+                shouldSendMessageAfterStop = true;
+                stopRecording();
+            } else {
+                const message = textarea.value.trim();
+                if (message) {
+                    sendMessage(message);
+                    textarea.value = '';
+                    textarea.style.height = 'auto';
+                }
+            }
+        }
     });
+
+    const closeButtons = chatContainer.querySelectorAll('.close-button');
+    closeButtons.forEach(button => { button.addEventListener('click', () => { chatContainer.classList.remove('open'); }); });
+    
+    toggleButton.addEventListener('click', () => { chatContainer.classList.toggle('open'); });
 
 })();
