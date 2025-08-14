@@ -7,6 +7,7 @@
             --chat--color-secondary: var(--n8n-chat-secondary-color, #6b3fd4);
             --chat--color-background: var(--n8n-chat-background-color, #ffffff);
             --chat--color-font: var(--n8n-chat-font-color, #333333);
+            --chat--color-accent: #ff4d4d; /* Nuevo color de acento para la grabación */
             font-family: futura-pt;
         }
 
@@ -33,7 +34,7 @@
         .n8n-chat-widget .chat-container.open {
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* Se agrega para evitar que todo el contenedor se desborde */
+            overflow: hidden;
         }
 
         .n8n-chat-widget .brand-header {
@@ -43,14 +44,22 @@
             gap: 12px;
             border-bottom: 1px solid rgba(133, 79, 255, 0.1);
             position: relative;
-            flex-shrink: 0; /* ✅ Mantiene el header fijo */
+            flex-shrink: 0;
+        }
+
+        .n8n-chat-widget .language-select {
+            margin-left: auto;
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(133, 79, 255, 0.2);
+            background: var(--chat--color-background);
+            color: var(--chat--color-font);
+            font-size: 14px;
+            font-family: inherit;
+            cursor: pointer;
         }
 
         .n8n-chat-widget .close-button {
-            position: absolute;
-            right: 16px;
-            top: 50%;
-            transform: translateY(-50%);
             background: none;
             border: none;
             color: var(--chat--color-font);
@@ -62,6 +71,7 @@
             transition: color 0.2s;
             font-size: 20px;
             opacity: 0.6;
+            margin-left: 8px;
         }
 
         .n8n-chat-widget .close-button:hover {
@@ -163,17 +173,16 @@
         }
         
         .n8n-chat-widget .chat-messages {
-            flex-grow: 1; /* ✅ El contenedor de mensajes crece y ocupa el espacio disponible */
-            overflow-y: auto; /* ✅ Este contenedor maneja su propio scroll */
+            flex-grow: 1;
+            overflow-y: auto;
             padding: 20px;
             background: var(--chat--color-background);
             display: flex;
             flex-direction: column;
-            -ms-overflow-style: none; /* Oculta la barra de desplazamiento en IE y Edge */
-            scrollbar-width: none; /* Oculta la barra de desplazamiento en Firefox */
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
         
-        /* Oculta la barra de desplazamiento en WebKit (Chrome, Safari) */
         .n8n-chat-widget .chat-messages::-webkit-scrollbar {
             display: none;
         }
@@ -205,7 +214,7 @@
         }
 
         .n8n-chat-widget .chat-input {
-            flex-shrink: 0; /* ✅ Mantiene el área de entrada con su tamaño original, sin encogerse */
+            flex-shrink: 0;
             padding: 16px;
             background: var(--chat--color-background);
             border-top: 1px solid rgba(133, 79, 255, 0.1);
@@ -213,6 +222,21 @@
             gap: 8px;
             align-items: center;
             box-sizing: border-box;
+            position: relative;
+        }
+
+        /* Tooltip CSS */
+        .n8n-chat-widget .chat-input button[title]:hover::after {
+            content: attr(title);
+            position: absolute;
+            bottom: 60px;
+            background: #333;
+            color: #fff;
+            font-size: 12px;
+            padding: 5px 8px;
+            border-radius: 6px;
+            white-space: nowrap;
+            z-index: 10;
         }
 
         .n8n-chat-widget .chat-input textarea {
@@ -250,6 +274,17 @@
             height: 44px;
             width: 44px;
             flex-shrink: 0;
+            position: relative;
+        }
+
+        /* Cambios de estilo para el botón de micrófono */
+        .n8n-chat-widget .chat-input button.mic-button.recording {
+            background: var(--chat--color-accent);
+            color: white;
+        }
+
+        .n8n-chat-widget .chat-input button.send-button {
+            background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
         }
 
         .n8n-chat-widget .chat-input button svg {
@@ -264,6 +299,14 @@
 
         .n8n-chat-widget .chat-input button:hover {
             transform: scale(1.05);
+        }
+        
+        .n8n-chat-widget .chat-input button.mic-button[title]:hover::after {
+            right: 60px;
+        }
+        
+        .n8n-chat-widget .chat-input button.send-button[title]:hover::after {
+            right: 16px;
         }
 
         /* --- NUEVOS ESTILOS PARA EL VISUALIZADOR --- */
@@ -318,7 +361,7 @@
         }
 
         .n8n-chat-widget .chat-footer {
-            flex-shrink: 0; /* ✅ Mantiene el footer con su tamaño original, sin encogerse */
+            flex-shrink: 0;
             padding: 8px;
             text-align: center;
             background: var(--chat--color-background);
@@ -455,6 +498,11 @@
             <div class="brand-header">
                 <img src="${config.branding.logo}" alt="${config.branding.name}">
                 <span>${config.branding.name}</span>
+                <select class="language-select">
+                    <option value="de-DE">Deutsch</option>
+                    <option value="en-US">English</option>
+                    <option value="es-ES">Español</option>
+                </select>
                 <button class="close-button">×</button>
             </div>
             <div class="new-conversation">
@@ -481,13 +529,26 @@
             <div class="brand-header">
                 <img src="${config.branding.logo}" alt="${config.branding.name}">
                 <span>${config.branding.name}</span>
+                <select class="language-select">
+                    <option value="de-DE">Deutsch</option>
+                    <option value="en-US">English</option>
+                    <option value="es-ES">Español</option>
+                </select>
                 <button class="close-button">×</button>
             </div>
             <div class="chat-messages"></div>
             <div class="chat-input">
                 <canvas id="audio-visualizer"></canvas>
                 <textarea placeholder="Text oder Sprache eingeben…" rows="1"></textarea>
-                <button type="submit">
+                <button type="button" class="mic-button" title="Spracheingabe starten/stoppen">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                        <line x1="12" y1="19" x2="12" y2="23"></line>
+                        <line x1="8" y1="23" x2="16" y2="23"></line>
+                    </svg>
+                </button>
+                <button type="button" class="send-button" title="Nachricht senden">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M5 12h14M12 5l7 7-7 7" />
                     </svg>
@@ -516,49 +577,28 @@
     const privacyCheckbox = chatContainer.querySelector('#datenschutz');
     const messagesContainer = chatContainer.querySelector('.chat-messages');
     const textarea = chatContainer.querySelector('textarea');
-    const sendButton = chatContainer.querySelector('button[type="submit"]');
+    const sendButton = chatContainer.querySelector('.send-button');
+    const micButton = chatContainer.querySelector('.mic-button');
     const chatInputContainer = chatContainer.querySelector('.chat-input');
-    // --- NUEVA SELECCIÓN DEL CANVAS ---
     const visualizerCanvas = chatContainer.querySelector('#audio-visualizer');
+    const languageSelects = chatContainer.querySelectorAll('.language-select');
 
-    toggleButton.addEventListener('click', () => {
-        chatContainer.classList.toggle('open');
-    });
-
-    if (privacyCheckbox) {
-        privacyCheckbox.addEventListener('change', function() {
-            newChatBtn.disabled = !this.checked;
-        });
-    }
-
-    textarea.addEventListener('input', () => {
-        textarea.style.height = 'auto';
-        textarea.style.height = `${textarea.scrollHeight}px`;
-        textarea.setCustomValidity(textarea.value.trim() ? '' : 'Texto vacío no permitido');
-    });
-
-    // Micrófono
+    // SVGs para los iconos
     const micSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
                         <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
                         <line x1="12" y1="19" x2="12" y2="23"></line>
                         <line x1="8" y1="23" x2="16" y2="23"></line>
                     </svg>`;
-    const stopSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect>
-                    </svg>`;
-
-    const micButton = document.createElement('button');
-    micButton.type = 'button';
-    micButton.classList.add('mic-button');
-    micButton.innerHTML = micSVG;
-    micButton.title = 'Spracheingabe starten/stoppen';
-    sendButton.before(micButton);
+    const stopSVG = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M6 18L18 6M6 6l12 12" />
+                </svg>`;
 
     let recognition;
     let isRecording = false;
-
-    // --- NUEVAS VARIABLES PARA EL VISUALIZADOR ---
+    let shouldSendMessageAfterStop = false;
     let audioContext;
     let analyser;
     let source;
@@ -590,13 +630,33 @@
 
         recognition.onend = () => {
             if (isRecording) stopRecording();
+            
+            if (shouldSendMessageAfterStop) {
+                const message = textarea.value.trim();
+                if (message) {
+                    sendMessage(message);
+                    textarea.value = '';
+                    textarea.style.height = 'auto';
+                }
+                shouldSendMessageAfterStop = false;
+            }
         };
     } else {
         micButton.disabled = true;
         micButton.title = 'Spracherkennung nicht unterstützt';
     }
 
-    // --- NUEVAS FUNCIONES PARA EL VISUALIZADOR ---
+    // Lógica para cambiar el idioma del reconocimiento de voz
+    languageSelects.forEach(select => {
+        select.addEventListener('change', (e) => {
+            const selectedLang = e.target.value;
+            if (recognition) {
+                recognition.lang = selectedLang;
+                console.log('Idioma de reconocimiento de voz cambiado a:', selectedLang);
+            }
+        });
+    });
+
     function startAudioVisualizer() {
         if (!visualizerCanvas) return;
         const canvasCtx = visualizerCanvas.getContext('2d');
@@ -610,7 +670,6 @@
                 const bufferLength = analyser.frequencyBinCount;
                 const dataArray = new Uint8Array(bufferLength);
                 canvasCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
-
                 function draw() {
                     animationFrameId = requestAnimationFrame(draw);
                     analyser.getByteFrequencyData(dataArray);
@@ -621,7 +680,6 @@
                     let x = 0;
                     for (let i = 0; i < bufferLength; i++) {
                         barHeight = dataArray[i] / 2.5;
-                        // Usamos el color primario del chat para las barras
                         canvasCtx.fillStyle = getComputedStyle(widgetContainer).getPropertyValue('--chat--color-primary');
                         canvasCtx.fillRect(x, visualizerCanvas.height - barHeight, barWidth, barHeight);
                         x += barWidth + 1;
@@ -646,25 +704,24 @@
         }
     }
 
-
     function startRecording() {
         if (!recognition) return;
         isRecording = true;
-        chatInputContainer.classList.add('is-recording'); // <-- Muestra el visualizador
+        chatInputContainer.classList.add('is-recording');
         micButton.classList.add('recording');
         micButton.innerHTML = stopSVG;
         recognition.start();
-        startAudioVisualizer(); // <-- Inicia la animación
+        startAudioVisualizer();
     }
 
     function stopRecording() {
         if (!recognition) return;
         isRecording = false;
-        chatInputContainer.classList.remove('is-recording'); // <-- Oculta el visualizador
+        chatInputContainer.classList.remove('is-recording');
         micButton.classList.remove('recording');
         micButton.innerHTML = micSVG;
         recognition.stop();
-        stopAudioVisualizer(); // <-- Detiene la animación
+        stopAudioVisualizer();
     }
 
     micButton.addEventListener('click', () => {
@@ -715,7 +772,7 @@
     }
 
     function correctTextRealtime(text) {
-        const words = [...new Intl.Segmenter(navigator.language || 'de-DE', { granularity: 'word' }).segment(text)];
+        const words = [...new Intl.Segmenter(recognition.lang, { granularity: 'word' }).segment(text)];
         let corrected = '';
         words.forEach((w, idx) => {
             let word = w.segment;
@@ -735,12 +792,6 @@
 
     newChatBtn.addEventListener('click', startNewConversation);
     
-    // --- Bloque de código corregido ---
-
-    // Variable para controlar si el envío fue iniciado por el usuario
-    let shouldSendMessageAfterStop = false;
-    
-    // ✅ MEJORA 1: Detener grabación y enviar el mensaje
     sendButton.addEventListener('click', () => {
         if (isRecording) {
             shouldSendMessageAfterStop = true;
@@ -750,12 +801,11 @@
             if (message) {
                 sendMessage(message);
                 textarea.value = '';
-                textarea.style.height = 'auto'; // Ajusta la altura del textarea
+                textarea.style.height = 'auto';
             }
         }
     });
-    
-    // ✅ MEJORA 2: Detener grabación y enviar el mensaje con "Enter"
+
     textarea.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
@@ -767,30 +817,15 @@
                 if (message) {
                     sendMessage(message);
                     textarea.value = '';
-                    textarea.style.height = 'auto'; // Ajusta la altura del textarea
+                    textarea.style.height = 'auto';
                 }
             }
         }
     });
-    
-    // ✅ MEJORA 3: Modificar el evento `onend` del SpeechRecognition
-    recognition.onend = () => {
-        if (isRecording) stopRecording(); // Si el reconocimiento se detiene por sí solo
-        
-        // Si el usuario detuvo la grabación para enviar el mensaje
-        if (shouldSendMessageAfterStop) {
-            const message = textarea.value.trim();
-            if (message) {
-                sendMessage(message);
-                textarea.value = '';
-                textarea.style.height = 'auto';
-            }
-            shouldSendMessageAfterStop = false; // Reinicia la bandera
-        }
-    };
-    
-    // --- Fin del bloque de código corregido ---
 
     const closeButtons = chatContainer.querySelectorAll('.close-button');
     closeButtons.forEach(button => { button.addEventListener('click', () => { chatContainer.classList.remove('open'); }); });
+    
+    toggleButton.addEventListener('click', () => { chatContainer.classList.toggle('open'); });
+
 })();
