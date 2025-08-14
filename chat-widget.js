@@ -22,7 +22,6 @@
             border-radius: 12px;
             box-shadow: 0 8px 32px rgba(133, 79, 255, 0.15);
             border: 1px solid rgba(133, 79, 255, 0.2);
-            overflow: hidden;
             font-family: inherit;
         }
 
@@ -30,10 +29,11 @@
             right: auto;
             left: 20px;
         }
-
+        
         .n8n-chat-widget .chat-container.open {
             display: flex;
             flex-direction: column;
+            overflow: hidden; /* Se agrega para evitar que todo el contenedor se desborde */
         }
 
         .n8n-chat-widget .brand-header {
@@ -43,6 +43,7 @@
             gap: 12px;
             border-bottom: 1px solid rgba(133, 79, 255, 0.1);
             position: relative;
+            flex-shrink: 0; /* ✅ Mantiene el header fijo */
         }
 
         .n8n-chat-widget .close-button {
@@ -77,7 +78,7 @@
             font-weight: 500;
             color: var(--chat--color-font);
         }
-
+        
         .n8n-chat-widget .new-conversation {
             position: absolute;
             top: 50%;
@@ -149,24 +150,32 @@
             margin-bottom:28px;
             font-weight: 400;
         }
-
+        
         .n8n-chat-widget .chat-interface {
             display: none;
             flex-direction: column;
             height: 100%;
+            position: relative;
         }
 
         .n8n-chat-widget .chat-interface.active {
             display: flex;
         }
-
+        
         .n8n-chat-widget .chat-messages {
-            flex: 1;
-            overflow-y: auto;
+            flex-grow: 1; /* ✅ El contenedor de mensajes crece y ocupa el espacio disponible */
+            overflow-y: auto; /* ✅ Este contenedor maneja su propio scroll */
             padding: 20px;
             background: var(--chat--color-background);
             display: flex;
             flex-direction: column;
+            -ms-overflow-style: none; /* Oculta la barra de desplazamiento en IE y Edge */
+            scrollbar-width: none; /* Oculta la barra de desplazamiento en Firefox */
+        }
+        
+        /* Oculta la barra de desplazamiento en WebKit (Chrome, Safari) */
+        .n8n-chat-widget .chat-messages::-webkit-scrollbar {
+            display: none;
         }
 
         .n8n-chat-widget .chat-message {
@@ -196,12 +205,14 @@
         }
 
         .n8n-chat-widget .chat-input {
+            flex-shrink: 0; /* ✅ Mantiene el área de entrada con su tamaño original, sin encogerse */
             padding: 16px;
             background: var(--chat--color-background);
             border-top: 1px solid rgba(133, 79, 255, 0.1);
             display: flex;
             gap: 8px;
             align-items: center;
+            box-sizing: border-box;
         }
 
         .n8n-chat-widget .chat-input textarea {
@@ -271,7 +282,7 @@
             display: none;
         }
         /* --- FIN DE NUEVOS ESTILOS --- */
-
+        
         .n8n-chat-widget .chat-toggle {
             position: fixed;
             bottom: 20px;
@@ -307,6 +318,7 @@
         }
 
         .n8n-chat-widget .chat-footer {
+            flex-shrink: 0; /* ✅ Mantiene el footer con su tamaño original, sin encogerse */
             padding: 8px;
             text-align: center;
             background: var(--chat--color-background);
@@ -439,31 +451,38 @@
     chatContainer.className = `chat-container${config.style.position === 'left' ? ' position-left' : ''}`;
 
     const newConversationHTML = `
-        <div class="brand-header">
-            <img src="${config.branding.logo}" alt="${config.branding.name}">
-            <span>${config.branding.name}</span>
-            <button class="close-button">×</button>
-        </div>
-        <div class="new-conversation">
-            <h2 class="welcome-text">${config.branding.welcomeText}</h2>
-            <p class="response-text">${config.branding.responseTimeText}</p>
-            <div class="privacy-checkbox">
-                <input type="checkbox" id="datenschutz" name="datenschutz">
-                <label for="datenschutz">
-                    Ich habe die <a href="https://www.amaretis.de/datenschutz/" target="_blank">Datenschutzerklärung</a> gelesen und akzeptiere sie.
-                </label>
+        <div class="new-conversation-wrapper">
+            <div class="brand-header">
+                <img src="${config.branding.logo}" alt="${config.branding.name}">
+                <span>${config.branding.name}</span>
+                <button class="close-button">×</button>
             </div>
-            <button class="new-chat-btn" disabled>
-                <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <path fill="currentColor" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/>
-                </svg>
-                Starten Sie Ihre Anfrage!
-            </button>
+            <div class="new-conversation">
+                <h2 class="welcome-text">${config.branding.welcomeText}</h2>
+                <p class="response-text">${config.branding.responseTimeText}</p>
+                <div class="privacy-checkbox">
+                    <input type="checkbox" id="datenschutz" name="datenschutz">
+                    <label for="datenschutz">
+                        Ich habe die <a href="https://www.amaretis.de/datenschutz/" target="_blank">Datenschutzerklärung</a> gelesen und akzeptiere sie.
+                    </label>
+                </div>
+                <button class="new-chat-btn" disabled>
+                    <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/>
+                    </svg>
+                    Starten Sie Ihre Anfrage!
+                </button>
+            </div>
         </div>
     `;
 
     const chatInterfaceHTML = `
         <div class="chat-interface">
+            <div class="brand-header">
+                <img src="${config.branding.logo}" alt="${config.branding.name}">
+                <span>${config.branding.name}</span>
+                <button class="close-button">×</button>
+            </div>
             <div class="chat-messages"></div>
             <div class="chat-input">
                 <canvas id="audio-visualizer"></canvas>
@@ -492,6 +511,7 @@
 
     // Selección de elementos del DOM
     const newChatBtn = chatContainer.querySelector('.new-chat-btn');
+    const newConversationWrapper = chatContainer.querySelector('.new-conversation-wrapper');
     const chatInterface = chatContainer.querySelector('.chat-interface');
     const privacyCheckbox = chatContainer.querySelector('#datenschutz');
     const messagesContainer = chatContainer.querySelector('.chat-messages');
@@ -501,6 +521,9 @@
     // --- NUEVA SELECCIÓN DEL CANVAS ---
     const visualizerCanvas = chatContainer.querySelector('#audio-visualizer');
 
+    toggleButton.addEventListener('click', () => {
+        chatContainer.classList.toggle('open');
+    });
 
     if (privacyCheckbox) {
         privacyCheckbox.addEventListener('change', function() {
@@ -657,7 +680,7 @@
         try {
             const response = await fetch(config.webhook.url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
             const responseData = await response.json();
-            chatContainer.querySelector('.new-conversation').style.display = 'none';
+            newConversationWrapper.style.display = 'none';
             chatInterface.classList.add('active');
 
             const optInMessage = document.createElement('div');
@@ -711,8 +734,8 @@
     }
 
     newChatBtn.addEventListener('click', startNewConversation);
-
-    // ✅ CAMBIO 1: Detener grabación al enviar con el botón
+    
+    // ✅ MEJORA 1: Detener grabación y enviar el mensaje
     sendButton.addEventListener('click', () => {
         if (isRecording) {
             stopRecording();
@@ -721,10 +744,11 @@
         if (message) {
             sendMessage(message);
             textarea.value = '';
+            textarea.style.height = 'auto'; // Ajusta la altura del textarea
         }
     });
 
-    // ✅ CAMBIO 2: Detener grabación al enviar con "Enter"
+    // ✅ MEJORA 1: Detener grabación y enviar el mensaje con "Enter"
     textarea.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
@@ -735,11 +759,10 @@
             if (message) {
                 sendMessage(message);
                 textarea.value = '';
+                textarea.style.height = 'auto'; // Ajusta la altura del textarea
             }
         }
     });
-
-    toggleButton.addEventListener('click', () => { chatContainer.classList.toggle('open'); });
 
     const closeButtons = chatContainer.querySelectorAll('.close-button');
     closeButtons.forEach(button => { button.addEventListener('click', () => { chatContainer.classList.remove('open'); }); });
