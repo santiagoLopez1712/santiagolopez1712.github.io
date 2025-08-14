@@ -665,9 +665,9 @@
     widgetContainer.appendChild(toggleButton);
     document.body.appendChild(widgetContainer);
 
-    // Selección de elementos del DOM
+    // Selección de elementos del DOM después de que se han creado y adjuntado
     const newChatBtn = chatContainer.querySelector('.new-chat-btn');
-    const newChatBtnTextSpan = newChatContainer.querySelector('.new-chat-btn span');
+    const newChatBtnTextSpan = newChatBtn.querySelector('span'); // Corregido: La variable newConversationContainer no está definida.
     const newConversationWrapper = chatContainer.querySelector('.new-conversation-wrapper');
     const chatInterface = chatContainer.querySelector('.chat-interface');
     const privacyCheckbox = chatContainer.querySelector('#datenschutz');
@@ -678,6 +678,20 @@
     const chatInputContainer = chatContainer.querySelector('.chat-input');
     const visualizerCanvas = chatContainer.querySelector('#audio-visualizer');
     const languageSelects = chatContainer.querySelectorAll('.language-select');
+    const closeButtons = chatContainer.querySelectorAll('.close-button');
+
+
+    // **Corrección principal: Añadir el eventListener al botón de alternar**
+    toggleButton.addEventListener('click', () => {
+        chatContainer.classList.toggle('open');
+    });
+
+    closeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            chatContainer.classList.remove('open');
+        });
+    });
+
 
     // SVGs para los iconos
     const micSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -697,11 +711,13 @@
         const langCode = currentLang.split('-')[0];
         const t = translations[langCode] || translations.de;
         
-        chatContainer.querySelector('.welcome-text').textContent = t.welcomeText;
-        chatContainer.querySelector('.response-text').textContent = t.responseTimeText;
+        // Reemplazo de los textos para que se ajusten al nuevo HTML
+        chatContainer.querySelector('.new-conversation .welcome-text').textContent = t.welcomeText;
+        chatContainer.querySelector('.new-conversation .response-text').textContent = t.responseTimeText;
         chatContainer.querySelector('.privacy-checkbox label').innerHTML = t.privacyLabel;
-        newChatBtnTextSpan.textContent = t.newChatBtnText;
-        chatContainer.querySelector('textarea').placeholder = t.placeholder;
+        chatContainer.querySelector('.new-chat-btn span').textContent = t.newChatBtnText;
+        
+        chatContainer.querySelector('.chat-input textarea').placeholder = t.placeholder;
         chatContainer.querySelector('.mic-button').title = t.micTitle;
         chatContainer.querySelector('.send-button').title = t.sendTitle;
 
@@ -806,175 +822,4 @@
                     animationFrameId = requestAnimationFrame(draw);
                     analyser.getByteFrequencyData(dataArray);
                     canvasCtx.fillStyle = '#f8f8f8';
-                    canvasCtx.fillRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
-                    const barWidth = (visualizerCanvas.width / bufferLength) * 2;
-                    let barHeight;
-                    let x = 0;
-                    for (let i = 0; i < bufferLength; i++) {
-                        barHeight = dataArray[i] / 2.5;
-                        canvasCtx.fillStyle = getComputedStyle(widgetContainer).getPropertyValue('--chat--color-primary');
-                        canvasCtx.fillRect(x, visualizerCanvas.height - barHeight, barWidth, barHeight);
-                        x += barWidth + 1;
-                    }
-                }
-                draw();
-            })
-            .catch((err) => { console.error('Mic error:', err); });
-    }
-
-    function stopAudioVisualizer() {
-        if (animationFrameId) cancelAnimationFrame(animationFrameId);
-        if (source && source.mediaStream) {
-            source.mediaStream.getTracks().forEach(track => track.stop());
-        }
-        if (audioContext && audioContext.state !== 'closed') {
-            audioContext.close();
-        }
-        if(visualizerCanvas) {
-            const canvasCtx = visualizerCanvas.getContext('2d');
-            canvasCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
-        }
-    }
-
-    function startRecording() {
-        if (!recognition) return;
-        isRecording = true;
-        chatInputContainer.classList.add('is-recording');
-        micButton.classList.add('recording');
-        micButton.innerHTML = stopSVG;
-        recognition.start();
-        startAudioVisualizer();
-    }
-
-    function stopRecording() {
-        if (!recognition) return;
-        isRecording = false;
-        chatInputContainer.classList.remove('is-recording');
-        micButton.classList.remove('recording');
-        micButton.innerHTML = micSVG;
-        recognition.stop();
-        stopAudioVisualizer();
-    }
-
-    micButton.addEventListener('click', () => {
-        if (isRecording) {
-            shouldSendMessageAfterStop = true;
-            stopRecording();
-        } else {
-            startRecording();
-        }
-    });
-
-    async function startNewConversation() {
-        if (!config.webhook.url || !config.webhook.route) {
-            console.error('Webhook URL or route is not configured.');
-            return;
-        }
-
-        try {
-            const response = await fetch(`${config.webhook.url}${config.webhook.route}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: 'start_conversation', lang: currentLang })
-            });
-            const data = await response.json();
-            currentSessionId = data.sessionId;
-            
-            newConversationWrapper.style.display = 'none';
-            chatInterface.classList.add('active');
-
-            const langCode = currentLang.split('-')[0];
-            const botGreetingMessage = document.createElement('div');
-            botGreetingMessage.className = 'chat-message bot bot-greeting-message';
-            botGreetingMessage.innerHTML = translations[langCode].botGreeting;
-            messagesContainer.appendChild(botGreetingMessage);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        } catch (error) {
-            console.error('Error starting conversation:', error);
-        }
-    }
-
-    async function sendMessage(message) {
-        if (!currentSessionId) return;
-
-        const userMessageDiv = document.createElement('div');
-        userMessageDiv.className = 'chat-message user';
-        userMessageDiv.textContent = message;
-        messagesContainer.appendChild(userMessageDiv);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-        try {
-            const response = await fetch(`${config.webhook.url}${config.webhook.route}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message, sessionId: currentSessionId })
-            });
-            const data = await response.json();
-            const botMessageDiv = document.createElement('div');
-            botMessageDiv.className = 'chat-message bot';
-            botMessageDiv.textContent = data.response;
-            messagesContainer.appendChild(botMessageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        } catch (error) {
-            console.error('Error sending message:', error);
-        }
-    }
-
-    function correctTextRealtime(text) {
-        const words = [...new Intl.Segmenter(recognition.lang, { granularity: 'word' }).segment(text)];
-        let corrected = '';
-        words.forEach((w, idx) => {
-            let word = w.segment;
-            if (!word.trim()) return;
-            if (idx === 0 || /[.!?]\s*$/.test(corrected)) {
-                word = word.charAt(0).toUpperCase() + word.slice(1);
-            }
-            if (/[.,!?]/.test(word)) {
-                corrected = corrected.trim() + word;
-            } else {
-                corrected += (corrected ? ' ' : '') + word;
-            }
-        });
-        if (corrected && !/[.!?]$/.test(corrected)) corrected += '.';
-        return corrected;
-    }
-
-    newChatBtn.addEventListener('click', startNewConversation);
-    
-    sendButton.addEventListener('click', () => {
-        if (isRecording) {
-            shouldSendMessageAfterStop = true;
-            stopRecording();
-        } else {
-            const message = textarea.value.trim();
-            if (message) {
-                sendMessage(message);
-                textarea.value = '';
-                textarea.style.height = 'auto';
-            }
-        }
-    });
-
-    textarea.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            if (isRecording) {
-                shouldSendMessageAfterStop = true;
-                stopRecording();
-            } else {
-                const message = textarea.value.trim();
-                if (message) {
-                    sendMessage(message);
-                    textarea.value = '';
-                    textarea.style.height = 'auto';
-                }
-            }
-        }
-    });
-
-    const closeButtons = chatContainer.querySelectorAll('.close-button');
-    closeButtons.forEach(button => { button.addEventListener('click', () => { chatContainer.classList.remove('open'); }); });
-    
-    toggleButton.addEventListener('click', () => { chatContainer.classList.toggle('open'); });
-
-})();
+                    canvasCtx.fillRect(0, 0, visualizerCanv...
