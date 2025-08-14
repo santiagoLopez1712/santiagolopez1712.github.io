@@ -47,9 +47,24 @@
             flex-shrink: 0;
         }
 
-        .n8n-chat-widget .language-select {
+        /* --- NUEVOS ESTILOS PARA EL CONTENEDOR DEL IDIOMA Y EL ICONO --- */
+        .n8n-chat-widget .lang-selector-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
             margin-left: auto;
-            padding: 4px 8px;
+        }
+        .n8n-chat-widget .globe-icon {
+            width: 20px;
+            height: 20px;
+            fill: var(--chat--color-font);
+            stroke: var(--chat--color-font);
+            opacity: 0.6;
+            margin-right: -28px;
+            pointer-events: none;
+        }
+        .n8n-chat-widget .language-select {
+            padding: 4px 8px 4px 32px; /* Ajuste para el icono */
             border-radius: 6px;
             border: 1px solid rgba(133, 79, 255, 0.2);
             background: var(--chat--color-background);
@@ -57,7 +72,10 @@
             font-size: 14px;
             font-family: inherit;
             cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
         }
+        /* --- FIN DE NUEVOS ESTILOS --- */
 
         .n8n-chat-widget .close-button {
             background: none;
@@ -563,11 +581,18 @@
             <div class="brand-header">
                 <img src="${config.branding.logo}" alt="${config.branding.name}">
                 <span>${config.branding.name}</span>
-                <select class="language-select">
-                    <option value="de">Deutsch</option>
-                    <option value="en">English</option>
-                    <option value="es">Español</option>
-                </select>
+                <div class="lang-selector-wrapper">
+                    <svg class="globe-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="2" y1="12" x2="22" y2="12"></line>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                    </svg>
+                    <select class="language-select">
+                        <option value="de">Deutsch</option>
+                        <option value="en">English</option>
+                        <option value="es">Español</option>
+                    </select>
+                </div>
                 <button class="close-button">×</button>
             </div>
             <div class="new-conversation">
@@ -592,11 +617,18 @@
             <div class="brand-header">
                 <img src="${config.branding.logo}" alt="${config.branding.name}">
                 <span>${config.branding.name}</span>
-                <select class="language-select">
-                    <option value="de">Deutsch</option>
-                    <option value="en">English</option>
-                    <option value="es">Español</option>
-                </select>
+                <div class="lang-selector-wrapper">
+                    <svg class="globe-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="2" y1="12" x2="22" y2="12"></line>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                    </svg>
+                    <select class="language-select">
+                        <option value="de">Deutsch</option>
+                        <option value="en">English</option>
+                        <option value="es">Español</option>
+                    </select>
+                </div>
                 <button class="close-button">×</button>
             </div>
             <div class="chat-messages"></div>
@@ -635,7 +667,7 @@
 
     // Selección de elementos del DOM
     const newChatBtn = chatContainer.querySelector('.new-chat-btn');
-    const newChatBtnTextSpan = newChatBtn.querySelector('span');
+    const newChatBtnTextSpan = newChatContainer.querySelector('.new-chat-btn span');
     const newConversationWrapper = chatContainer.querySelector('.new-conversation-wrapper');
     const chatInterface = chatContainer.querySelector('.chat-interface');
     const privacyCheckbox = chatContainer.querySelector('#datenschutz');
@@ -702,15 +734,15 @@
         recognition.interimResults = true;
 
         recognition.onresult = (event) => {
-             for (let i = event.resultIndex; i < event.results.length; i++) {
-                 const transcript = event.results[i][0].transcript.trim();
-                 if (event.results[i].isFinal) {
-                     const corrected = correctTextRealtime(transcript);
-                     textarea.value += (textarea.value ? ' ' : '') + corrected;
-                     textarea.style.height = 'auto';
-                     textarea.style.height = `${textarea.scrollHeight}px`;
-                 }
-             }
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript.trim();
+                if (event.results[i].isFinal) {
+                    const corrected = correctTextRealtime(transcript);
+                    textarea.value += (textarea.value ? ' ' : '') + corrected;
+                    textarea.style.height = 'auto';
+                    textarea.style.height = `${textarea.scrollHeight}px`;
+                }
+            }
         };
 
         recognition.onerror = (event) => {
@@ -826,20 +858,28 @@
 
     micButton.addEventListener('click', () => {
         if (isRecording) {
+            shouldSendMessageAfterStop = true;
             stopRecording();
         } else {
             startRecording();
         }
     });
 
-    function generateUUID() { return crypto.randomUUID(); }
-
     async function startNewConversation() {
-        currentSessionId = generateUUID();
-        const data = [{ action: "loadPreviousSession", sessionId: currentSessionId, route: config.webhook.route, metadata: { userId: "" } }];
+        if (!config.webhook.url || !config.webhook.route) {
+            console.error('Webhook URL or route is not configured.');
+            return;
+        }
+
         try {
-            const response = await fetch(config.webhook.url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-            const responseData = await response.json();
+            const response = await fetch(`${config.webhook.url}${config.webhook.route}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: 'start_conversation', lang: currentLang })
+            });
+            const data = await response.json();
+            currentSessionId = data.sessionId;
+            
             newConversationWrapper.style.display = 'none';
             chatInterface.classList.add('active');
 
@@ -849,11 +889,14 @@
             botGreetingMessage.innerHTML = translations[langCode].botGreeting;
             messagesContainer.appendChild(botGreetingMessage);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        } catch (error) { console.error('Error:', error); }
+        } catch (error) {
+            console.error('Error starting conversation:', error);
+        }
     }
 
     async function sendMessage(message) {
-        const messageData = { action: "sendMessage", sessionId: currentSessionId, route: config.webhook.route, chatInput: message, metadata: { userId: "", lang: currentLang } };
+        if (!currentSessionId) return;
+
         const userMessageDiv = document.createElement('div');
         userMessageDiv.className = 'chat-message user';
         userMessageDiv.textContent = message;
@@ -861,14 +904,20 @@
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
         try {
-            const response = await fetch(config.webhook.url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(messageData) });
+            const response = await fetch(`${config.webhook.url}${config.webhook.route}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message, sessionId: currentSessionId })
+            });
             const data = await response.json();
             const botMessageDiv = document.createElement('div');
             botMessageDiv.className = 'chat-message bot';
-            botMessageDiv.textContent = Array.isArray(data) ? data[0].output : data.output;
+            botMessageDiv.textContent = data.response;
             messagesContainer.appendChild(botMessageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        } catch (error) { console.error('Error:', error); }
+        } catch (error) {
+            console.error('Error sending message:', error);
+        }
     }
 
     function correctTextRealtime(text) {
