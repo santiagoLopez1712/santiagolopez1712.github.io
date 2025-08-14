@@ -311,7 +311,7 @@
             stroke: currentColor;
             stroke-width: 2;
             stroke-linecap: round;
-            stroke-linejoin: round;
+            stroke-linejoin="round"
         }
 
         .n8n-chat-widget .chat-input button:hover {
@@ -540,6 +540,13 @@
     let currentSessionId = '';
     let currentLang = 'de'; // Idioma por defecto
 
+    // Mapa para los códigos de idioma correctos
+    const langCodes = {
+        de: 'de-DE',
+        en: 'en-US',
+        es: 'es-ES'
+    };
+
     const widgetContainer = document.createElement('div');
     widgetContainer.className = 'n8n-chat-widget';
 
@@ -620,7 +627,7 @@
 
     const toggleButton = document.createElement('button');
     toggleButton.className = `chat-toggle${config.style.position === 'left' ? ' position-left' : ''}`;
-    toggleButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.476 0-2.886-.313-4.156-.878l-3.156.586.586-3.156A7.962 7.962 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/></svg>`;
+    toggleButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0112 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.476 0-2.886-.313-4.156-.878l-3.156.586.586-3.156A7.962 7.962 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/></svg>`;
 
     widgetContainer.appendChild(chatContainer);
     widgetContainer.appendChild(toggleButton);
@@ -670,12 +677,10 @@
             select.value = langCode;
         });
         
-        // --- Nuevo: Actualizar el mensaje de bienvenida del bot si ya existe ---
         const botGreeting = messagesContainer.querySelector('.bot-greeting-message');
         if (botGreeting) {
             botGreeting.textContent = t.botGreeting;
         }
-        // --- Fin del cambio ---
     }
 
     // Inicializar UI con el idioma por defecto
@@ -692,7 +697,7 @@
     if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition = new SpeechRecognition();
-        recognition.lang = 'de-DE';
+        recognition.lang = langCodes.de;
         recognition.continuous = true;
         recognition.interimResults = true;
 
@@ -710,13 +715,17 @@
 
         recognition.onerror = (event) => {
             console.error('Speech recognition error:', event.error);
-            stopRecording();
+            if (event.error !== 'no-speech' && isRecording) {
+                recognition.start();
+            } else {
+                stopRecording();
+            }
         };
 
         recognition.onend = () => {
-            if (isRecording) stopRecording();
-            
-            if (shouldSendMessageAfterStop) {
+            if (isRecording) {
+                recognition.start();
+            } else if (shouldSendMessageAfterStop) {
                 const message = textarea.value.trim();
                 if (message) {
                     sendMessage(message);
@@ -741,7 +750,7 @@
         select.addEventListener('change', (e) => {
             currentLang = e.target.value;
             if (recognition) {
-                recognition.lang = currentLang + '-' + currentLang.toUpperCase();
+                recognition.lang = langCodes[currentLang];
                 console.log('Idioma de reconocimiento de voz cambiado a:', recognition.lang);
             }
             updateUI();
@@ -816,8 +825,11 @@
     }
 
     micButton.addEventListener('click', () => {
-        if (isRecording) stopRecording();
-        else startRecording();
+        if (isRecording) {
+            stopRecording();
+        } else {
+            startRecording();
+        }
     });
 
     function generateUUID() { return crypto.randomUUID(); }
@@ -833,7 +845,7 @@
 
             const langCode = currentLang.split('-')[0];
             const botGreetingMessage = document.createElement('div');
-            botGreetingMessage.className = 'chat-message bot bot-greeting-message'; // Añadida la clase
+            botGreetingMessage.className = 'chat-message bot bot-greeting-message';
             botGreetingMessage.innerHTML = translations[langCode].botGreeting;
             messagesContainer.appendChild(botGreetingMessage);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
