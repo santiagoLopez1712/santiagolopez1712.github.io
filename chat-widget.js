@@ -564,8 +564,8 @@
                 <button class="close-button">×</button>
             </div>
             <div class="new-conversation">
-                <h2 class="welcome-text">${config.branding.welcomeText}</h2>
-                <p class="response-text">${config.branding.responseTimeText}</p>
+                <h2 class="welcome-text"></h2>
+                <p class="response-text"></p>
                 <div class="privacy-checkbox">
                     <input type="checkbox" id="datenschutz" name="datenschutz">
                     <label for="datenschutz"></label>
@@ -574,7 +574,7 @@
                     <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                         <path fill="currentColor" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/>
                     </svg>
-                    Starten Sie Ihre Anfrage!
+                    <span></span>
                 </button>
             </div>
         </div>
@@ -595,8 +595,8 @@
             <div class="chat-messages"></div>
             <div class="chat-input">
                 <canvas id="audio-visualizer"></canvas>
-                <textarea placeholder="Text oder Sprache eingeben…" rows="1"></textarea>
-                <button type="button" class="mic-button" title="Spracheingabe starten/stoppen">
+                <textarea placeholder="" rows="1"></textarea>
+                <button type="button" class="mic-button" title="">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
                         <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
@@ -604,7 +604,7 @@
                         <line x1="8" y1="23" x2="16" y2="23"></line>
                     </svg>
                 </button>
-                <button type="button" class="send-button" title="Nachricht senden">
+                <button type="button" class="send-button" title="">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M5 12h14M12 5l7 7-7 7" />
                     </svg>
@@ -628,6 +628,7 @@
 
     // Selección de elementos del DOM
     const newChatBtn = chatContainer.querySelector('.new-chat-btn');
+    const newChatBtnTextSpan = newChatBtn.querySelector('span');
     const newConversationWrapper = chatContainer.querySelector('.new-conversation-wrapper');
     const chatInterface = chatContainer.querySelector('.chat-interface');
     const privacyCheckbox = chatContainer.querySelector('#datenschutz');
@@ -660,7 +661,7 @@
         chatContainer.querySelector('.welcome-text').textContent = t.welcomeText;
         chatContainer.querySelector('.response-text').textContent = t.responseTimeText;
         chatContainer.querySelector('.privacy-checkbox label').innerHTML = t.privacyLabel;
-        chatContainer.querySelector('.new-chat-btn').textContent = t.newChatBtnText;
+        newChatBtnTextSpan.textContent = t.newChatBtnText;
         chatContainer.querySelector('textarea').placeholder = t.placeholder;
         chatContainer.querySelector('.mic-button').title = t.micTitle;
         chatContainer.querySelector('.send-button').title = t.sendTitle;
@@ -668,6 +669,13 @@
         languageSelects.forEach(select => {
             select.value = langCode;
         });
+        
+        // --- Nuevo: Actualizar el mensaje de bienvenida del bot si ya existe ---
+        const botGreeting = messagesContainer.querySelector('.bot-greeting-message');
+        if (botGreeting) {
+            botGreeting.textContent = t.botGreeting;
+        }
+        // --- Fin del cambio ---
     }
 
     // Inicializar UI con el idioma por defecto
@@ -823,9 +831,10 @@
             newConversationWrapper.style.display = 'none';
             chatInterface.classList.add('active');
 
+            const langCode = currentLang.split('-')[0];
             const botGreetingMessage = document.createElement('div');
-            botGreetingMessage.className = 'chat-message bot';
-            botGreetingMessage.innerHTML = translations[currentLang].botGreeting;
+            botGreetingMessage.className = 'chat-message bot bot-greeting-message'; // Añadida la clase
+            botGreetingMessage.innerHTML = translations[langCode].botGreeting;
             messagesContainer.appendChild(botGreetingMessage);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         } catch (error) { console.error('Error:', error); }
