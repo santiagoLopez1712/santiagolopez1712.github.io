@@ -735,26 +735,17 @@
 
     newChatBtn.addEventListener('click', startNewConversation);
     
+    // --- Bloque de código corregido ---
+
+    // Variable para controlar si el envío fue iniciado por el usuario
+    let shouldSendMessageAfterStop = false;
+    
     // ✅ MEJORA 1: Detener grabación y enviar el mensaje
     sendButton.addEventListener('click', () => {
         if (isRecording) {
+            shouldSendMessageAfterStop = true;
             stopRecording();
-        }
-        const message = textarea.value.trim();
-        if (message) {
-            sendMessage(message);
-            textarea.value = '';
-            textarea.style.height = 'auto'; // Ajusta la altura del textarea
-        }
-    });
-
-    // ✅ MEJORA 1: Detener grabación y enviar el mensaje con "Enter"
-    textarea.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            if (isRecording) {
-                stopRecording();
-            }
+        } else {
             const message = textarea.value.trim();
             if (message) {
                 sendMessage(message);
@@ -763,6 +754,42 @@
             }
         }
     });
+    
+    // ✅ MEJORA 2: Detener grabación y enviar el mensaje con "Enter"
+    textarea.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            if (isRecording) {
+                shouldSendMessageAfterStop = true;
+                stopRecording();
+            } else {
+                const message = textarea.value.trim();
+                if (message) {
+                    sendMessage(message);
+                    textarea.value = '';
+                    textarea.style.height = 'auto'; // Ajusta la altura del textarea
+                }
+            }
+        }
+    });
+    
+    // ✅ MEJORA 3: Modificar el evento `onend` del SpeechRecognition
+    recognition.onend = () => {
+        if (isRecording) stopRecording(); // Si el reconocimiento se detiene por sí solo
+        
+        // Si el usuario detuvo la grabación para enviar el mensaje
+        if (shouldSendMessageAfterStop) {
+            const message = textarea.value.trim();
+            if (message) {
+                sendMessage(message);
+                textarea.value = '';
+                textarea.style.height = 'auto';
+            }
+            shouldSendMessageAfterStop = false; // Reinicia la bandera
+        }
+    };
+    
+    // --- Fin del bloque de código corregido ---
 
     const closeButtons = chatContainer.querySelectorAll('.close-button');
     closeButtons.forEach(button => { button.addEventListener('click', () => { chatContainer.classList.remove('open'); }); });
