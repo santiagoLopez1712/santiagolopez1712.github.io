@@ -24,17 +24,17 @@
             border: 1px solid rgba(133, 79, 255, 0.2);
             font-family: inherit;
         }
-
+        
         .n8n-chat-widget .chat-container.position-left {
             right: auto;
             left: 20px;
         }
 
-        /* ✅ MEJORA 2: Se modifica el CSS para corregir el scroll. */
         .n8n-chat-widget .chat-container.open {
             display: flex;
             flex-direction: column;
-            /* Se elimina la propiedad 'overflow: hidden;' para que los elementos internos puedan gestionar el scroll */
+            position: relative; /* ✅ CAMBIO CLAVE: Se añade position: relative para que el .chat-input se posicione correctamente */
+            overflow: hidden; /* Se mantiene para que los elementos hijos se gestionen internamente */
         }
 
         .n8n-chat-widget .brand-header {
@@ -155,12 +155,13 @@
             display: none;
             flex-direction: column;
             height: 100%;
+            position: relative; /* ✅ CAMBIO CLAVE: Se añade position: relative a la interfaz del chat para que el chat-input-container se posicione correctamente */
         }
 
         .n8n-chat-widget .chat-interface.active {
             display: flex;
         }
-
+        
         .n8n-chat-widget .chat-messages {
             flex: 1;
             overflow-y: auto;
@@ -168,6 +169,7 @@
             background: var(--chat--color-background);
             display: flex;
             flex-direction: column;
+            margin-bottom: 100px; /* ✅ CAMBIO CLAVE: Se añade margen para el bloque fijo */
         }
 
         .n8n-chat-widget .chat-message {
@@ -196,13 +198,19 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
+        /* ✅ CAMBIO CLAVE: Nuevo selector y estilos para el bloque de entrada fijo */
         .n8n-chat-widget .chat-input {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
             padding: 16px;
             background: var(--chat--color-background);
             border-top: 1px solid rgba(133, 79, 255, 0.1);
             display: flex;
             gap: 8px;
             align-items: center;
+            box-sizing: border-box;
             flex-shrink: 0;
         }
 
@@ -667,7 +675,7 @@
             optInMessage.className = 'chat-message bot';
             optInMessage.innerHTML = `
                 Hallo! 👋 Ich bin Ihr persönlicher Assistent der Agentur für Kommunikation AMARETIS.
-                Wir sind eine Full-Service-Werbeagentur mit Sitz in Göttingen und arbeiten für Kundinnen und Kunden in ganz Deutschland.
+                Wir sind eine Full-Service-Werbeagentur mit Sitz in Göttingen y trabajan para Kundinnen y Kunden en todo el país.
                 Wie kann ich Ihnen heute weiterhelfen?
             `;
             messagesContainer.appendChild(optInMessage);
