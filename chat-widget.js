@@ -30,11 +30,11 @@
             left: 20px;
         }
 
-        /* ✅ MEJORA 2: Se añaden estas propiedades para manejar el layout interno */
+        /* ✅ MEJORA 2: Se modifica el CSS para corregir el scroll. */
         .n8n-chat-widget .chat-container.open {
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* Esto asegura que el contenedor principal no tenga scroll */
+            /* Se elimina la propiedad 'overflow: hidden;' para que los elementos internos puedan gestionar el scroll */
         }
 
         .n8n-chat-widget .brand-header {
@@ -203,7 +203,7 @@
             display: flex;
             gap: 8px;
             align-items: center;
-            flex-shrink: 0; /* ✅ MEJORA 2: Se asegura que el input no se encoja */
+            flex-shrink: 0;
         }
 
         .n8n-chat-widget .chat-input textarea {
@@ -313,7 +313,7 @@
             text-align: center;
             background: var(--chat--color-background);
             border-top: 1px solid rgba(133, 79, 255, 0.1);
-            flex-shrink: 0; /* ✅ MEJORA 2: Se asegura que el footer no se encoja */
+            flex-shrink: 0;
         }
 
         .n8n-chat-widget .chat-footer a {
