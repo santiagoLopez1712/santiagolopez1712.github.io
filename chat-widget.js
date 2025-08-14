@@ -311,7 +311,7 @@
             stroke: currentColor;
             stroke-width: 2;
             stroke-linecap: round;
-            stroke-linejoin: round;
+            stroke-linejoin="round"
         }
 
         .n8n-chat-widget .chat-input button:hover {
@@ -477,6 +477,46 @@
     styleSheet.textContent = styles;
     document.head.appendChild(styleSheet);
 
+    // Objeto de traducciones
+    const translations = {
+        de: {
+            language: "Deutsch",
+            welcomeText: "HERZLICH WILLKOMMEN BEI AMARETIS!",
+            responseTimeText: "AMARETIS AI ist Ihr digitaler Assistent – direkt, unkompliziert und rund um die Uhr erreichbar. Ob Sie einen Termin vereinbaren möchten, Fragen zu unseren Leistungen haben oder herausfinden wollen, ob AMARETIS zu Ihrem Vorhaben passt – wir sind für Sie da.",
+            privacyLabel: "Ich habe die <a href='https://www.amaretis.de/datenschutz/' target='_blank'>Datenschutzerklärung</a> gelesen und akzeptiere sie.",
+            newChatBtnText: "Starten Sie Ihre Anfrage!",
+            placeholder: "Text oder Sprache eingeben…",
+            micTitle: "Spracheingabe starten/stoppen",
+            sendTitle: "Nachricht senden",
+            micUnsupported: "Spracherkennung nicht unterstützt",
+            botGreeting: "Hallo! 👋 Ich bin Ihr persönlicher Assistent der Agentur für Kommunikation AMARETIS. Wir sind eine Full-Service-Werbeagentur mit Sitz in Göttingen und arbeiten für Kundinnen und Kunden in ganz Deutschland. Wie kann ich Ihnen heute weiterhelfen?"
+        },
+        en: {
+            language: "English",
+            welcomeText: "WELCOME TO AMARETIS!",
+            responseTimeText: "AMARETIS AI is your digital assistant – direct, uncomplicated, and available around the clock. Whether you want to schedule an appointment, have questions about our services, or want to find out if AMARETIS is a good fit for your project – we're here for you.",
+            privacyLabel: "I have read and accept the <a href='https://www.amaretis.de/datenschutz/' target='_blank'>privacy policy</a>.",
+            newChatBtnText: "Start your request!",
+            placeholder: "Enter text or voice...",
+            micTitle: "Start/stop voice input",
+            sendTitle: "Send message",
+            micUnsupported: "Speech recognition not supported",
+            botGreeting: "Hello! 👋 I am your personal assistant from the AMARETIS communication agency. We are a full-service advertising agency based in Göttingen and work for clients throughout Germany. How can I help you today?"
+        },
+        es: {
+            language: "Español",
+            welcomeText: "¡BIENVENIDO A AMARETIS!",
+            responseTimeText: "AMARETIS AI es tu asistente digital: directo, sencillo y disponible las 24 horas. Ya sea que quieras programar una cita, tengas preguntas sobre nuestros servicios o quieras saber si AMARETIS es adecuado para tu proyecto, estamos aquí para ayudarte.",
+            privacyLabel: "He leído y acepto la <a href='https://www.amaretis.de/datenschutz/' target='_blank'>política de privacidad</a>.",
+            newChatBtnText: "¡Inicia tu consulta!",
+            placeholder: "Escribe o dicta un mensaje…",
+            micTitle: "Iniciar/detener entrada de voz",
+            sendTitle: "Enviar mensaje",
+            micUnsupported: "Reconocimiento de voz no soportado",
+            botGreeting: "¡Hola! 👋 Soy tu asistente personal de la agencia de comunicación AMARETIS. Somos una agencia de publicidad de servicio completo con sede en Göttingen y trabajamos para clientes en toda Alemania. ¿En qué puedo ayudarte hoy?"
+        }
+    };
+
     // Default config
     const defaultConfig = {
         webhook: { url: '', route: '' },
@@ -498,6 +538,14 @@
     window.N8NChatWidgetInitialized = true;
 
     let currentSessionId = '';
+    let currentLang = 'de'; // Idioma por defecto
+
+    // Mapa para los códigos de idioma correctos
+    const langCodes = {
+        de: 'de-DE',
+        en: 'en-US',
+        es: 'es-ES'
+    };
 
     const widgetContainer = document.createElement('div');
     widgetContainer.className = 'n8n-chat-widget';
@@ -516,26 +564,24 @@
                 <img src="${config.branding.logo}" alt="${config.branding.name}">
                 <span>${config.branding.name}</span>
                 <select class="language-select">
-                    <option value="de-DE">Deutsch</option>
-                    <option value="en-US">English</option>
-                    <option value="es-ES">Español</option>
+                    <option value="de">Deutsch</option>
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
                 </select>
                 <button class="close-button">×</button>
             </div>
             <div class="new-conversation">
-                <h2 class="welcome-text">${config.branding.welcomeText}</h2>
-                <p class="response-text">${config.branding.responseTimeText}</p>
+                <h2 class="welcome-text"></h2>
+                <p class="response-text"></p>
                 <div class="privacy-checkbox">
                     <input type="checkbox" id="datenschutz" name="datenschutz">
-                    <label for="datenschutz">
-                        Ich habe die <a href="https://www.amaretis.de/datenschutz/" target="_blank">Datenschutzerklärung</a> gelesen und akzeptiere sie.
-                    </label>
+                    <label for="datenschutz"></label>
                 </div>
                 <button class="new-chat-btn" disabled>
                     <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                         <path fill="currentColor" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/>
                     </svg>
-                    Starten Sie Ihre Anfrage!
+                    <span></span>
                 </button>
             </div>
         </div>
@@ -547,17 +593,17 @@
                 <img src="${config.branding.logo}" alt="${config.branding.name}">
                 <span>${config.branding.name}</span>
                 <select class="language-select">
-                    <option value="de-DE">Deutsch</option>
-                    <option value="en-US">English</option>
-                    <option value="es-ES">Español</option>
+                    <option value="de">Deutsch</option>
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
                 </select>
                 <button class="close-button">×</button>
             </div>
             <div class="chat-messages"></div>
             <div class="chat-input">
                 <canvas id="audio-visualizer"></canvas>
-                <textarea placeholder="Text oder Sprache eingeben…" rows="1"></textarea>
-                <button type="button" class="mic-button" title="Spracheingabe starten/stoppen">
+                <textarea placeholder="" rows="1"></textarea>
+                <button type="button" class="mic-button" title="">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
                         <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
@@ -565,7 +611,7 @@
                         <line x1="8" y1="23" x2="16" y2="23"></line>
                     </svg>
                 </button>
-                <button type="button" class="send-button" title="Nachricht senden">
+                <button type="button" class="send-button" title="">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M5 12h14M12 5l7 7-7 7" />
                     </svg>
@@ -581,7 +627,7 @@
 
     const toggleButton = document.createElement('button');
     toggleButton.className = `chat-toggle${config.style.position === 'left' ? ' position-left' : ''}`;
-    toggleButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.476 0-2.886-.313-4.156-.878l-3.156.586.586-3.156A7.962 7.962 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/></svg>`;
+    toggleButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0112 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.476 0-2.886-.313-4.156-.878l-3.156.586.586-3.156A7.962 7.962 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/></svg>`;
 
     widgetContainer.appendChild(chatContainer);
     widgetContainer.appendChild(toggleButton);
@@ -589,6 +635,7 @@
 
     // Selección de elementos del DOM
     const newChatBtn = chatContainer.querySelector('.new-chat-btn');
+    const newChatBtnTextSpan = newChatBtn.querySelector('span');
     const newConversationWrapper = chatContainer.querySelector('.new-conversation-wrapper');
     const chatInterface = chatContainer.querySelector('.chat-interface');
     const privacyCheckbox = chatContainer.querySelector('#datenschutz');
@@ -613,6 +660,32 @@
                         d="M6 18L18 6M6 6l12 12" />
                 </svg>`;
 
+    // Función para actualizar los textos del UI
+    function updateUI() {
+        const langCode = currentLang.split('-')[0];
+        const t = translations[langCode] || translations.de;
+        
+        chatContainer.querySelector('.welcome-text').textContent = t.welcomeText;
+        chatContainer.querySelector('.response-text').textContent = t.responseTimeText;
+        chatContainer.querySelector('.privacy-checkbox label').innerHTML = t.privacyLabel;
+        newChatBtnTextSpan.textContent = t.newChatBtnText;
+        chatContainer.querySelector('textarea').placeholder = t.placeholder;
+        chatContainer.querySelector('.mic-button').title = t.micTitle;
+        chatContainer.querySelector('.send-button').title = t.sendTitle;
+
+        languageSelects.forEach(select => {
+            select.value = langCode;
+        });
+        
+        const botGreeting = messagesContainer.querySelector('.bot-greeting-message');
+        if (botGreeting) {
+            botGreeting.textContent = t.botGreeting;
+        }
+    }
+
+    // Inicializar UI con el idioma por defecto
+    updateUI();
+
     let recognition;
     let isRecording = false;
     let shouldSendMessageAfterStop = false;
@@ -624,7 +697,7 @@
     if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition = new SpeechRecognition();
-        recognition.lang = 'de-DE';
+        recognition.lang = langCodes.de;
         recognition.continuous = true;
         recognition.interimResults = true;
 
@@ -642,13 +715,17 @@
 
         recognition.onerror = (event) => {
             console.error('Speech recognition error:', event.error);
-            stopRecording();
+            if (event.error !== 'no-speech' && isRecording) {
+                recognition.start();
+            } else {
+                stopRecording();
+            }
         };
 
         recognition.onend = () => {
-            if (isRecording) stopRecording();
-            
-            if (shouldSendMessageAfterStop) {
+            if (isRecording) {
+                recognition.start();
+            } else if (shouldSendMessageAfterStop) {
                 const message = textarea.value.trim();
                 if (message) {
                     sendMessage(message);
@@ -660,7 +737,7 @@
         };
     } else {
         micButton.disabled = true;
-        micButton.title = 'Spracherkennung nicht unterstützt';
+        micButton.title = translations[currentLang.split('-')[0]].micUnsupported;
     }
 
     // Lógica para habilitar/deshabilitar el botón de inicio de chat
@@ -668,14 +745,15 @@
         newChatBtn.disabled = !privacyCheckbox.checked;
     });
 
-    // Lógica para cambiar el idioma del reconocimiento de voz
+    // Lógica para cambiar el idioma del reconocimiento de voz y UI
     languageSelects.forEach(select => {
         select.addEventListener('change', (e) => {
-            const selectedLang = e.target.value;
+            currentLang = e.target.value;
             if (recognition) {
-                recognition.lang = selectedLang;
-                console.log('Idioma de reconocimiento de voz cambiado a:', selectedLang);
+                recognition.lang = langCodes[currentLang];
+                console.log('Idioma de reconocimiento de voz cambiado a:', recognition.lang);
             }
+            updateUI();
         });
     });
 
@@ -747,8 +825,11 @@
     }
 
     micButton.addEventListener('click', () => {
-        if (isRecording) stopRecording();
-        else startRecording();
+        if (isRecording) {
+            stopRecording();
+        } else {
+            startRecording();
+        }
     });
 
     function generateUUID() { return crypto.randomUUID(); }
@@ -762,20 +843,17 @@
             newConversationWrapper.style.display = 'none';
             chatInterface.classList.add('active');
 
-            const optInMessage = document.createElement('div');
-            optInMessage.className = 'chat-message bot';
-            optInMessage.innerHTML = `
-                Hallo! 👋 Ich bin Ihr persönlicher Assistent der Agentur für Kommunikation AMARETIS.
-                Wir sind eine Full-Service-Werbeagentur mit Sitz in Göttingen und arbeiten für Kundinnen und Kunden in ganz Deutschland.
-                Wie kann ich Ihnen heute weiterhelfen?
-            `;
-            messagesContainer.appendChild(optInMessage);
+            const langCode = currentLang.split('-')[0];
+            const botGreetingMessage = document.createElement('div');
+            botGreetingMessage.className = 'chat-message bot bot-greeting-message';
+            botGreetingMessage.innerHTML = translations[langCode].botGreeting;
+            messagesContainer.appendChild(botGreetingMessage);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         } catch (error) { console.error('Error:', error); }
     }
 
     async function sendMessage(message) {
-        const messageData = { action: "sendMessage", sessionId: currentSessionId, route: config.webhook.route, chatInput: message, metadata: { userId: "" } };
+        const messageData = { action: "sendMessage", sessionId: currentSessionId, route: config.webhook.route, chatInput: message, metadata: { userId: "", lang: currentLang } };
         const userMessageDiv = document.createElement('div');
         userMessageDiv.className = 'chat-message user';
         userMessageDiv.textContent = message;
