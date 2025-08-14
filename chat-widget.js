@@ -481,8 +481,8 @@
     const translations = {
         de: {
             language: "Deutsch",
-            welcomeText: "Starten Sie Ihre Anfrage!",
-            responseTimeText: "Ich beantworte Ihre Fragen in weniger als 1 Minute",
+            welcomeText: "HERZLICH WILLKOMMEN BEI AMARETIS!",
+            responseTimeText: "AMARETIS AI ist Ihr digitaler Assistent – direkt, unkompliziert und rund um die Uhr erreichbar. Ob Sie einen Termin vereinbaren möchten, Fragen zu unseren Leistungen haben oder herausfinden wollen, ob AMARETIS zu Ihrem Vorhaben passt – wir sind für Sie da.",
             privacyLabel: "Ich habe die <a href='https://www.amaretis.de/datenschutz/' target='_blank'>Datenschutzerklärung</a> gelesen und akzeptiere sie.",
             newChatBtnText: "Starten Sie Ihre Anfrage!",
             placeholder: "Text oder Sprache eingeben…",
@@ -493,8 +493,8 @@
         },
         en: {
             language: "English",
-            welcomeText: "Start your request!",
-            responseTimeText: "I will answer your questions in less than 1 minute",
+            welcomeText: "WELCOME TO AMARETIS!",
+            responseTimeText: "AMARETIS AI is your digital assistant – direct, uncomplicated, and available around the clock. Whether you want to schedule an appointment, have questions about our services, or want to find out if AMARETIS is a good fit for your project – we're here for you.",
             privacyLabel: "I have read and accept the <a href='https://www.amaretis.de/datenschutz/' target='_blank'>privacy policy</a>.",
             newChatBtnText: "Start your request!",
             placeholder: "Enter text or voice...",
@@ -505,8 +505,8 @@
         },
         es: {
             language: "Español",
-            welcomeText: "¡Inicia tu consulta!",
-            responseTimeText: "Responderé a tus preguntas en menos de 1 minuto",
+            welcomeText: "¡BIENVENIDO A AMARETIS!",
+            responseTimeText: "AMARETIS AI es tu asistente digital: directo, sencillo y disponible las 24 horas. Ya sea que quieras programar una cita, tengas preguntas sobre nuestros servicios o quieras saber si AMARETIS es adecuado para tu proyecto, estamos aquí para ayudarte.",
             privacyLabel: "He leído y acepto la <a href='https://www.amaretis.de/datenschutz/' target='_blank'>política de privacidad</a>.",
             newChatBtnText: "¡Inicia tu consulta!",
             placeholder: "Escribe o dicta un mensaje…",
