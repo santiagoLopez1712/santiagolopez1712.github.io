@@ -22,7 +22,6 @@
             border-radius: 12px;
             box-shadow: 0 8px 32px rgba(133, 79, 255, 0.15);
             border: 1px solid rgba(133, 79, 255, 0.2);
-            overflow: hidden;
             font-family: inherit;
         }
 
@@ -31,9 +30,11 @@
             left: 20px;
         }
 
+        /* ✅ MEJORA 2: Se añaden estas propiedades para manejar el layout interno */
         .n8n-chat-widget .chat-container.open {
             display: flex;
             flex-direction: column;
+            overflow: hidden; /* Esto asegura que el contenedor principal no tenga scroll */
         }
 
         .n8n-chat-widget .brand-header {
@@ -202,6 +203,7 @@
             display: flex;
             gap: 8px;
             align-items: center;
+            flex-shrink: 0; /* ✅ MEJORA 2: Se asegura que el input no se encoja */
         }
 
         .n8n-chat-widget .chat-input textarea {
@@ -311,6 +313,7 @@
             text-align: center;
             background: var(--chat--color-background);
             border-top: 1px solid rgba(133, 79, 255, 0.1);
+            flex-shrink: 0; /* ✅ MEJORA 2: Se asegura que el footer no se encoja */
         }
 
         .n8n-chat-widget .chat-footer a {
@@ -712,7 +715,7 @@
 
     newChatBtn.addEventListener('click', startNewConversation);
 
-    // ✅ CAMBIO 1: Detener grabación al enviar con el botón
+    // ✅ MEJORA 1: Detener grabación y enviar el mensaje
     sendButton.addEventListener('click', () => {
         if (isRecording) {
             stopRecording();
@@ -721,10 +724,11 @@
         if (message) {
             sendMessage(message);
             textarea.value = '';
+            textarea.style.height = 'auto'; // Ajusta la altura del textarea
         }
     });
 
-    // ✅ CAMBIO 2: Detener grabación al enviar con "Enter"
+    // ✅ MEJORA 1: Detener grabación y enviar el mensaje con "Enter"
     textarea.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
@@ -735,6 +739,7 @@
             if (message) {
                 sendMessage(message);
                 textarea.value = '';
+                textarea.style.height = 'auto'; // Ajusta la altura del textarea
             }
         }
     });
