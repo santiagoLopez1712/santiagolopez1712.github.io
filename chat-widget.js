@@ -446,7 +446,7 @@
         </div>
         <div class="new-conversation">
             <h2 class="welcome-text">${config.branding.welcomeText}</h2>
-            <p class="response-text">${config.branding.responseTimeText}</p>   
+            <p class="response-text">${config.branding.responseTimeText}</p>
             <div class="privacy-checkbox">
                 <input type="checkbox" id="datenschutz" name="datenschutz">
                 <label for="datenschutz">
@@ -458,7 +458,7 @@
                     <path fill="currentColor" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/>
                 </svg>
                 Starten Sie Ihre Anfrage!
-            </button>             
+            </button>
         </div>
     `;
 
@@ -493,7 +493,7 @@
     // Selección de elementos del DOM
     const newChatBtn = chatContainer.querySelector('.new-chat-btn');
     const chatInterface = chatContainer.querySelector('.chat-interface');
-    const privacyCheckbox = chatContainer.querySelector('#datenschutz'); 
+    const privacyCheckbox = chatContainer.querySelector('#datenschutz');
     const messagesContainer = chatContainer.querySelector('.chat-messages');
     const textarea = chatContainer.querySelector('textarea');
     const sendButton = chatContainer.querySelector('button[type="submit"]');
@@ -559,7 +559,7 @@
                  }
              }
         };
-        
+
         recognition.onerror = (event) => {
             console.error('Speech recognition error:', event.error);
             stopRecording();
@@ -712,13 +712,31 @@
 
     newChatBtn.addEventListener('click', startNewConversation);
 
+    // ✅ CAMBIO 1: Detener grabación al enviar con el botón
     sendButton.addEventListener('click', () => {
+        if (isRecording) {
+            stopRecording();
+        }
         const message = textarea.value.trim();
-        if (message) { sendMessage(message); textarea.value = ''; }
+        if (message) {
+            sendMessage(message);
+            textarea.value = '';
+        }
     });
 
+    // ✅ CAMBIO 2: Detener grabación al enviar con "Enter"
     textarea.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); const message = textarea.value.trim(); if (message) { sendMessage(message); textarea.value = ''; } }
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            if (isRecording) {
+                stopRecording();
+            }
+            const message = textarea.value.trim();
+            if (message) {
+                sendMessage(message);
+                textarea.value = '';
+            }
+        }
     });
 
     toggleButton.addEventListener('click', () => { chatContainer.classList.toggle('open'); });
