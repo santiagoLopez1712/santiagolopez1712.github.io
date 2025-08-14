@@ -24,19 +24,19 @@
             border: 1px solid rgba(133, 79, 255, 0.2);
             font-family: inherit;
         }
-        
+
         .n8n-chat-widget .chat-container.position-left {
             right: auto;
             left: 20px;
         }
 
         .n8n-chat-widget .chat-container.open {
-            display: flex;
+            display: flex; /* ✅ Verificamos que se muestre como un flexbox vertical */
             flex-direction: column;
-            position: relative; /* ✅ CAMBIO CLAVE: Se añade position: relative para que el .chat-input se posicione correctamente */
-            overflow: hidden; /* Se mantiene para que los elementos hijos se gestionen internamente */
+            position: relative; /* ✅ Se mantiene para el posicionamiento absoluto del footer */
+            overflow: hidden;
         }
-
+        
         .n8n-chat-widget .brand-header {
             padding: 16px;
             display: flex;
@@ -78,7 +78,7 @@
             font-weight: 500;
             color: var(--chat--color-font);
         }
-
+        
         .n8n-chat-widget .new-conversation {
             position: absolute;
             top: 50%;
@@ -150,18 +150,18 @@
             margin-bottom:28px;
             font-weight: 400;
         }
-
+        
         .n8n-chat-widget .chat-interface {
             display: none;
             flex-direction: column;
             height: 100%;
-            position: relative; /* ✅ CAMBIO CLAVE: Se añade position: relative a la interfaz del chat para que el chat-input-container se posicione correctamente */
+            position: relative;
         }
 
         .n8n-chat-widget .chat-interface.active {
             display: flex;
         }
-        
+
         .n8n-chat-widget .chat-messages {
             flex: 1;
             overflow-y: auto;
@@ -169,7 +169,7 @@
             background: var(--chat--color-background);
             display: flex;
             flex-direction: column;
-            margin-bottom: 100px; /* ✅ CAMBIO CLAVE: Se añade margen para el bloque fijo */
+            margin-bottom: 70px;
         }
 
         .n8n-chat-widget .chat-message {
@@ -198,7 +198,6 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
-        /* ✅ CAMBIO CLAVE: Nuevo selector y estilos para el bloque de entrada fijo */
         .n8n-chat-widget .chat-input {
             position: absolute;
             bottom: 0;
@@ -281,7 +280,7 @@
             display: none;
         }
         /* --- FIN DE NUEVOS ESTILOS --- */
-
+        
         .n8n-chat-widget .chat-toggle {
             position: fixed;
             bottom: 20px;
@@ -512,6 +511,11 @@
     // --- NUEVA SELECCIÓN DEL CANVAS ---
     const visualizerCanvas = chatContainer.querySelector('#audio-visualizer');
 
+    // ✅ Se simplifica la lógica del botón de alternar para asegurar que funcione
+    toggleButton.addEventListener('click', () => { 
+        chatContainer.classList.toggle('open'); 
+    });
+
 
     if (privacyCheckbox) {
         privacyCheckbox.addEventListener('change', function() {
@@ -675,7 +679,7 @@
             optInMessage.className = 'chat-message bot';
             optInMessage.innerHTML = `
                 Hallo! 👋 Ich bin Ihr persönlicher Assistent der Agentur für Kommunikation AMARETIS.
-                Wir sind eine Full-Service-Werbeagentur mit Sitz in Göttingen y trabajan para Kundinnen y Kunden en todo el país.
+                Wir sind eine Full-Service-Werbeagentur mit Sitz in Göttingen und arbeiten für Kundinnen und Kunden in ganz Deutschland.
                 Wie kann ich Ihnen heute weiterhelfen?
             `;
             messagesContainer.appendChild(optInMessage);
@@ -722,7 +726,7 @@
     }
 
     newChatBtn.addEventListener('click', startNewConversation);
-
+    
     // ✅ MEJORA 1: Detener grabación y enviar el mensaje
     sendButton.addEventListener('click', () => {
         if (isRecording) {
@@ -751,8 +755,6 @@
             }
         }
     });
-
-    toggleButton.addEventListener('click', () => { chatContainer.classList.toggle('open'); });
 
     const closeButtons = chatContainer.querySelectorAll('.close-button');
     closeButtons.forEach(button => { button.addEventListener('click', () => { chatContainer.classList.remove('open'); }); });
