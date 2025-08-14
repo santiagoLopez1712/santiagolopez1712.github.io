@@ -477,6 +477,46 @@
     styleSheet.textContent = styles;
     document.head.appendChild(styleSheet);
 
+    // Objeto de traducciones
+    const translations = {
+        de: {
+            language: "Deutsch",
+            welcomeText: "Starten Sie Ihre Anfrage!",
+            responseTimeText: "Ich beantworte Ihre Fragen in weniger als 1 Minute",
+            privacyLabel: "Ich habe die <a href='https://www.amaretis.de/datenschutz/' target='_blank'>Datenschutzerklärung</a> gelesen und akzeptiere sie.",
+            newChatBtnText: "Starten Sie Ihre Anfrage!",
+            placeholder: "Text oder Sprache eingeben…",
+            micTitle: "Spracheingabe starten/stoppen",
+            sendTitle: "Nachricht senden",
+            micUnsupported: "Spracherkennung nicht unterstützt",
+            botGreeting: "Hallo! 👋 Ich bin Ihr persönlicher Assistent der Agentur für Kommunikation AMARETIS. Wir sind eine Full-Service-Werbeagentur mit Sitz in Göttingen und arbeiten für Kundinnen und Kunden in ganz Deutschland. Wie kann ich Ihnen heute weiterhelfen?"
+        },
+        en: {
+            language: "English",
+            welcomeText: "Start your request!",
+            responseTimeText: "I will answer your questions in less than 1 minute",
+            privacyLabel: "I have read and accept the <a href='https://www.amaretis.de/datenschutz/' target='_blank'>privacy policy</a>.",
+            newChatBtnText: "Start your request!",
+            placeholder: "Enter text or voice...",
+            micTitle: "Start/stop voice input",
+            sendTitle: "Send message",
+            micUnsupported: "Speech recognition not supported",
+            botGreeting: "Hello! 👋 I am your personal assistant from the AMARETIS communication agency. We are a full-service advertising agency based in Göttingen and work for clients throughout Germany. How can I help you today?"
+        },
+        es: {
+            language: "Español",
+            welcomeText: "¡Inicia tu consulta!",
+            responseTimeText: "Responderé a tus preguntas en menos de 1 minuto",
+            privacyLabel: "He leído y acepto la <a href='https://www.amaretis.de/datenschutz/' target='_blank'>política de privacidad</a>.",
+            newChatBtnText: "¡Inicia tu consulta!",
+            placeholder: "Escribe o dicta un mensaje…",
+            micTitle: "Iniciar/detener entrada de voz",
+            sendTitle: "Enviar mensaje",
+            micUnsupported: "Reconocimiento de voz no soportado",
+            botGreeting: "¡Hola! 👋 Soy tu asistente personal de la agencia de comunicación AMARETIS. Somos una agencia de publicidad de servicio completo con sede en Göttingen y trabajamos para clientes en toda Alemania. ¿En qué puedo ayudarte hoy?"
+        }
+    };
+
     // Default config
     const defaultConfig = {
         webhook: { url: '', route: '' },
@@ -498,6 +538,7 @@
     window.N8NChatWidgetInitialized = true;
 
     let currentSessionId = '';
+    let currentLang = 'de'; // Idioma por defecto
 
     const widgetContainer = document.createElement('div');
     widgetContainer.className = 'n8n-chat-widget';
@@ -516,9 +557,9 @@
                 <img src="${config.branding.logo}" alt="${config.branding.name}">
                 <span>${config.branding.name}</span>
                 <select class="language-select">
-                    <option value="de-DE">Deutsch</option>
-                    <option value="en-US">English</option>
-                    <option value="es-ES">Español</option>
+                    <option value="de">Deutsch</option>
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
                 </select>
                 <button class="close-button">×</button>
             </div>
@@ -527,9 +568,7 @@
                 <p class="response-text">${config.branding.responseTimeText}</p>
                 <div class="privacy-checkbox">
                     <input type="checkbox" id="datenschutz" name="datenschutz">
-                    <label for="datenschutz">
-                        Ich habe die <a href="https://www.amaretis.de/datenschutz/" target="_blank">Datenschutzerklärung</a> gelesen und akzeptiere sie.
-                    </label>
+                    <label for="datenschutz"></label>
                 </div>
                 <button class="new-chat-btn" disabled>
                     <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -547,9 +586,9 @@
                 <img src="${config.branding.logo}" alt="${config.branding.name}">
                 <span>${config.branding.name}</span>
                 <select class="language-select">
-                    <option value="de-DE">Deutsch</option>
-                    <option value="en-US">English</option>
-                    <option value="es-ES">Español</option>
+                    <option value="de">Deutsch</option>
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
                 </select>
                 <button class="close-button">×</button>
             </div>
@@ -613,6 +652,27 @@
                         d="M6 18L18 6M6 6l12 12" />
                 </svg>`;
 
+    // Función para actualizar los textos del UI
+    function updateUI() {
+        const langCode = currentLang.split('-')[0];
+        const t = translations[langCode] || translations.de;
+        
+        chatContainer.querySelector('.welcome-text').textContent = t.welcomeText;
+        chatContainer.querySelector('.response-text').textContent = t.responseTimeText;
+        chatContainer.querySelector('.privacy-checkbox label').innerHTML = t.privacyLabel;
+        chatContainer.querySelector('.new-chat-btn').textContent = t.newChatBtnText;
+        chatContainer.querySelector('textarea').placeholder = t.placeholder;
+        chatContainer.querySelector('.mic-button').title = t.micTitle;
+        chatContainer.querySelector('.send-button').title = t.sendTitle;
+
+        languageSelects.forEach(select => {
+            select.value = langCode;
+        });
+    }
+
+    // Inicializar UI con el idioma por defecto
+    updateUI();
+
     let recognition;
     let isRecording = false;
     let shouldSendMessageAfterStop = false;
@@ -660,7 +720,7 @@
         };
     } else {
         micButton.disabled = true;
-        micButton.title = 'Spracherkennung nicht unterstützt';
+        micButton.title = translations[currentLang.split('-')[0]].micUnsupported;
     }
 
     // Lógica para habilitar/deshabilitar el botón de inicio de chat
@@ -668,14 +728,15 @@
         newChatBtn.disabled = !privacyCheckbox.checked;
     });
 
-    // Lógica para cambiar el idioma del reconocimiento de voz
+    // Lógica para cambiar el idioma del reconocimiento de voz y UI
     languageSelects.forEach(select => {
         select.addEventListener('change', (e) => {
-            const selectedLang = e.target.value;
+            currentLang = e.target.value;
             if (recognition) {
-                recognition.lang = selectedLang;
-                console.log('Idioma de reconocimiento de voz cambiado a:', selectedLang);
+                recognition.lang = currentLang + '-' + currentLang.toUpperCase();
+                console.log('Idioma de reconocimiento de voz cambiado a:', recognition.lang);
             }
+            updateUI();
         });
     });
 
@@ -762,14 +823,10 @@
             newConversationWrapper.style.display = 'none';
             chatInterface.classList.add('active');
 
-            const optInMessage = document.createElement('div');
-            optInMessage.className = 'chat-message bot';
-            optInMessage.innerHTML = `
-                Hallo! 👋 Ich bin Ihr persönlicher Assistent der Agentur für Kommunikation AMARETIS.
-                Wir sind eine Full-Service-Werbeagentur mit Sitz in Göttingen und arbeiten für Kundinnen und Kunden in ganz Deutschland.
-                Wie kann ich Ihnen heute weiterhelfen?
-            `;
-            messagesContainer.appendChild(optInMessage);
+            const botGreetingMessage = document.createElement('div');
+            botGreetingMessage.className = 'chat-message bot';
+            botGreetingMessage.innerHTML = translations[currentLang].botGreeting;
+            messagesContainer.appendChild(botGreetingMessage);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         } catch (error) { console.error('Error:', error); }
     }
