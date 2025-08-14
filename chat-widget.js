@@ -89,15 +89,24 @@
             color: var(--chat--color-font);
         }
         
-        .n8n-chat-widget .new-conversation {
+        .n8n-chat-widget .new-conversation-wrapper {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .n8n-chat-widget .new-conversation {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             padding: 20px;
             text-align: center;
-            width: 100%;
-            max-width: 300px;
         }
 
         .n8n-chat-widget .welcome-text {
@@ -117,6 +126,7 @@
             justify-content: center;
             gap: 8px;
             width: 100%;
+            max-width: 300px;
             padding: 16px 24px;
             background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
             color: white;
