@@ -7,7 +7,7 @@
             --chat--color-secondary: var(--n8n-chat-secondary-color, #6b3fd4);
             --chat--color-background: var(--n8n-chat-background-color, #ffffff);
             --chat--color-font: var(--n8n-chat-font-color, #333333);
-            --chat--color-accent: #ff4d4d; /* Nuevo color de acento para la grabación */
+            --chat--color-accent: #ff4d4d;
             font-family: futura-pt;
         }
 
@@ -64,7 +64,7 @@
             pointer-events: none;
         }
         .n8n-chat-widget .language-select {
-            padding: 4px 8px 4px 32px; /* Ajuste para el icono */
+            padding: 4px 8px 4px 32px;
             border-radius: 6px;
             border: 1px solid rgba(133, 79, 255, 0.2);
             background: var(--chat--color-background);
@@ -556,9 +556,8 @@
     window.N8NChatWidgetInitialized = true;
 
     let currentSessionId = '';
-    let currentLang = 'de'; // Idioma por defecto
+    let currentLang = 'de';
 
-    // Mapa para los códigos de idioma correctos
     const langCodes = {
         de: 'de-DE',
         en: 'en-US',
@@ -667,7 +666,7 @@
 
     // Selección de elementos del DOM después de que se han creado y adjuntado
     const newChatBtn = chatContainer.querySelector('.new-chat-btn');
-    const newChatBtnTextSpan = newChatBtn.querySelector('span'); // Corregido: La variable newConversationContainer no está definida.
+    const newChatBtnTextSpan = newChatBtn.querySelector('span');
     const newConversationWrapper = chatContainer.querySelector('.new-conversation-wrapper');
     const chatInterface = chatContainer.querySelector('.chat-interface');
     const privacyCheckbox = chatContainer.querySelector('#datenschutz');
@@ -711,7 +710,6 @@
         const langCode = currentLang.split('-')[0];
         const t = translations[langCode] || translations.de;
         
-        // Reemplazo de los textos para que se ajusten al nuevo HTML
         chatContainer.querySelector('.new-conversation .welcome-text').textContent = t.welcomeText;
         chatContainer.querySelector('.new-conversation .response-text').textContent = t.responseTimeText;
         chatContainer.querySelector('.privacy-checkbox label').innerHTML = t.privacyLabel;
@@ -731,7 +729,6 @@
         }
     }
 
-    // Inicializar UI con el idioma por defecto
     updateUI();
 
     let recognition;
@@ -788,18 +785,15 @@
         micButton.title = translations[currentLang.split('-')[0]].micUnsupported;
     }
 
-    // Lógica para habilitar/deshabilitar el botón de inicio de chat
     privacyCheckbox.addEventListener('change', () => {
         newChatBtn.disabled = !privacyCheckbox.checked;
     });
 
-    // Lógica para cambiar el idioma del reconocimiento de voz y UI
     languageSelects.forEach(select => {
         select.addEventListener('change', (e) => {
             currentLang = e.target.value;
             if (recognition) {
                 recognition.lang = langCodes[currentLang];
-                console.log('Idioma de reconocimiento de voz cambiado a:', recognition.lang);
             }
             updateUI();
         });
@@ -822,4 +816,157 @@
                     animationFrameId = requestAnimationFrame(draw);
                     analyser.getByteFrequencyData(dataArray);
                     canvasCtx.fillStyle = '#f8f8f8';
-                    canvasCtx.fillRect(0, 0, visualizerCanv...
+                    canvasCtx.fillRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+                    const barWidth = (visualizerCanvas.width / bufferLength) * 2.5;
+                    let barHeight;
+                    let x = 0;
+                    for (let i = 0; i < bufferLength; i++) {
+                        barHeight = dataArray[i];
+                        canvasCtx.fillStyle = `rgb(${barHeight + 100}, 50, 50)`;
+                        canvasCtx.fillRect(x, visualizerCanvas.height - barHeight / 2, barWidth, barHeight / 2);
+                        x += barWidth + 1;
+                    }
+                }
+                draw();
+            })
+            .catch(e => console.error('Error al iniciar el visualizador de audio:', e));
+    }
+
+    function stopAudioVisualizer() {
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
+        }
+        if (source) {
+            source.disconnect();
+            source = null;
+        }
+        if (audioContext) {
+            audioContext.close();
+            audioContext = null;
+        }
+        if (visualizerCanvas) {
+            const canvasCtx = visualizerCanvas.getContext('2d');
+            canvasCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+        }
+    }
+
+    function startRecording() {
+        if (recognition) {
+            isRecording = true;
+            micButton.classList.add('recording');
+            micButton.innerHTML = stopSVG;
+            chatInputContainer.classList.add('is-recording');
+            textarea.disabled = true;
+            sendButton.disabled = true;
+            recognition.start();
+            startAudioVisualizer();
+        }
+    }
+
+    function stopRecording() {
+        if (recognition) {
+            isRecording = false;
+            micButton.classList.remove('recording');
+            micButton.innerHTML = micSVG;
+            chatInputContainer.classList.remove('is-recording');
+            textarea.disabled = false;
+            sendButton.disabled = false;
+            recognition.stop();
+            stopAudioVisualizer();
+            shouldSendMessageAfterStop = true;
+        }
+    }
+
+    function correctTextRealtime(text) {
+        // Implementar lógica de corrección de texto
+        // Por ahora, solo capitalizar la primera letra
+        if (!text) return '';
+        return text.charAt(0).toUpperCase() + text.slice(1);
+    }
+    
+    // Asignación de event listeners para los botones de la interfaz de chat
+    newChatBtn.addEventListener('click', () => {
+        newConversationWrapper.style.display = 'none';
+        chatInterface.classList.add('active');
+        const t = translations[currentLang] || translations.de;
+        const botMessage = createMessageElement(t.botGreeting, 'bot');
+        messagesContainer.appendChild(botMessage);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    });
+
+    micButton.addEventListener('click', () => {
+        if (isRecording) {
+            stopRecording();
+        } else {
+            startRecording();
+        }
+    });
+
+    // Función para crear un elemento de mensaje en el DOM
+    function createMessageElement(text, sender) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-message ${sender}`;
+        messageDiv.textContent = text;
+        return messageDiv;
+    }
+
+    // Funciones de envío de mensajes
+    function sendMessage(message) {
+        if (message.trim() === '') return;
+
+        const userMessage = createMessageElement(message, 'user');
+        messagesContainer.appendChild(userMessage);
+        textarea.value = '';
+        textarea.style.height = 'auto';
+
+        const loadingMessage = createMessageElement('...', 'bot');
+        messagesContainer.appendChild(loadingMessage);
+
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+        fetch(`${config.webhook.url}${config.webhook.route}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ message, sessionId: currentSessionId, lang: currentLang }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            messagesContainer.removeChild(loadingMessage);
+            const botResponse = data.response;
+            const botMessage = createMessageElement(botResponse, 'bot');
+            messagesContainer.appendChild(botMessage);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            messagesContainer.removeChild(loadingMessage);
+            const errorMessage = createMessageElement('Hubo un error al obtener la respuesta. Por favor, inténtelo de nuevo.', 'bot');
+            messagesContainer.appendChild(errorMessage);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        });
+    }
+
+    textarea.addEventListener('input', () => {
+        textarea.style.height = 'auto';
+        textarea.style.height = `${textarea.scrollHeight}px`;
+    });
+
+    textarea.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage(textarea.value);
+            textarea.value = '';
+            textarea.style.height = 'auto';
+        }
+    });
+
+    sendButton.addEventListener('click', () => {
+        sendMessage(textarea.value);
+        textarea.value = '';
+        textarea.style.height = 'auto';
+    });
+
+})();
