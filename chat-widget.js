@@ -22,6 +22,7 @@
             border-radius: 12px;
             box-shadow: 0 8px 32px rgba(133, 79, 255, 0.15);
             border: 1px solid rgba(133, 79, 255, 0.2);
+            overflow: hidden;
             font-family: inherit;
         }
 
@@ -31,12 +32,10 @@
         }
 
         .n8n-chat-widget .chat-container.open {
-            display: flex; /* ✅ Verificamos que se muestre como un flexbox vertical */
+            display: flex;
             flex-direction: column;
-            position: relative; /* ✅ Se mantiene para el posicionamiento absoluto del footer */
-            overflow: hidden;
         }
-        
+
         .n8n-chat-widget .brand-header {
             padding: 16px;
             display: flex;
@@ -78,7 +77,7 @@
             font-weight: 500;
             color: var(--chat--color-font);
         }
-        
+
         .n8n-chat-widget .new-conversation {
             position: absolute;
             top: 50%;
@@ -150,12 +149,11 @@
             margin-bottom:28px;
             font-weight: 400;
         }
-        
+
         .n8n-chat-widget .chat-interface {
             display: none;
             flex-direction: column;
             height: 100%;
-            position: relative;
         }
 
         .n8n-chat-widget .chat-interface.active {
@@ -169,7 +167,6 @@
             background: var(--chat--color-background);
             display: flex;
             flex-direction: column;
-            margin-bottom: 70px;
         }
 
         .n8n-chat-widget .chat-message {
@@ -199,18 +196,12 @@
         }
 
         .n8n-chat-widget .chat-input {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
             padding: 16px;
             background: var(--chat--color-background);
             border-top: 1px solid rgba(133, 79, 255, 0.1);
             display: flex;
             gap: 8px;
             align-items: center;
-            box-sizing: border-box;
-            flex-shrink: 0;
         }
 
         .n8n-chat-widget .chat-input textarea {
@@ -280,7 +271,7 @@
             display: none;
         }
         /* --- FIN DE NUEVOS ESTILOS --- */
-        
+
         .n8n-chat-widget .chat-toggle {
             position: fixed;
             bottom: 20px;
@@ -320,7 +311,6 @@
             text-align: center;
             background: var(--chat--color-background);
             border-top: 1px solid rgba(133, 79, 255, 0.1);
-            flex-shrink: 0;
         }
 
         .n8n-chat-widget .chat-footer a {
@@ -510,11 +500,6 @@
     const chatInputContainer = chatContainer.querySelector('.chat-input');
     // --- NUEVA SELECCIÓN DEL CANVAS ---
     const visualizerCanvas = chatContainer.querySelector('#audio-visualizer');
-
-    // ✅ Se simplifica la lógica del botón de alternar para asegurar que funcione
-    toggleButton.addEventListener('click', () => { 
-        chatContainer.classList.toggle('open'); 
-    });
 
 
     if (privacyCheckbox) {
@@ -726,8 +711,8 @@
     }
 
     newChatBtn.addEventListener('click', startNewConversation);
-    
-    // ✅ MEJORA 1: Detener grabación y enviar el mensaje
+
+    // ✅ CAMBIO 1: Detener grabación al enviar con el botón
     sendButton.addEventListener('click', () => {
         if (isRecording) {
             stopRecording();
@@ -736,11 +721,10 @@
         if (message) {
             sendMessage(message);
             textarea.value = '';
-            textarea.style.height = 'auto'; // Ajusta la altura del textarea
         }
     });
 
-    // ✅ MEJORA 1: Detener grabación y enviar el mensaje con "Enter"
+    // ✅ CAMBIO 2: Detener grabación al enviar con "Enter"
     textarea.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
@@ -751,10 +735,11 @@
             if (message) {
                 sendMessage(message);
                 textarea.value = '';
-                textarea.style.height = 'auto'; // Ajusta la altura del textarea
             }
         }
     });
+
+    toggleButton.addEventListener('click', () => { chatContainer.classList.toggle('open'); });
 
     const closeButtons = chatContainer.querySelectorAll('.close-button');
     closeButtons.forEach(button => { button.addEventListener('click', () => { chatContainer.classList.remove('open'); }); });
