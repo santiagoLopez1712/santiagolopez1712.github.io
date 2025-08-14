@@ -139,6 +139,13 @@
             font-family: inherit;
             margin-bottom: 12px;
         }
+        
+        .n8n-chat-widget .new-chat-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+            transform: none;
+        }
 
         .n8n-chat-widget .new-chat-btn:hover {
             transform: scale(1.02);
@@ -655,6 +662,11 @@
         micButton.disabled = true;
         micButton.title = 'Spracherkennung nicht unterstützt';
     }
+
+    // Lógica para habilitar/deshabilitar el botón de inicio de chat
+    privacyCheckbox.addEventListener('change', () => {
+        newChatBtn.disabled = !privacyCheckbox.checked;
+    });
 
     // Lógica para cambiar el idioma del reconocimiento de voz
     languageSelects.forEach(select => {
