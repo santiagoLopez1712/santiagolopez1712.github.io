@@ -472,6 +472,11 @@
             color: var(--chat--color-secondary);
         }
     `;
+    (function() {
+    const styles = `
+        /* Tus estilos existentes aquí */
+    `;
+    const styleSheet = document.createElement('style');
     styleSheet.textContent = styles;
     document.head.appendChild(styleSheet);
 
@@ -515,6 +520,13 @@
         }
     };
 
+    // Textos de "grabando" para el placeholder en cada idioma
+    const recordingPlaceholders = {
+        de: "Aufnahme läuft…",
+        en: "Recording…",
+        es: "Grabando…"
+    };
+
     // Default config
     const defaultConfig = {
         webhook: { url: '', route: '' },
@@ -538,12 +550,7 @@
     let currentSessionId = '';
     let currentLang = 'de'; // Idioma por defecto
 
-    // Mapa para los códigos de idioma correctos
-    const langCodes = {
-        de: 'de-DE',
-        en: 'en-US',
-        es: 'es-ES'
-    };
+    const langCodes = { de: 'de-DE', en: 'en-US', es: 'es-ES' };
 
     const widgetContainer = document.createElement('div');
     widgetContainer.className = 'n8n-chat-widget';
@@ -556,80 +563,7 @@
     const chatContainer = document.createElement('div');
     chatContainer.className = `chat-container${config.style.position === 'left' ? ' position-left' : ''}`;
 
-    const newConversationHTML = `
-        <div class="new-conversation-wrapper">
-            <div class="brand-header">
-                <img src="${config.branding.logo}" alt="${config.branding.name}">
-                <span>${config.branding.name}</span>
-                <select class="language-select">
-                    <option value="de">Deutsch</option>
-                    <option value="en">English</option>
-                    <option value="es">Español</option>
-                </select>
-                <button class="close-button">×</button>
-            </div>
-            <div class="new-conversation">
-                <h2 class="welcome-text"></h2>
-                <p class="response-text"></p>
-                <div class="privacy-checkbox">
-                    <input type="checkbox" id="datenschutz" name="datenschutz">
-                    <label for="datenschutz"></label>
-                </div>
-                <button class="new-chat-btn" disabled>
-                    <svg class="message-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <path fill="currentColor" d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/>
-                    </svg>
-                    <span></span>
-                </button>
-            </div>
-        </div>
-    `;
-
-    const chatInterfaceHTML = `
-        <div class="chat-interface">
-            <div class="brand-header">
-                <img src="${config.branding.logo}" alt="${config.branding.name}">
-                <span>${config.branding.name}</span>
-                <select class="language-select">
-                    <option value="de">Deutsch</option>
-                    <option value="en">English</option>
-                    <option value="es">Español</option>
-                </select>
-                <button class="close-button">×</button>
-            </div>
-            <div class="chat-messages"></div>
-            <div class="chat-input">
-                <canvas id="audio-visualizer"></canvas>
-                <textarea placeholder="" rows="1"></textarea>
-                <button type="button" class="mic-button" title="">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                        <line x1="12" y1="19" x2="12" y2="23"></line>
-                        <line x1="8" y1="23" x2="16" y2="23"></line>
-                    </svg>
-                </button>
-                <button type="button" class="send-button" title="">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M5 12h14M12 5l7 7-7 7" />
-                    </svg>
-                </button>
-            </div>
-            <div class="chat-footer">
-                <a href="${config.branding.poweredBy.link}" target="_blank">${config.branding.poweredBy.text}</a>
-            </div>
-        </div>
-    `;
-
-    chatContainer.innerHTML = newConversationHTML + chatInterfaceHTML;
-
-    const toggleButton = document.createElement('button');
-    toggleButton.className = `chat-toggle${config.style.position === 'left' ? ' position-left' : ''}`;
-    toggleButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0112 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.476 0-2.886-.313-4.156-.878l-3.156.586.586-3.156A7.962 7.962 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/></svg>`;
-
-    widgetContainer.appendChild(chatContainer);
-    widgetContainer.appendChild(toggleButton);
-    document.body.appendChild(widgetContainer);
+    // ... aquí va tu HTML de newConversationHTML y chatInterfaceHTML como en tu código original ...
 
     // Selección de elementos del DOM
     const newChatBtn = chatContainer.querySelector('.new-chat-btn');
@@ -658,7 +592,6 @@
                         d="M6 18L18 6M6 6l12 12" />
                 </svg>`;
 
-    // Función para actualizar los textos del UI
     function updateUI() {
         const langCode = currentLang.split('-')[0];
         const t = translations[langCode] || translations.de;
@@ -667,184 +600,125 @@
         chatContainer.querySelector('.response-text').textContent = t.responseTimeText;
         chatContainer.querySelector('.privacy-checkbox label').innerHTML = t.privacyLabel;
         newChatBtnTextSpan.textContent = t.newChatBtnText;
-        chatContainer.querySelector('textarea').placeholder = t.placeholder;
+        textarea.placeholder = t.placeholder;
         chatContainer.querySelector('.mic-button').title = t.micTitle;
         chatContainer.querySelector('.send-button').title = t.sendTitle;
 
-        languageSelects.forEach(select => {
-            select.value = langCode;
-        });
+        languageSelects.forEach(select => { select.value = langCode; });
         
         const botGreeting = messagesContainer.querySelector('.bot-greeting-message');
-        if (botGreeting) {
-            botGreeting.textContent = t.botGreeting;
-        }
+        if (botGreeting) { botGreeting.textContent = t.botGreeting; }
     }
 
-    // Inicializar UI con el idioma por defecto
     updateUI();
 
     let recognition;
-let isRecording = false;
-let audioContext;
-let analyser;
-let source;
-let animationFrameId;
+    let isRecording = false;
+    let audioContext;
+    let analyser;
+    let source;
+    let animationFrameId;
 
-function createRecognitionInstance() {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const rec = new SpeechRecognition();
-    rec.lang = langCodes.de;
-    rec.continuous = true;
-    rec.interimResults = true;
+    function createRecognitionInstance() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const rec = new SpeechRecognition();
+        rec.lang = langCodes.de;
+        rec.continuous = true;
+        rec.interimResults = true;
 
-    rec.onresult = (event) => {
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-            const transcript = event.results[i][0].transcript.trim();
-            if (event.results[i].isFinal) {
-                const corrected = correctTextRealtime(transcript);
-                textarea.value += (textarea.value ? ' ' : '') + corrected;
-                textarea.style.height = 'auto';
-                textarea.style.height = `${textarea.scrollHeight}px`;
-            }
-        }
-    };
-
-    rec.onerror = (event) => {
-        console.error('Speech recognition error:', event.error);
-        // En móviles, si hay error y seguimos grabando, reiniciamos la instancia
-        if (isRecording && event.error !== 'no-speech') {
-            rec.stop();
-            recognition = createRecognitionInstance();
-            recognition.start();
-        }
-    };
-
-    rec.onend = () => {
-        // Solo reiniciamos si seguimos grabando y no hemos enviado el mensaje
-        if (isRecording) {
-            recognition = createRecognitionInstance();
-            recognition.start();
-        }
-    };
-
-    return rec;
-}
-
-// Inicialización
-if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
-    recognition = createRecognitionInstance();
-} else {
-    micButton.disabled = true;
-    micButton.title = translations[currentLang.split('-')[0]].micUnsupported;
-}
-
-// Habilitar/deshabilitar botón de inicio de chat
-privacyCheckbox.addEventListener('change', () => {
-    newChatBtn.disabled = !privacyCheckbox.checked;
-});
-
-// Cambio de idioma
-languageSelects.forEach(select => {
-    select.addEventListener('change', (e) => {
-        currentLang = e.target.value;
-        if (recognition) {
-            recognition.lang = langCodes[currentLang];
-            console.log('Idioma de reconocimiento de voz cambiado a:', recognition.lang);
-        }
-        updateUI();
-    });
-});
-
-function startAudioVisualizer() {
-    if (!visualizerCanvas) return;
-    const canvasCtx = visualizerCanvas.getContext('2d');
-    navigator.mediaDevices.getUserMedia({ audio: true, video: false })
-        .then((stream) => {
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            analyser = audioContext.createAnalyser();
-            source = audioContext.createMediaStreamSource(stream);
-            source.connect(analyser);
-            analyser.fftSize = 256;
-            const bufferLength = analyser.frequencyBinCount;
-            const dataArray = new Uint8Array(bufferLength);
-            canvasCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
-
-            function draw() {
-                animationFrameId = requestAnimationFrame(draw);
-                analyser.getByteFrequencyData(dataArray);
-                canvasCtx.fillStyle = '#f8f8f8';
-                canvasCtx.fillRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
-                const barWidth = (visualizerCanvas.width / bufferLength) * 2;
-                let barHeight;
-                let x = 0;
-                for (let i = 0; i < bufferLength; i++) {
-                    barHeight = dataArray[i] / 2.5;
-                    canvasCtx.fillStyle = getComputedStyle(widgetContainer).getPropertyValue('--chat--color-primary');
-                    canvasCtx.fillRect(x, visualizerCanvas.height - barHeight, barWidth, barHeight);
-                    x += barWidth + 1;
+        rec.onresult = (event) => {
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript.trim();
+                if (event.results[i].isFinal) {
+                    const corrected = correctTextRealtime(transcript);
+                    textarea.value += (textarea.value ? ' ' : '') + corrected;
+                    textarea.style.height = 'auto';
+                    textarea.style.height = `${textarea.scrollHeight}px`;
                 }
             }
-            draw();
-        })
-        .catch((err) => { console.error('Mic error:', err); });
-}
+        };
 
-function stopAudioVisualizer() {
-    if (animationFrameId) cancelAnimationFrame(animationFrameId);
-    if (source && source.mediaStream) {
-        source.mediaStream.getTracks().forEach(track => track.stop());
+        rec.onerror = (event) => {
+            console.error('Speech recognition error:', event.error);
+            if (isRecording && event.error !== 'no-speech') {
+                rec.stop();
+                recognition = createRecognitionInstance();
+                recognition.start();
+            }
+        };
+
+        rec.onend = () => {
+            if (isRecording) {
+                recognition = createRecognitionInstance();
+                recognition.start();
+            }
+        };
+
+        return rec;
     }
-    if (audioContext && audioContext.state !== 'closed') {
-        audioContext.close();
-    }
-    if (visualizerCanvas) {
-        const canvasCtx = visualizerCanvas.getContext('2d');
-        canvasCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
-    }
-}
 
-function startRecording() {
-    if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) return;
-
-    recognition = createRecognitionInstance(); // Nueva instancia cada vez
-    isRecording = true;
-    chatInputContainer.classList.add('is-recording');
-    micButton.classList.add('recording');
-    micButton.innerHTML = stopSVG;
-    textarea.value = ''; // Vaciar textarea al iniciar dictado
-    recognition.start();
-    startAudioVisualizer();
-}
-
-function stopRecording(send = true) {
-    if (!recognition) return;
-
-    isRecording = false;
-    chatInputContainer.classList.remove('is-recording');
-    micButton.classList.remove('recording');
-    micButton.innerHTML = micSVG;
-    recognition.stop();
-    stopAudioVisualizer();
-
-    if (send) {
-        const message = textarea.value.trim();
-        if (message) {
-            sendMessage(message);
-        }
-        textarea.value = '';
-        textarea.style.height = 'auto';
-    }
-}
-
-micButton.addEventListener('click', () => {
-    if (isRecording) {
-        stopRecording(true); // Detener y enviar mensaje
+    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+        recognition = createRecognitionInstance();
     } else {
-        startRecording();
+        micButton.disabled = true;
+        micButton.title = translations[currentLang.split('-')[0]].micUnsupported;
     }
-});
 
+    privacyCheckbox.addEventListener('change', () => { newChatBtn.disabled = !privacyCheckbox.checked; });
+
+    languageSelects.forEach(select => {
+        select.addEventListener('change', (e) => {
+            currentLang = e.target.value;
+            if (recognition) recognition.lang = langCodes[currentLang];
+            updateUI();
+        });
+    });
+
+    function startRecording() {
+        if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) return;
+
+        recognition = createRecognitionInstance();
+        isRecording = true;
+        chatInputContainer.classList.add('is-recording');
+        micButton.classList.add('recording');
+        micButton.innerHTML = stopSVG;
+
+        // Placeholder "grabando" en rojo
+        textarea.placeholder = recordingPlaceholders[currentLang.split('-')[0]] || recordingPlaceholders.de;
+        textarea.style.color = 'red';
+
+        textarea.value = '';
+        recognition.start();
+        startAudioVisualizer();
+    }
+
+    function stopRecording(send = true) {
+        if (!recognition) return;
+
+        isRecording = false;
+        chatInputContainer.classList.remove('is-recording');
+        micButton.classList.remove('recording');
+        micButton.innerHTML = micSVG;
+        recognition.stop();
+        stopAudioVisualizer();
+
+        // Restaurar placeholder y color original
+        const langCode = currentLang.split('-')[0];
+        textarea.placeholder = translations[langCode].placeholder;
+        textarea.style.color = '';
+
+        if (send) {
+            const message = textarea.value.trim();
+            if (message) sendMessage(message);
+            textarea.value = '';
+            textarea.style.height = 'auto';
+        }
+    }
+
+    micButton.addEventListener('click', () => {
+        if (isRecording) stopRecording(true);
+        else startRecording();
+    });
 
     function generateUUID() { return crypto.randomUUID(); }
 
@@ -853,7 +727,7 @@ micButton.addEventListener('click', () => {
         const data = [{ action: "loadPreviousSession", sessionId: currentSessionId, route: config.webhook.route, metadata: { userId: "" } }];
         try {
             const response = await fetch(config.webhook.url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-            const responseData = await response.json();
+            await response.json();
             newConversationWrapper.style.display = 'none';
             chatInterface.classList.add('active');
 
@@ -891,14 +765,9 @@ micButton.addEventListener('click', () => {
         words.forEach((w, idx) => {
             let word = w.segment;
             if (!word.trim()) return;
-            if (idx === 0 || /[.!?]\s*$/.test(corrected)) {
-                word = word.charAt(0).toUpperCase() + word.slice(1);
-            }
-            if (/[.,!?]/.test(word)) {
-                corrected = corrected.trim() + word;
-            } else {
-                corrected += (corrected ? ' ' : '') + word;
-            }
+            if (idx === 0 || /[.!?]\s*$/.test(corrected)) word = word.charAt(0).toUpperCase() + word.slice(1);
+            if (/[.,!?]/.test(word)) corrected = corrected.trim() + word;
+            else corrected += (corrected ? ' ' : '') + word;
         });
         if (corrected && !/[.!?]$/.test(corrected)) corrected += '.';
         return corrected;
@@ -907,30 +776,24 @@ micButton.addEventListener('click', () => {
     newChatBtn.addEventListener('click', startNewConversation);
     
     sendButton.addEventListener('click', () => {
-        if (isRecording) {
-            stopRecording();
-        } else {
+        if (isRecording) stopRecording();
+        else {
             const message = textarea.value.trim();
-            if (message) {
-                sendMessage(message);
-                textarea.value = '';
-                textarea.style.height = 'auto';
-            }
+            if (message) sendMessage(message);
+            textarea.value = '';
+            textarea.style.height = 'auto';
         }
     });
 
     textarea.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
-            if (isRecording) {
-                stopRecording();
-            } else {
+            if (isRecording) stopRecording();
+            else {
                 const message = textarea.value.trim();
-                if (message) {
-                    sendMessage(message);
-                    textarea.value = '';
-                    textarea.style.height = 'auto';
-                }
+                if (message) sendMessage(message);
+                textarea.value = '';
+                textarea.style.height = 'auto';
             }
         }
     });
@@ -938,6 +801,8 @@ micButton.addEventListener('click', () => {
     const closeButtons = chatContainer.querySelectorAll('.close-button');
     closeButtons.forEach(button => { button.addEventListener('click', () => { chatContainer.classList.remove('open'); }); });
     
+    const toggleButton = chatContainer.querySelector('.chat-toggle');
     toggleButton.addEventListener('click', () => { chatContainer.classList.toggle('open'); });
 
 })();
+
