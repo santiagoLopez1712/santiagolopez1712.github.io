@@ -723,16 +723,10 @@
         };
 
         recognition.onend = () => {
+        // Si la grabación estaba activa, reiniciarla para mantener la escucha.
+        // Esto es crucial para la estabilidad en dispositivos móviles.
             if (isRecording) {
                 recognition.start();
-            } else if (shouldSendMessageAfterStop) {
-                const message = textarea.value.trim();
-                if (message) {
-                    sendMessage(message);
-                    textarea.value = '';
-                    textarea.style.height = 'auto';
-                }
-                shouldSendMessageAfterStop = false;
             }
         };
     } else {
@@ -810,6 +804,7 @@
         chatInputContainer.classList.add('is-recording');
         micButton.classList.add('recording');
         micButton.innerHTML = stopSVG;
+        textarea.value = ''; // Vaciar el textarea al iniciar el dictado
         recognition.start();
         startAudioVisualizer();
     }
@@ -822,6 +817,14 @@
         micButton.innerHTML = micSVG;
         recognition.stop();
         stopAudioVisualizer();
+    
+        // Ahora, el mensaje se envía directamente al detener la grabación.
+        const message = textarea.value.trim();
+        if (message) {
+            sendMessage(message);
+            textarea.value = '';
+            textarea.style.height = 'auto';
+        }
     }
 
     micButton.addEventListener('click', () => {
