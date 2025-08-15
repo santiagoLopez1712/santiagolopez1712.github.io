@@ -822,15 +822,6 @@
         micButton.innerHTML = micSVG;
         recognition.stop();
         stopAudioVisualizer();
-        
-        setTimeout(() => {
-            const message = textarea.value.trim();
-            if (message) {
-                sendMessage(message);
-                textarea.value = '';
-                textarea.style.height = 'auto';
-            }
-        }, 200);
     }
 
     micButton.addEventListener('click', () => {
