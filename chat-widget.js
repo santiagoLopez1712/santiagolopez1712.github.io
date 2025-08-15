@@ -690,48 +690,59 @@
     let analyser;
     let source;
     let animationFrameId;
-
-    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+    
+    function createRecognitionInstance() {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognition = new SpeechRecognition();
-        recognition.lang = langCodes.de;
-        recognition.continuous = true;
-        recognition.interimResults = true;
-
-        recognition.onresult = (event) => {
-             for (let i = event.resultIndex; i < event.results.length; i++) {
-                 const transcript = event.results[i][0].transcript.trim();
-                 if (event.results[i].isFinal) {
-                     const corrected = correctTextRealtime(transcript);
-                     textarea.value += (textarea.value ? ' ' : '') + corrected;
-                     textarea.style.height = 'auto';
-                     textarea.style.height = `${textarea.scrollHeight}px`;
-                 }
-             }
+        const rec = new SpeechRecognition();
+        rec.lang = langCodes.de;
+        rec.continuous = true;
+        rec.interimResults = true;
+    
+        rec.onresult = (event) => {
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript.trim();
+                if (event.results[i].isFinal) {
+                    const corrected = correctTextRealtime(transcript);
+                    textarea.value += (textarea.value ? ' ' : '') + corrected;
+                    textarea.style.height = 'auto';
+                    textarea.style.height = `${textarea.scrollHeight}px`;
+                }
+            }
         };
-
-        recognition.onerror = (event) => {
+    
+        rec.onerror = (event) => {
             console.error('Speech recognition error:', event.error);
-            if (event.error !== 'no-speech' && isRecording) {
+            // En móviles, si hay error, se vuelve a crear la instancia
+            if (isRecording && event.error !== 'no-speech') {
+                rec.stop();
+                recognition = createRecognitionInstance();
                 recognition.start();
             }
         };
-
-        recognition.onend = () => {
+    
+        rec.onend = () => {
+            // Solo reiniciar si seguimos grabando
             if (isRecording) {
+                recognition = createRecognitionInstance();
                 recognition.start();
             }
         };
+    
+        return rec;
+    }
+    
+    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+        recognition = createRecognitionInstance();
     } else {
         micButton.disabled = true;
         micButton.title = translations[currentLang.split('-')[0]].micUnsupported;
     }
-
+    
     // Lógica para habilitar/deshabilitar el botón de inicio de chat
     privacyCheckbox.addEventListener('change', () => {
         newChatBtn.disabled = !privacyCheckbox.checked;
     });
-
+    
     // Lógica para cambiar el idioma del reconocimiento de voz y UI
     languageSelects.forEach(select => {
         select.addEventListener('change', (e) => {
@@ -743,7 +754,7 @@
             updateUI();
         });
     });
-
+    
     function startAudioVisualizer() {
         if (!visualizerCanvas) return;
         const canvasCtx = visualizerCanvas.getContext('2d');
@@ -757,6 +768,7 @@
                 const bufferLength = analyser.frequencyBinCount;
                 const dataArray = new Uint8Array(bufferLength);
                 canvasCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+    
                 function draw() {
                     animationFrameId = requestAnimationFrame(draw);
                     analyser.getByteFrequencyData(dataArray);
@@ -776,7 +788,7 @@
             })
             .catch((err) => { console.error('Mic error:', err); });
     }
-
+    
     function stopAudioVisualizer() {
         if (animationFrameId) cancelAnimationFrame(animationFrameId);
         if (source && source.mediaStream) {
@@ -785,49 +797,55 @@
         if (audioContext && audioContext.state !== 'closed') {
             audioContext.close();
         }
-        if(visualizerCanvas) {
+        if (visualizerCanvas) {
             const canvasCtx = visualizerCanvas.getContext('2d');
             canvasCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
         }
     }
-
+    
     function startRecording() {
-        if (!recognition) return;
+        if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) return;
+    
+        recognition = createRecognitionInstance(); // Crear nueva instancia cada vez
         isRecording = true;
         chatInputContainer.classList.add('is-recording');
         micButton.classList.add('recording');
         micButton.innerHTML = stopSVG;
-        textarea.value = ''; // Vaciar el textarea al iniciar el dictado
+        textarea.value = ''; // Vaciar textarea al iniciar dictado
         recognition.start();
         startAudioVisualizer();
     }
-
-    function stopRecording() {
+    
+    function stopRecording(send = true) {
         if (!recognition) return;
+    
         isRecording = false;
         chatInputContainer.classList.remove('is-recording');
         micButton.classList.remove('recording');
         micButton.innerHTML = micSVG;
         recognition.stop();
         stopAudioVisualizer();
-        
-        setTimeout(() => {
-            const message = textarea.value.trim();
-            if (message) {
-                sendMessage(message);
-                textarea.value = '';
-                textarea.style.height = 'auto';
-            }
-        }, 200);
+    
+        if (send) {
+            setTimeout(() => {
+                const message = textarea.value.trim();
+                if (message) {
+                    sendMessage(message);
+                    textarea.value = '';
+                    textarea.style.height = 'auto';
+                }
+            }, 200);
+        }
     }
-
+    
     micButton.addEventListener('click', () => {
         if (isRecording) {
-            stopRecording();
+            stopRecording(true);
         } else {
             startRecording();
         }
     });
+
 
     function generateUUID() { return crypto.randomUUID(); }
 
