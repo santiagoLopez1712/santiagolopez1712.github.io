@@ -688,7 +688,6 @@
 
     let recognition;
     let isRecording = false;
-    let shouldSendMessageAfterStop = false;
     let audioContext;
     let analyser;
     let source;
@@ -713,18 +712,18 @@
              }
         };
 
+        // CORRECCIÓN: Manejar los errores de forma que no detengan la grabación.
         recognition.onerror = (event) => {
             console.error('Speech recognition error:', event.error);
+            // Si el error no es de "no-speech" y la grabación estaba activa, reiniciamos.
+            // El error "no-speech" es esperado y la grabación debe continuar.
             if (event.error !== 'no-speech' && isRecording) {
                 recognition.start();
-            } else {
-                stopRecording();
             }
         };
 
+        // CORRECCIÓN: El onend ahora solo se encarga de reiniciar la grabación si el estado es `true`.
         recognition.onend = () => {
-        // Si la grabación estaba activa, reiniciarla para mantener la escucha.
-        // Esto es crucial para la estabilidad en dispositivos móviles.
             if (isRecording) {
                 recognition.start();
             }
@@ -809,6 +808,7 @@
         startAudioVisualizer();
     }
 
+    // CORRECCIÓN: La función stopRecording ahora se encarga de detener y enviar el mensaje.
     function stopRecording() {
         if (!recognition) return;
         isRecording = false;
@@ -818,7 +818,6 @@
         recognition.stop();
         stopAudioVisualizer();
     
-        // Ahora, el mensaje se envía directamente al detener la grabación.
         const message = textarea.value.trim();
         if (message) {
             sendMessage(message);
@@ -895,9 +894,9 @@
 
     newChatBtn.addEventListener('click', startNewConversation);
     
+    // CORRECCIÓN: El botón de enviar ahora solo llama a stopRecording si está grabando.
     sendButton.addEventListener('click', () => {
         if (isRecording) {
-            shouldSendMessageAfterStop = true;
             stopRecording();
         } else {
             const message = textarea.value.trim();
@@ -909,11 +908,11 @@
         }
     });
 
+    // CORRECCIÓN: La tecla Enter ahora solo llama a stopRecording si está grabando.
     textarea.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             if (isRecording) {
-                shouldSendMessageAfterStop = true;
                 stopRecording();
             } else {
                 const message = textarea.value.trim();
