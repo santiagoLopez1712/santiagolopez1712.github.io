@@ -811,7 +811,6 @@
         recognition.stop();
         stopAudioVisualizer();
         
-        // CORRECCIÓN: Usamos un setTimeout para dar tiempo al motor de voz.
         setTimeout(() => {
             const message = textarea.value.trim();
             if (message) {
@@ -819,7 +818,7 @@
                 textarea.value = '';
                 textarea.style.height = 'auto';
             }
-        }, 200); // 200ms de retraso
+        }, 200);
     }
 
     micButton.addEventListener('click', () => {
