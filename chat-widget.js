@@ -1,6 +1,13 @@
 // Chat Widget Script
 (function() {
-    // Create and inject styles
+    // Load font
+    const fontLink = document.createElement('link');
+    fontLink.rel = 'stylesheet';
+    fontLink.href = 'https://cdn.jsdelivr.net/npm/geist@1.0.0/dist/fonts/geist-sans/style.css';
+    document.head.appendChild(fontLink);
+
+    // Inject styles
+    const styleSheet = document.createElement('style');
     const styles = `
         .n8n-chat-widget {
             --chat--color-primary: var(--n8n-chat-primary-color, #854fff);
@@ -465,15 +472,6 @@
             color: var(--chat--color-secondary);
         }
     `;
-
-    // Load font
-    const fontLink = document.createElement('link');
-    fontLink.rel = 'stylesheet';
-    fontLink.href = 'https://cdn.jsdelivr.net/npm/geist@1.0.0/dist/fonts/geist-sans/style.css';
-    document.head.appendChild(fontLink);
-
-    // Inject styles
-    const styleSheet = document.createElement('style');
     styleSheet.textContent = styles;
     document.head.appendChild(styleSheet);
 
@@ -712,17 +710,13 @@
              }
         };
 
-        // CORRECCIÓN: Manejar los errores de forma que no detengan la grabación.
         recognition.onerror = (event) => {
             console.error('Speech recognition error:', event.error);
-            // Si el error no es de "no-speech" y la grabación estaba activa, reiniciamos.
-            // El error "no-speech" es esperado y la grabación debe continuar.
             if (event.error !== 'no-speech' && isRecording) {
                 recognition.start();
             }
         };
 
-        // CORRECCIÓN: El onend ahora solo se encarga de reiniciar la grabación si el estado es `true`.
         recognition.onend = () => {
             if (isRecording) {
                 recognition.start();
@@ -808,7 +802,6 @@
         startAudioVisualizer();
     }
 
-    // CORRECCIÓN: La función stopRecording ahora se encarga de detener y enviar el mensaje.
     function stopRecording() {
         if (!recognition) return;
         isRecording = false;
@@ -817,13 +810,16 @@
         micButton.innerHTML = micSVG;
         recognition.stop();
         stopAudioVisualizer();
-    
-        const message = textarea.value.trim();
-        if (message) {
-            sendMessage(message);
-            textarea.value = '';
-            textarea.style.height = 'auto';
-        }
+        
+        // CORRECCIÓN: Usamos un setTimeout para dar tiempo al motor de voz.
+        setTimeout(() => {
+            const message = textarea.value.trim();
+            if (message) {
+                sendMessage(message);
+                textarea.value = '';
+                textarea.style.height = 'auto';
+            }
+        }, 200); // 200ms de retraso
     }
 
     micButton.addEventListener('click', () => {
@@ -894,7 +890,6 @@
 
     newChatBtn.addEventListener('click', startNewConversation);
     
-    // CORRECCIÓN: El botón de enviar ahora solo llama a stopRecording si está grabando.
     sendButton.addEventListener('click', () => {
         if (isRecording) {
             stopRecording();
@@ -908,7 +903,6 @@
         }
     });
 
-    // CORRECCIÓN: La tecla Enter ahora solo llama a stopRecording si está grabando.
     textarea.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
