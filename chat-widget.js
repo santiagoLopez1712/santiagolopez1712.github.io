@@ -700,6 +700,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     // Lógica para cambiar el idioma del reconocimiento de voz y UI
     languageSelects.forEach(select => {
         select.addEventListener('change', (e) => {
+            const wasRecording = isRecording;
             if (isRecording && recognition) {
                 recognition.stop();
             }
@@ -773,26 +774,20 @@ document.addEventListener('DOMContentLoaded', (event) => {
     };
     
     const startNewRecordingSession = () => {
-        if (recognition) {
-            recognition.abort(); // Asegura que cualquier grabación anterior se detenga
-        }
-        
         recognition = new SpeechRecognitionAPI();
 
         recognition.lang = langCodes[currentLang] || 'de-DE';
         recognition.interimResults = true;
-        
-        // La lógica para móviles vs. escritorio
-        const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-        recognition.continuous = !isMobile;
-        recognition.interimResults = isMobile;
+
+        if (!/Mobi|Android/i.test(navigator.userAgent)) {
+            recognition.continuous = true;
+        }
 
         recognition.onstart = () => {
             isRecording = true;
             chatInputContainer.classList.add('is-recording');
             micButton.classList.add('recording');
             micButton.innerHTML = stopSVG;
-            textarea.value = '';
             startAudioVisualizer();
         };
 
@@ -807,6 +802,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
                 const message = textarea.value.trim();
                 if (message) {
                     sendMessage(message);
+                    textarea.value = '';
+                    textarea.style.height = 'auto';
                 }
                 shouldSendMessageAfterStop = false;
             }
@@ -938,4 +935,5 @@ document.addEventListener('DOMContentLoaded', (event) => {
     closeButtons.forEach(button => { button.addEventListener('click', () => { chatContainer.classList.remove('open'); }); });
     
     toggleButton.addEventListener('click', () => { chatContainer.classList.toggle('open'); });
+
 });
