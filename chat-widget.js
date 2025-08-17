@@ -1,4 +1,3 @@
-// Chat Widget Script
 (function() {
     // Create and inject styles
     const styles = `
@@ -476,7 +475,7 @@
     const styleSheet = document.createElement('style');
     styleSheet.textContent = styles;
     document.head.appendChild(styleSheet);
-
+    
     // Objeto de traducciones
     const translations = {
         de: {
@@ -489,7 +488,7 @@
             micTitle: "Spracheingabe starten/stoppen",
             sendTitle: "Nachricht senden",
             micUnsupported: "Spracherkennung nicht unterstützt",
-            botGreeting: "Hallo! 👋 Ich bin Ihr persönlicher Assistent der Agentur für Kommunikation AMARETIS. Wir sind eine Full-Service-Werbeagentur mit Sitz in Göttingen und arbeiten für Kundinnen und Kunden in ganz Deutschland. Wie kann ich Ihnen heute weiterhelfen?"
+            botGreeting: "Hallo! Ich bin Ihr persönlicher Assistent der Agentur für Kommunikation AMARETIS. Wir sind eine Full-Service-Werbeagentur mit Sitz in Göttingen und arbeiten für Kundinnen und Kunden in ganz Deutschland. Wie kann ich Ihnen heute weiterhelfen?"
         },
         en: {
             language: "English",
@@ -501,7 +500,7 @@
             micTitle: "Start/stop voice input",
             sendTitle: "Send message",
             micUnsupported: "Speech recognition not supported",
-            botGreeting: "Hello! 👋 I am your personal assistant from the AMARETIS communication agency. We are a full-service advertising agency based in Göttingen and work for clients throughout Germany. How can I help you today?"
+            botGreeting: "Hello! I am your personal assistant from the AMARETIS communication agency. We are a full-service advertising agency based in Göttingen and work for clients throughout Germany. How can I help you today?"
         },
         es: {
             language: "Español",
@@ -513,7 +512,7 @@
             micTitle: "Iniciar/detener entrada de voz",
             sendTitle: "Enviar mensaje",
             micUnsupported: "Reconocimiento de voz no soportado",
-            botGreeting: "¡Hola! 👋 Soy tu asistente personal de la agencia de comunicación AMARETIS. Somos una agencia de publicidad de servicio completo con sede en Göttingen y trabajamos para clientes en toda Alemania. ¿En qué puedo ayudarte hoy?"
+            botGreeting: "¡Hola! Soy tu asistente personal de la agencia de comunicación AMARETIS. Somos una agencia de publicidad de servicio completo con sede en Göttingen y trabajamos para clientes en toda Alemania. ¿En qué puedo ayudarte hoy?"
         }
     };
 
@@ -546,7 +545,7 @@
         en: 'en-US',
         es: 'es-ES'
     };
-
+    
     const widgetContainer = document.createElement('div');
     widgetContainer.className = 'n8n-chat-widget';
 
@@ -557,7 +556,7 @@
 
     const chatContainer = document.createElement('div');
     chatContainer.className = `chat-container${config.style.position === 'left' ? ' position-left' : ''}`;
-
+    
     const newConversationHTML = `
         <div class="new-conversation-wrapper">
             <div class="brand-header">
@@ -622,13 +621,13 @@
             </div>
         </div>
     `;
-
+    
     chatContainer.innerHTML = newConversationHTML + chatInterfaceHTML;
 
     const toggleButton = document.createElement('button');
     toggleButton.className = `chat-toggle${config.style.position === 'left' ? ' position-left' : ''}`;
     toggleButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0112 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.476 0-2.886-.313-4.156-.878l-3.156.586.586-3.156A7.962 7.962 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/></svg>`;
-
+    
     widgetContainer.appendChild(chatContainer);
     widgetContainer.appendChild(toggleButton);
     document.body.appendChild(widgetContainer);
@@ -676,7 +675,7 @@
         languageSelects.forEach(select => {
             select.value = langCode;
         });
-        
+
         const botGreeting = messagesContainer.querySelector('.bot-greeting-message');
         if (botGreeting) {
             botGreeting.textContent = t.botGreeting;
@@ -686,59 +685,10 @@
     // Inicializar UI con el idioma por defecto
     updateUI();
 
-    let recognition;
-    let isRecording = false;
-    let shouldSendMessageAfterStop = false;
     let audioContext;
     let analyser;
     let source;
     let animationFrameId;
-
-    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognition = new SpeechRecognition();
-        recognition.lang = langCodes.de;
-        recognition.continuous = true;
-        recognition.interimResults = true;
-
-        recognition.onresult = (event) => {
-             for (let i = event.resultIndex; i < event.results.length; i++) {
-                 const transcript = event.results[i][0].transcript.trim();
-                 if (event.results[i].isFinal) {
-                     const corrected = correctTextRealtime(transcript);
-                     textarea.value += (textarea.value ? ' ' : '') + corrected;
-                     textarea.style.height = 'auto';
-                     textarea.style.height = `${textarea.scrollHeight}px`;
-                 }
-             }
-        };
-
-        recognition.onerror = (event) => {
-            console.error('Speech recognition error:', event.error);
-            if (event.error !== 'no-speech' && isRecording) {
-                recognition.start();
-            } else {
-                stopRecording();
-            }
-        };
-
-        recognition.onend = () => {
-            if (isRecording) {
-                recognition.start();
-            } else if (shouldSendMessageAfterStop) {
-                const message = textarea.value.trim();
-                if (message) {
-                    sendMessage(message);
-                    textarea.value = '';
-                    textarea.style.height = 'auto';
-                }
-                shouldSendMessageAfterStop = false;
-            }
-        };
-    } else {
-        micButton.disabled = true;
-        micButton.title = translations[currentLang.split('-')[0]].micUnsupported;
-    }
 
     // Lógica para habilitar/deshabilitar el botón de inicio de chat
     privacyCheckbox.addEventListener('change', () => {
@@ -748,11 +698,11 @@
     // Lógica para cambiar el idioma del reconocimiento de voz y UI
     languageSelects.forEach(select => {
         select.addEventListener('change', (e) => {
-            currentLang = e.target.value;
-            if (recognition) {
-                recognition.lang = langCodes[currentLang];
-                console.log('Idioma de reconocimiento de voz cambiado a:', recognition.lang);
+            const wasRecording = isRecording;
+            if (isRecording && recognition) {
+                recognition.stop();
             }
+            currentLang = e.target.value;
             updateUI();
         });
     });
@@ -766,6 +716,7 @@
                 analyser = audioContext.createAnalyser();
                 source = audioContext.createMediaStreamSource(stream);
                 source.connect(analyser);
+                
                 analyser.fftSize = 256;
                 const bufferLength = analyser.frequencyBinCount;
                 const dataArray = new Uint8Array(bufferLength);
@@ -803,34 +754,98 @@
             canvasCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
         }
     }
+    
+    // =======================================================================
+    // INICIO: SECCIÓN DE CÓDIGO DE RECONOCIMIENTO DE VOZ REFACTORIZADA
+    // =======================================================================
 
-    function startRecording() {
-        if (!recognition) return;
-        isRecording = true;
-        chatInputContainer.classList.add('is-recording');
-        micButton.classList.add('recording');
-        micButton.innerHTML = stopSVG;
-        recognition.start();
-        startAudioVisualizer();
-    }
+    let recognition;
+    let isRecording = false;
+    let shouldSendMessageAfterStop = false;
 
-    function stopRecording() {
-        if (!recognition) return;
-        isRecording = false;
-        chatInputContainer.classList.remove('is-recording');
-        micButton.classList.remove('recording');
-        micButton.innerHTML = micSVG;
-        recognition.stop();
-        stopAudioVisualizer();
-    }
+    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-    micButton.addEventListener('click', () => {
-        if (isRecording) {
-            stopRecording();
-        } else {
-            startRecording();
+    const handleMicClick = () => {
+        if (!SpeechRecognitionAPI) {
+            console.log("El reconocimiento de voz no es soportado por este navegador.");
+            micButton.disabled = true;
+            micButton.title = translations[currentLang.split('-')[0]].micUnsupported;
+            return;
         }
-    });
+
+        if (isRecording) {
+            if (recognition) {
+                recognition.stop();
+            }
+        } else {
+            startNewRecordingSession();
+        }
+    };
+
+    const startNewRecordingSession = () => {
+        recognition = new SpeechRecognitionAPI();
+        
+        recognition.lang = langCodes[currentLang] || 'de-DE';
+        recognition.interimResults = true;
+        recognition.continuous = true; 
+
+        recognition.onstart = () => {
+            isRecording = true;
+            chatInputContainer.classList.add('is-recording');
+            micButton.classList.add('recording');
+            micButton.innerHTML = stopSVG;
+            startAudioVisualizer();
+        };
+
+        recognition.onend = () => {
+            isRecording = false;
+            chatInputContainer.classList.remove('is-recording');
+            micButton.classList.remove('recording');
+            micButton.innerHTML = micSVG;
+            stopAudioVisualizer();
+
+            if (shouldSendMessageAfterStop) {
+                const message = textarea.value.trim();
+                if (message) {
+                    sendMessage(message);
+                    textarea.value = '';
+                    textarea.style.height = 'auto';
+                }
+                shouldSendMessageAfterStop = false;
+            }
+            
+            recognition = null;
+        };
+
+        recognition.onerror = (event) => {
+            console.error('Error en reconocimiento de voz:', event.error);
+            isRecording = false;
+        };
+
+        recognition.onresult = (event) => {
+            let finalTranscript = '';
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                if (event.results[i].isFinal) {
+                    finalTranscript += event.results[i][0].transcript;
+                }
+            }
+            if (finalTranscript) {
+                 const corrected = correctTextRealtime(finalTranscript);
+                 textarea.value = corrected;
+                 textarea.style.height = 'auto';
+                 textarea.style.height = `${textarea.scrollHeight}px`;
+            }
+        };
+
+        recognition.start();
+    };
+
+    micButton.addEventListener('click', handleMicClick);
+
+    // =======================================================================
+    // FIN DE LA SECCIÓN DE CÓDIGO REFACTORIZADA
+    // =======================================================================
+
 
     function generateUUID() { return crypto.randomUUID(); }
 
@@ -895,7 +910,9 @@
     sendButton.addEventListener('click', () => {
         if (isRecording) {
             shouldSendMessageAfterStop = true;
-            stopRecording();
+            if (recognition) {
+                 setTimeout(() => { recognition.stop(); }, 200);
+            }
         } else {
             const message = textarea.value.trim();
             if (message) {
@@ -911,7 +928,9 @@
             e.preventDefault();
             if (isRecording) {
                 shouldSendMessageAfterStop = true;
-                stopRecording();
+                if (recognition) {
+                    recognition.stop();
+                }
             } else {
                 const message = textarea.value.trim();
                 if (message) {
@@ -927,5 +946,4 @@
     closeButtons.forEach(button => { button.addEventListener('click', () => { chatContainer.classList.remove('open'); }); });
     
     toggleButton.addEventListener('click', () => { chatContainer.classList.toggle('open'); });
-
 })();
