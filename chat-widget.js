@@ -1,12 +1,20 @@
+// Chat Widget Script
 (function() {
-    // Create and inject styles
+    // Load font
+    const fontLink = document.createElement('link');
+    fontLink.rel = 'stylesheet';
+    fontLink.href = 'https://cdn.jsdelivr.net/npm/geist@1.0.0/dist/fonts/geist-sans/style.css';
+    document.head.appendChild(fontLink);
+
+    // Inject styles
+    const styleSheet = document.createElement('style');
     const styles = `
         .n8n-chat-widget {
             --chat--color-primary: var(--n8n-chat-primary-color, #854fff);
             --chat--color-secondary: var(--n8n-chat-secondary-color, #6b3fd4);
             --chat--color-background: var(--n8n-chat-background-color, #ffffff);
             --chat--color-font: var(--n8n-chat-font-color, #333333);
-            --chat--color-accent: #ff4d4d; /* Nuevo color de acento para la grabación */
+            [cite_start]--chat--color-accent: #ff4d4d; /* Nuevo color de acento para la grabación [cite: 1, 2] */
             font-family: futura-pt;
         }
 
@@ -464,55 +472,46 @@
             color: var(--chat--color-secondary);
         }
     `;
-
-    // Load font
-    const fontLink = document.createElement('link');
-    fontLink.rel = 'stylesheet';
-    fontLink.href = 'https://cdn.jsdelivr.net/npm/geist@1.0.0/dist/fonts/geist-sans/style.css';
-    document.head.appendChild(fontLink);
-
-    // Inject styles
-    const styleSheet = document.createElement('style');
     styleSheet.textContent = styles;
     document.head.appendChild(styleSheet);
-    
+
     // Objeto de traducciones
     const translations = {
         de: {
             language: "Deutsch",
             welcomeText: "HERZLICH WILLKOMMEN BEI AMARETIS!",
-            responseTimeText: "AMARETIS AI ist Ihr digitaler Assistent – direkt, unkompliziert und rund um die Uhr erreichbar. Ob Sie einen Termin vereinbaren möchten, Fragen zu unseren Leistungen haben oder herausfinden wollen, ob AMARETIS zu Ihrem Vorhaben passt – wir sind für Sie da.",
+            [cite_start]responseTimeText: "AMARETIS AI ist Ihr digitaler Assistent – direkt, unkompliziert und rund um die Uhr erreichbar. Ob Sie einen Termin vereinbaren möchten, Fragen zu unseren Leistungen haben oder herausfinden wollen, ob AMARETIS zu Ihrem Vorhaben passt – wir sind für Sie da. [cite: 89]",
             privacyLabel: "Ich habe die <a href='https://www.amaretis.de/datenschutz/' target='_blank'>Datenschutzerklärung</a> gelesen und akzeptiere sie.",
             newChatBtnText: "Starten Sie Ihre Anfrage!",
             placeholder: "Text oder Sprache eingeben…",
             micTitle: "Spracheingabe starten/stoppen",
             sendTitle: "Nachricht senden",
             micUnsupported: "Spracherkennung nicht unterstützt",
-            botGreeting: "Hallo! Ich bin Ihr persönlicher Assistent der Agentur für Kommunikation AMARETIS. Wir sind eine Full-Service-Werbeagentur mit Sitz in Göttingen und arbeiten für Kundinnen und Kunden in ganz Deutschland. Wie kann ich Ihnen heute weiterhelfen?"
+            botGreeting: "Hallo! Ich bin Ihr persönlicher Assistent der Agentur für Kommunikation AMARETIS. Wir sind eine Full-Service-Werbeagentur mit Sitz in Göttingen und arbeiten für Kundinnen und Kunden in ganz Deutschland. [cite_start]Wie kann ich Ihnen heute weiterhelfen? [cite: 90, 91]"
         },
         en: {
             language: "English",
             welcomeText: "WELCOME TO AMARETIS!",
-            responseTimeText: "AMARETIS AI is your digital assistant – direct, uncomplicated, and available around the clock. Whether you want to schedule an appointment, have questions about our services, or want to find out if AMARETIS is a good fit for your project – we're here for you.",
+            responseTimeText: "AMARETIS AI is your digital assistant – direct, uncomplicated, and available around the clock. [cite_start]Whether you want to schedule an appointment, have questions about our services, or want to find out if AMARETIS is a good fit for your project – we're here for you. [cite: 92]",
             privacyLabel: "I have read and accept the <a href='https://www.amaretis.de/datenschutz/' target='_blank'>privacy policy</a>.",
             newChatBtnText: "Start your request!",
             placeholder: "Enter text or voice...",
             micTitle: "Start/stop voice input",
             sendTitle: "Send message",
             micUnsupported: "Speech recognition not supported",
-            botGreeting: "Hello! I am your personal assistant from the AMARETIS communication agency. We are a full-service advertising agency based in Göttingen and work for clients throughout Germany. How can I help you today?"
+            botGreeting: "Hello! I am your personal assistant from the AMARETIS communication agency. We are a full-service advertising agency based in Göttingen and work for clients throughout Germany. [cite_start]How can I help you today? [cite: 94, 95, 96]"
         },
         es: {
             language: "Español",
             welcomeText: "¡BIENVENIDO A AMARETIS!",
-            responseTimeText: "AMARETIS AI es tu asistente digital: directo, sencillo y disponible las 24 horas. Ya sea que quieras programar una cita, tengas preguntas sobre nuestros servicios o quieras saber si AMARETIS es adecuado para tu proyecto, estamos aquí para ayudarte.",
+            responseTimeText: "AMARETIS AI es tu asistente digital: directo, sencillo y disponible las 24 horas. [cite_start]Ya sea que quieras programar una cita, tengas preguntas sobre nuestros servicios o quieras saber si AMARETIS es adecuado para tu proyecto, estamos aquí para ayudarte. [cite: 97]",
             privacyLabel: "He leído y acepto la <a href='https://www.amaretis.de/datenschutz/' target='_blank'>política de privacidad</a>.",
             newChatBtnText: "¡Inicia tu consulta!",
             placeholder: "Escribe o dicta un mensaje…",
             micTitle: "Iniciar/detener entrada de voz",
             sendTitle: "Enviar mensaje",
             micUnsupported: "Reconocimiento de voz no soportado",
-            botGreeting: "¡Hola! Soy tu asistente personal de la agencia de comunicación AMARETIS. Somos una agencia de publicidad de servicio completo con sede en Göttingen y trabajamos para clientes en toda Alemania. ¿En qué puedo ayudarte hoy?"
+            botGreeting: "¡Hola! Soy tu asistente personal de la agencia de comunicación AMARETIS. Somos una agencia de publicidad de servicio completo con sede en Göttingen y trabajamos para clientes en toda Alemania. [cite_start]¿En qué puedo ayudarte hoy? [cite: 99, 100, 101]"
         }
     };
 
@@ -545,7 +544,7 @@
         en: 'en-US',
         es: 'es-ES'
     };
-    
+
     const widgetContainer = document.createElement('div');
     widgetContainer.className = 'n8n-chat-widget';
 
@@ -556,7 +555,7 @@
 
     const chatContainer = document.createElement('div');
     chatContainer.className = `chat-container${config.style.position === 'left' ? ' position-left' : ''}`;
-    
+
     const newConversationHTML = `
         <div class="new-conversation-wrapper">
             <div class="brand-header">
@@ -621,13 +620,13 @@
             </div>
         </div>
     `;
-    
+
     chatContainer.innerHTML = newConversationHTML + chatInterfaceHTML;
 
     const toggleButton = document.createElement('button');
     toggleButton.className = `chat-toggle${config.style.position === 'left' ? ' position-left' : ''}`;
     toggleButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0112 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.476 0-2.886-.313-4.156-.878l-3.156.586.586-3.156A7.962 7.962 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/></svg>`;
-    
+
     widgetContainer.appendChild(chatContainer);
     widgetContainer.appendChild(toggleButton);
     document.body.appendChild(widgetContainer);
@@ -675,7 +674,7 @@
         languageSelects.forEach(select => {
             select.value = langCode;
         });
-
+        
         const botGreeting = messagesContainer.querySelector('.bot-greeting-message');
         if (botGreeting) {
             botGreeting.textContent = t.botGreeting;
@@ -684,7 +683,10 @@
 
     // Inicializar UI con el idioma por defecto
     updateUI();
-
+    
+    let recognition;
+    let isRecording = false;
+    let shouldSendMessageAfterStop = false;
     let audioContext;
     let analyser;
     let source;
@@ -716,7 +718,6 @@
                 analyser = audioContext.createAnalyser();
                 source = audioContext.createMediaStreamSource(stream);
                 source.connect(analyser);
-                
                 analyser.fftSize = 256;
                 const bufferLength = analyser.frequencyBinCount;
                 const dataArray = new Uint8Array(bufferLength);
@@ -755,110 +756,85 @@
         }
     }
     
-    // =======================================================================
-    // INICIO: SECCIÓN DE CÓDIGO DE RECONOCIMIENTO DE VOZ REFACTORIZADA
-    // =======================================================================
+    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-    // =======================================================================
-// INICIO: SECCIÓN DE CÓDIGO DE RECONOCIMIENTO DE VOZ CORREGIDA
-// =======================================================================
+    const handleMicClick = () => {
+        if (!SpeechRecognitionAPI) {
+            console.log("El reconocimiento de voz no es soportado por este navegador.");
+            micButton.disabled = true;
+            micButton.title = translations[currentLang.split('-')[0]].micUnsupported;
+            return;
+        }
 
-let recognition;
-let isRecording = false;
-let shouldSendMessageAfterStop = false;
-
-const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-const handleMicClick = () => {
-    if (!SpeechRecognitionAPI) {
-        console.log("El reconocimiento de voz no es soportado por este navegador.");
-        micButton.disabled = true;
-        micButton.title = translations[currentLang.split('-')[0]].micUnsupported;
-        return;
-    }
-
-    if (isRecording) {
-        if (recognition) recognition.stop();
-    } else {
-        startNewRecordingSession();
-    }
-};
-
-const startNewRecordingSession = () => {
-    recognition = new SpeechRecognitionAPI();
-
-    recognition.lang = langCodes[currentLang] || 'de-DE';
-    recognition.interimResults = true;
-
-    // ⚠️ Importante: evitar continuous en móviles
-    if (!/Mobi|Android/i.test(navigator.userAgent)) {
-        recognition.continuous = true;
-    }
-
-    recognition.onstart = () => {
-        isRecording = true;
-        chatInputContainer.classList.add('is-recording');
-        micButton.classList.add('recording');
-        micButton.innerHTML = stopSVG;
-        startAudioVisualizer();
+        if (isRecording) {
+            if (recognition) recognition.stop();
+        } else {
+            startNewRecordingSession();
+        }
     };
+    
+    const startNewRecordingSession = () => {
+        recognition = new SpeechRecognitionAPI();
 
-    recognition.onend = () => {
-        isRecording = false;
-        chatInputContainer.classList.remove('is-recording');
-        micButton.classList.remove('recording');
-        micButton.innerHTML = micSVG;
-        stopAudioVisualizer();
+        recognition.lang = langCodes[currentLang] || 'de-DE';
+        recognition.interimResults = true;
 
-        if (shouldSendMessageAfterStop) {
-            const message = textarea.value.trim();
-            if (message) {
-                sendMessage(message);
-                textarea.value = '';
+        if (!/Mobi|Android/i.test(navigator.userAgent)) {
+            recognition.continuous = true;
+        }
+
+        recognition.onstart = () => {
+            isRecording = true;
+            chatInputContainer.classList.add('is-recording');
+            micButton.classList.add('recording');
+            micButton.innerHTML = stopSVG;
+            startAudioVisualizer();
+        };
+
+        recognition.onend = () => {
+            isRecording = false;
+            chatInputContainer.classList.remove('is-recording');
+            micButton.classList.remove('recording');
+            micButton.innerHTML = micSVG;
+            stopAudioVisualizer();
+
+            if (shouldSendMessageAfterStop) {
+                const message = textarea.value.trim();
+                if (message) {
+                    sendMessage(message);
+                    textarea.value = '';
+                    textarea.style.height = 'auto';
+                }
+                shouldSendMessageAfterStop = false;
+            }
+            recognition = null;
+        };
+
+        recognition.onerror = (event) => {
+            console.error('Error en reconocimiento de voz:', event.error);
+            isRecording = false;
+            recognition = null;
+        };
+
+        recognition.onresult = (event) => {
+            let finalTranscript = '';
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                if (event.results[i].isFinal) {
+                    finalTranscript += event.results[i][0].transcript;
+                }
+            }
+            if (finalTranscript) {
+                const corrected = correctTextRealtime(finalTranscript);
+                textarea.value = corrected;
                 textarea.style.height = 'auto';
+                textarea.style.height = `${textarea.scrollHeight}px`;
             }
-            shouldSendMessageAfterStop = false;
-        }
+        };
 
-        // 🔑 En móviles: limpiar y permitir nueva sesión en siguiente click
-        recognition = null;
+        recognition.start();
     };
 
-    recognition.onerror = (event) => {
-        console.error('Error en reconocimiento de voz:', event.error);
-        isRecording = false;
-        recognition = null;
-    };
-
-    recognition.onresult = (event) => {
-        let finalTranscript = '';
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-            if (event.results[i].isFinal) {
-                finalTranscript += event.results[i][0].transcript;
-            }
-        }
-        if (finalTranscript) {
-            const corrected = correctTextRealtime(finalTranscript);
-            textarea.value = corrected;
-            textarea.style.height = 'auto';
-            textarea.style.height = `${textarea.scrollHeight}px`;
-        }
-    };
-
-    recognition.start();
-};
-
-micButton.addEventListener('click', handleMicClick);
-
-// =======================================================================
-// FIN DE LA SECCIÓN DE CÓDIGO DE RECONOCIMIENTO DE VOZ CORREGIDA
-// =======================================================================
-
-
-    // =======================================================================
-    // FIN DE LA SECCIÓN DE CÓDIGO REFACTORIZADA
-    // =======================================================================
-
+    micButton.addEventListener('click', handleMicClick);
 
     function generateUUID() { return crypto.randomUUID(); }
 
@@ -924,7 +900,7 @@ micButton.addEventListener('click', handleMicClick);
         if (isRecording) {
             shouldSendMessageAfterStop = true;
             if (recognition) {
-                 setTimeout(() => { recognition.stop(); }, 200);
+                recognition.stop();
             }
         } else {
             const message = textarea.value.trim();
@@ -959,4 +935,5 @@ micButton.addEventListener('click', handleMicClick);
     closeButtons.forEach(button => { button.addEventListener('click', () => { chatContainer.classList.remove('open'); }); });
     
     toggleButton.addEventListener('click', () => { chatContainer.classList.toggle('open'); });
+
 })();
