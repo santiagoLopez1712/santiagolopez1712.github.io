@@ -1,5 +1,5 @@
 // Chat Widget Script
-(function() {
+document.addEventListener('DOMContentLoaded', (event) => {
     // Load font
     const fontLink = document.createElement('link');
     fontLink.rel = 'stylesheet';
@@ -700,6 +700,9 @@
     // Lógica para cambiar el idioma del reconocimiento de voz y UI
     languageSelects.forEach(select => {
         select.addEventListener('change', (e) => {
+            if (isRecording && recognition) {
+                recognition.stop();
+            }
             currentLang = e.target.value;
             updateUI();
         });
@@ -763,24 +766,26 @@
         }
 
         if (isRecording) {
-            shouldSendMessageAfterStop = true;
-            if (recognition) {
-                recognition.stop();
-            }
+            if (recognition) recognition.stop();
         } else {
             startNewRecordingSession();
         }
     };
     
     const startNewRecordingSession = () => {
+        if (recognition) {
+            recognition.abort(); // Asegura que cualquier grabación anterior se detenga
+        }
+        
         recognition = new SpeechRecognitionAPI();
 
         recognition.lang = langCodes[currentLang] || 'de-DE';
         recognition.interimResults = true;
-
-        if (!/Mobi|Android/i.test(navigator.userAgent)) {
-            recognition.continuous = true;
-        }
+        
+        // La lógica para móviles vs. escritorio
+        const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        recognition.continuous = !isMobile;
+        recognition.interimResults = isMobile;
 
         recognition.onstart = () => {
             isRecording = true;
@@ -802,8 +807,6 @@
                 const message = textarea.value.trim();
                 if (message) {
                     sendMessage(message);
-                    textarea.value = '';
-                    textarea.style.height = 'auto';
                 }
                 shouldSendMessageAfterStop = false;
             }
@@ -935,5 +938,4 @@
     closeButtons.forEach(button => { button.addEventListener('click', () => { chatContainer.classList.remove('open'); }); });
     
     toggleButton.addEventListener('click', () => { chatContainer.classList.toggle('open'); });
-
-})();
+});
