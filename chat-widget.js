@@ -14,7 +14,7 @@
             --chat--color-secondary: var(--n8n-chat-secondary-color, #6b3fd4);
             --chat--color-background: var(--n8n-chat-background-color, #ffffff);
             --chat--color-font: var(--n8n-chat-font-color, #333333);
-            [cite_start]--chat--color-accent: #ff4d4d; /* Nuevo color de acento para la grabación [cite: 1, 2] */
+            --chat--color-accent: #ff4d4d; /* Nuevo color de acento para la grabación */
             font-family: futura-pt;
         }
 
@@ -480,38 +480,38 @@
         de: {
             language: "Deutsch",
             welcomeText: "HERZLICH WILLKOMMEN BEI AMARETIS!",
-            [cite_start]responseTimeText: "AMARETIS AI ist Ihr digitaler Assistent – direkt, unkompliziert und rund um die Uhr erreichbar. Ob Sie einen Termin vereinbaren möchten, Fragen zu unseren Leistungen haben oder herausfinden wollen, ob AMARETIS zu Ihrem Vorhaben passt – wir sind für Sie da. [cite: 89]",
+            responseTimeText: "AMARETIS AI ist Ihr digitaler Assistent – direkt, unkompliziert und rund um die Uhr erreichbar. Ob Sie einen Termin vereinbaren möchten, Fragen zu unseren Leistungen haben oder herausfinden wollen, ob AMARETIS zu Ihrem Vorhaben passt – wir sind für Sie da.",
             privacyLabel: "Ich habe die <a href='https://www.amaretis.de/datenschutz/' target='_blank'>Datenschutzerklärung</a> gelesen und akzeptiere sie.",
             newChatBtnText: "Starten Sie Ihre Anfrage!",
             placeholder: "Text oder Sprache eingeben…",
             micTitle: "Spracheingabe starten/stoppen",
             sendTitle: "Nachricht senden",
             micUnsupported: "Spracherkennung nicht unterstützt",
-            botGreeting: "Hallo! Ich bin Ihr persönlicher Assistent der Agentur für Kommunikation AMARETIS. Wir sind eine Full-Service-Werbeagentur mit Sitz in Göttingen und arbeiten für Kundinnen und Kunden in ganz Deutschland. [cite_start]Wie kann ich Ihnen heute weiterhelfen? [cite: 90, 91]"
+            botGreeting: "Hallo! Ich bin Ihr persönlicher Assistent der Agentur für Kommunikation AMARETIS. Wir sind eine Full-Service-Werbeagentur mit Sitz in Göttingen und arbeiten für Kundinnen und Kunden in ganz Deutschland. Wie kann ich Ihnen heute weiterhelfen?"
         },
         en: {
             language: "English",
             welcomeText: "WELCOME TO AMARETIS!",
-            responseTimeText: "AMARETIS AI is your digital assistant – direct, uncomplicated, and available around the clock. [cite_start]Whether you want to schedule an appointment, have questions about our services, or want to find out if AMARETIS is a good fit for your project – we're here for you. [cite: 92]",
+            responseTimeText: "AMARETIS AI is your digital assistant – direct, uncomplicated, and available around the clock. Whether you want to schedule an appointment, have questions about our services, or want to find out if AMARETIS is a good fit for your project – we're here for you.",
             privacyLabel: "I have read and accept the <a href='https://www.amaretis.de/datenschutz/' target='_blank'>privacy policy</a>.",
             newChatBtnText: "Start your request!",
             placeholder: "Enter text or voice...",
             micTitle: "Start/stop voice input",
             sendTitle: "Send message",
             micUnsupported: "Speech recognition not supported",
-            botGreeting: "Hello! I am your personal assistant from the AMARETIS communication agency. We are a full-service advertising agency based in Göttingen and work for clients throughout Germany. [cite_start]How can I help you today? [cite: 94, 95, 96]"
+            botGreeting: "Hello! I am your personal assistant from the AMARETIS communication agency. We are a full-service advertising agency based in Göttingen and work for clients throughout Germany. How can I help you today?"
         },
         es: {
             language: "Español",
             welcomeText: "¡BIENVENIDO A AMARETIS!",
-            responseTimeText: "AMARETIS AI es tu asistente digital: directo, sencillo y disponible las 24 horas. [cite_start]Ya sea que quieras programar una cita, tengas preguntas sobre nuestros servicios o quieras saber si AMARETIS es adecuado para tu proyecto, estamos aquí para ayudarte. [cite: 97]",
+            responseTimeText: "AMARETIS AI es tu asistente digital: directo, sencillo y disponible las 24 horas. Ya sea que quieras programar una cita, tengas preguntas sobre nuestros servicios o quieras saber si AMARETIS es adecuado para tu proyecto, estamos aquí para ayudarte.",
             privacyLabel: "He leído y acepto la <a href='https://www.amaretis.de/datenschutz/' target='_blank'>política de privacidad</a>.",
             newChatBtnText: "¡Inicia tu consulta!",
             placeholder: "Escribe o dicta un mensaje…",
             micTitle: "Iniciar/detener entrada de voz",
             sendTitle: "Enviar mensaje",
             micUnsupported: "Reconocimiento de voz no soportado",
-            botGreeting: "¡Hola! Soy tu asistente personal de la agencia de comunicación AMARETIS. Somos una agencia de publicidad de servicio completo con sede en Göttingen y trabajamos para clientes en toda Alemania. [cite_start]¿En qué puedo ayudarte hoy? [cite: 99, 100, 101]"
+            botGreeting: "¡Hola! Soy tu asistente personal de la agencia de comunicación AMARETIS. Somos una agencia de publicidad de servicio completo con sede en Göttingen y trabajamos para clientes en toda Alemania. ¿En qué puedo ayudarte hoy?"
         }
     };
 
@@ -700,10 +700,6 @@
     // Lógica para cambiar el idioma del reconocimiento de voz y UI
     languageSelects.forEach(select => {
         select.addEventListener('change', (e) => {
-            const wasRecording = isRecording;
-            if (isRecording && recognition) {
-                recognition.stop();
-            }
             currentLang = e.target.value;
             updateUI();
         });
@@ -767,7 +763,10 @@
         }
 
         if (isRecording) {
-            if (recognition) recognition.stop();
+            shouldSendMessageAfterStop = true;
+            if (recognition) {
+                recognition.stop();
+            }
         } else {
             startNewRecordingSession();
         }
@@ -788,6 +787,7 @@
             chatInputContainer.classList.add('is-recording');
             micButton.classList.add('recording');
             micButton.innerHTML = stopSVG;
+            textarea.value = '';
             startAudioVisualizer();
         };
 
