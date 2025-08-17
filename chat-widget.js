@@ -3,24 +3,42 @@
     // ================== ESTILOS ==================
     const styles = `
         .n8n-chat-widget { 
-            --chat--color-primary: var(--n8n-chat-primary-color, #854fff);
-            --chat--color-secondary: var(--n8n-chat-secondary-color, #6b3fd4);
-            --chat--color-background: var(--n8n-chat-background-color, #ffffff);
-            --chat--color-font: var(--n8n-chat-font-color, #333333);
+            --chat--color-primary: #854fff;
+            --chat--color-secondary: #6b3fd4;
+            --chat--color-background: #ffffff;
+            --chat--color-font: #333333;
             --chat--color-accent: #ff4d4d;
-            font-family: futura-pt;
+            font-family: futura-pt, sans-serif;
         }
-        .n8n-chat-widget .chat-container { position: fixed; bottom: 20px; right: 20px; z-index: 1000; display: none; width: 380px; height: 600px; background: var(--chat--color-background); border-radius: 12px; box-shadow: 0 8px 32px rgba(133, 79, 255, 0.15); border: 1px solid rgba(133, 79, 255, 0.2); font-family: inherit; }
-        .n8n-chat-widget .chat-container.open { display: flex; flex-direction: column; overflow: hidden; }
-        .n8n-chat-widget .chat-messages { flex-grow: 1; overflow-y: auto; padding: 20px; background: var(--chat--color-background); display: flex; flex-direction: column; }
-        .n8n-chat-widget .chat-input { flex-shrink: 0; padding: 16px; display: flex; gap: 8px; align-items: center; position: relative; border-top: 1px solid rgba(133, 79, 255, 0.1); }
-        .n8n-chat-widget .chat-input textarea { flex-grow: 1; padding: 12px; border: 1px solid rgba(133, 79, 255, 0.2); border-radius: 8px; resize: none; font-size: 14px; }
+        .n8n-chat-widget .chat-container { 
+            position: fixed; bottom: 90px; right: 20px; 
+            z-index: 1000; display: none; 
+            width: 380px; height: 600px; 
+            background: var(--chat--color-background); 
+            border-radius: 12px; 
+            box-shadow: 0 8px 32px rgba(133,79,255,0.15); 
+            border: 1px solid rgba(133,79,255,0.2); 
+            flex-direction: column; 
+        }
+        .n8n-chat-widget .chat-container.open { display: flex; }
+        .n8n-chat-widget .chat-messages { flex-grow: 1; overflow-y: auto; padding: 20px; }
+        .n8n-chat-widget .chat-input { flex-shrink: 0; padding: 16px; display: flex; gap: 8px; align-items: center; border-top: 1px solid rgba(133,79,255,0.1); }
+        .n8n-chat-widget .chat-input textarea { flex-grow: 1; padding: 12px; border: 1px solid rgba(133,79,255,0.2); border-radius: 8px; resize: none; font-size: 14px; }
         .n8n-chat-widget .chat-input button { border: none; border-radius: 8px; padding: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; height: 44px; width: 44px; }
         .n8n-chat-widget .chat-input button.mic-button.recording { background: var(--chat--color-accent); color: white; }
         .n8n-chat-widget .chat-input button.send-button { background: linear-gradient(135deg, var(--chat--color-primary), var(--chat--color-secondary)); color: white; }
         .n8n-chat-widget #audio-visualizer { flex-grow: 1; height: 44px; background-color: #f8f8f8; border-radius: 8px; display: none; }
         .n8n-chat-widget .chat-input.is-recording #audio-visualizer { display: block; }
-        .n8n-chat-widget .chat-toggle { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 12px; background: linear-gradient(135deg, var(--chat--color-primary), var(--chat--color-secondary)); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .chat-toggle { 
+            position: fixed; bottom: 20px; right: 20px; 
+            width: 60px; height: 60px; 
+            border-radius: 50%; 
+            background: linear-gradient(135deg, var(--chat--color-primary), var(--chat--color-secondary)); 
+            color: white; border: none; cursor: pointer; 
+            display: flex; align-items: center; justify-content: center; 
+            box-shadow: 0 4px 12px rgba(133,79,255,0.3); 
+            z-index: 2000; font-size: 22px;
+        }
     `;
     const styleSheet = document.createElement('style');
     styleSheet.textContent = styles;
@@ -70,10 +88,11 @@
     visualizerCanvas.id = 'audio-visualizer';
     chatInputContainer.appendChild(visualizerCanvas);
 
+    // Botón flotante toggle
     const toggleButton = document.createElement('button');
     toggleButton.className = 'chat-toggle';
     toggleButton.textContent = "💬";
-    widgetContainer.appendChild(toggleButton);
+    document.body.appendChild(toggleButton);
 
     toggleButton.addEventListener('click', () => chatContainer.classList.toggle('open'));
 
