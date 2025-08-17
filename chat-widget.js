@@ -684,8 +684,9 @@
     }
 
     // Inicializar UI con el idioma por defecto
+    // Inicializar UI con el idioma por defecto
     updateUI();
-
+    
     let recognition;
     let isRecording = false;
     let shouldSendMessageAfterStop = false;
@@ -693,26 +694,31 @@
     let analyser;
     let source;
     let animationFrameId;
-
+    
+    // ✅ Detección de dispositivo móvil
+    function isMobile() {
+        return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.matchMedia("(max-width: 768px)").matches;
+    }
+    
     if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition = new SpeechRecognition();
         recognition.lang = langCodes.de;
         recognition.continuous = true;
         recognition.interimResults = true;
-
+    
         recognition.onresult = (event) => {
-             for (let i = event.resultIndex; i < event.results.length; i++) {
-                 const transcript = event.results[i][0].transcript.trim();
-                 if (event.results[i].isFinal) {
-                     const corrected = correctTextRealtime(transcript);
-                     textarea.value += (textarea.value ? ' ' : '') + corrected;
-                     textarea.style.height = 'auto';
-                     textarea.style.height = `${textarea.scrollHeight}px`;
-                 }
-             }
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript.trim();
+                if (event.results[i].isFinal) {
+                    const corrected = correctTextRealtime(transcript);
+                    textarea.value += (textarea.value ? ' ' : '') + corrected;
+                    textarea.style.height = 'auto';
+                    textarea.style.height = `${textarea.scrollHeight}px`;
+                }
+            }
         };
-
+    
         recognition.onerror = (event) => {
             console.error('Speech recognition error:', event.error);
             if (event.error !== 'no-speech' && isRecording) {
@@ -721,11 +727,21 @@
                 stopRecording();
             }
         };
-
+    
+        // ✅ Modificado para evitar reinicio automático en móviles
         recognition.onend = () => {
-            if (isRecording) {
-                recognition.start();
-            } else if (shouldSendMessageAfterStop) {
+            isRecording = false;
+            micButton.classList.remove('recording');
+            micButton.innerHTML = micSVG;
+            stopAudioVisualizer();
+    
+            if (!isMobile() && isRecording) {
+                setTimeout(() => {
+                    recognition.start();
+                }, 500);
+            }
+    
+            if (shouldSendMessageAfterStop) {
                 const message = textarea.value.trim();
                 if (message) {
                     sendMessage(message);
@@ -739,12 +755,12 @@
         micButton.disabled = true;
         micButton.title = translations[currentLang.split('-')[0]].micUnsupported;
     }
-
+    
     // Lógica para habilitar/deshabilitar el botón de inicio de chat
     privacyCheckbox.addEventListener('change', () => {
         newChatBtn.disabled = !privacyCheckbox.checked;
     });
-
+    
     // Lógica para cambiar el idioma del reconocimiento de voz y UI
     languageSelects.forEach(select => {
         select.addEventListener('change', (e) => {
@@ -756,7 +772,7 @@
             updateUI();
         });
     });
-
+    
     function startAudioVisualizer() {
         if (!visualizerCanvas) return;
         const canvasCtx = visualizerCanvas.getContext('2d');
@@ -789,7 +805,7 @@
             })
             .catch((err) => { console.error('Mic error:', err); });
     }
-
+    
     function stopAudioVisualizer() {
         if (animationFrameId) cancelAnimationFrame(animationFrameId);
         if (source && source.mediaStream) {
@@ -798,12 +814,12 @@
         if (audioContext && audioContext.state !== 'closed') {
             audioContext.close();
         }
-        if(visualizerCanvas) {
+        if (visualizerCanvas) {
             const canvasCtx = visualizerCanvas.getContext('2d');
             canvasCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
         }
     }
-
+    
     function startRecording() {
         if (!recognition) return;
         isRecording = true;
@@ -813,17 +829,18 @@
         recognition.start();
         startAudioVisualizer();
     }
-
+    
+    // ✅ Modificado para usar abort() en lugar de stop()
     function stopRecording() {
         if (!recognition) return;
         isRecording = false;
         chatInputContainer.classList.remove('is-recording');
         micButton.classList.remove('recording');
         micButton.innerHTML = micSVG;
-        recognition.stop();
+        recognition.abort(); // Mejor compatibilidad en móviles
         stopAudioVisualizer();
     }
-
+    
     micButton.addEventListener('click', () => {
         if (isRecording) {
             stopRecording();
@@ -831,6 +848,7 @@
             startRecording();
         }
     });
+
 
     function generateUUID() { return crypto.randomUUID(); }
 
