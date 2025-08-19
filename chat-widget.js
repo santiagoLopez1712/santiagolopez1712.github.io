@@ -667,257 +667,253 @@
     updateUI();
 
     // --- NUEVO --- Detección de dispositivo móvil
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-    let recognition;
-    let isRecording = false;
-    let shouldSendMessageAfterStop = false;
-    let audioContext;
-    let analyser;
-    let source;
-    let animationFrameId;
+let recognition;
+let isRecording = false;
+let shouldSendMessageAfterStop = false;
+let audioContext;
+let analyser;
+let source;
+let animationFrameId;
 
-    // --- NUEVO --- Función para crear y configurar una instancia de reconocimiento
-    function setupRecognition() {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognition = new SpeechRecognition();
-        recognition.lang = langCodes[currentLang] || langCodes.de;
-        recognition.continuous = !isMobile; // Será `false` en móviles y `true` en escritorio.
-        recognition.interimResults = true;
+// --- NUEVO --- Función para crear y configurar una instancia de reconocimiento
+function setupRecognition() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.lang = langCodes[currentLang] || langCodes.de;
+    // La propiedad continuous se establece en false para móviles para
+    // que el servicio se detenga después de una pausa.
+    recognition.continuous = !isMobile;
+    recognition.interimResults = true;
 
-        recognition.onresult = (event) => {
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-                const transcript = event.results[i][0].transcript.trim();
-                if (event.results[i].isFinal) {
-                    const corrected = correctTextRealtime(transcript);
-                    textarea.value += (textarea.value ? ' ' : '') + corrected;
-                    textarea.style.height = 'auto';
-                    textarea.style.height = `${textarea.scrollHeight}px`;
-                }
+    recognition.onresult = (event) => {
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            const transcript = event.results[i][0].transcript.trim();
+            if (event.results[i].isFinal) {
+                const corrected = correctTextRealtime(transcript);
+                textarea.value += (textarea.value ? ' ' : '') + corrected;
+                textarea.style.height = 'auto';
+                textarea.style.height = `${textarea.scrollHeight}px`;
             }
-        };
-
-        recognition.onerror = (event) => {
-            console.error('Speech recognition error:', event.error);
-            // Si hay un error, simplemente detenemos la grabación.
-            if (isRecording) {
-                stopRecording();
-            }
-        };
-
-        recognition.onend = () => {
-            // --- MODIFICADO --- Lógica de reinicio solo para escritorio
-            if (!isMobile && isRecording) {
-                // En escritorio, intentamos reiniciar para una experiencia contínua
-                recognition.start();
-            } else {
-                // En móvil, o cuando se detiene manualmente, terminamos la grabación
-                if (isRecording) {
-                    // Si onend se llama inesperadamente, actualizamos el UI
-                    stopRecording(true); // Pasamos true para evitar un bucle de stop()
-                }
-
-                if (shouldSendMessageAfterStop) {
-                    const message = textarea.value.trim();
-                    if (message) {
-                        sendMessage(message);
-                        textarea.value = '';
-                        textarea.style.height = 'auto';
-                    }
-                    shouldSendMessageAfterStop = false;
-                }
-            }
-        };
-    }
-
-    if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
-        micButton.disabled = true;
-        micButton.title = translations[currentLang.split('-')[0]].micUnsupported;
-    }
-
-    privacyCheckbox.addEventListener('change', () => { newChatBtn.disabled = !privacyCheckbox.checked; });
-
-    languageSelects.forEach(select => {
-        select.addEventListener('change', (e) => {
-            currentLang = e.target.value;
-            if (recognition) {
-                recognition.lang = langCodes[currentLang];
-            }
-            updateUI();
-        });
-    });
-
-    function startAudioVisualizer() {
-        if (!visualizerCanvas) return;
-        const canvasCtx = visualizerCanvas.getContext('2d');
-        navigator.mediaDevices.getUserMedia({ audio: true, video: false })
-            .then((stream) => {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                analyser = audioContext.createAnalyser();
-                source = audioContext.createMediaStreamSource(stream);
-                source.connect(analyser);
-                analyser.fftSize = 256;
-                const bufferLength = analyser.frequencyBinCount;
-                const dataArray = new Uint8Array(bufferLength);
-                canvasCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
-                function draw() {
-                    animationFrameId = requestAnimationFrame(draw);
-                    analyser.getByteFrequencyData(dataArray);
-                    canvasCtx.fillStyle = '#f8f8f8';
-                    canvasCtx.fillRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
-                    const barWidth = (visualizerCanvas.width / bufferLength) * 2;
-                    let barHeight;
-                    let x = 0;
-                    for (let i = 0; i < bufferLength; i++) {
-                        barHeight = dataArray[i] / 2.5;
-                        canvasCtx.fillStyle = getComputedStyle(widgetContainer).getPropertyValue('--chat--color-primary');
-                        canvasCtx.fillRect(x, visualizerCanvas.height - barHeight, barWidth, barHeight);
-                        x += barWidth + 1;
-                    }
-                }
-                draw();
-            })
-            .catch((err) => { console.error('Mic error:', err); });
-    }
-
-    function stopAudioVisualizer() {
-        if (animationFrameId) cancelAnimationFrame(animationFrameId);
-        if (source && source.mediaStream) {
-            source.mediaStream.getTracks().forEach(track => track.stop());
         }
-        if (audioContext && audioContext.state !== 'closed') {
-            audioContext.close();
-        }
-        if(visualizerCanvas) {
-            const canvasCtx = visualizerCanvas.getContext('2d');
-            canvasCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
-        }
-    }
-    
-    // --- MODIFICADO --- Función de iniciar grabación
-    function startRecording() {
-        if (isRecording) return;
-        
-        // Creamos una nueva instancia de reconocimiento CADA VEZ que se inicia
-        setupRecognition();
+    };
 
-        if (!recognition) return;
-        isRecording = true;
-        chatInputContainer.classList.add('is-recording');
-        micButton.classList.add('recording');
-        micButton.innerHTML = stopSVG;
-        recognition.start();
-        startAudioVisualizer();
-    }
-    
-    // --- MODIFICADO --- Función de detener grabación
-    function stopRecording(calledFromOnEnd = false) {
-        if (!isRecording) return;
-        isRecording = false;
-
-        // Si la función no fue llamada desde el evento `onend`, detenemos el reconocimiento.
-        // Esto evita un bucle si `onend` llama a `stopRecording`.
-        if (recognition && !calledFromOnEnd) {
-            recognition.stop();
-        }
-        
-        // Destruimos la instancia para asegurarnos de que se cree una nueva la próxima vez.
-        recognition = null; 
-
-        chatInputContainer.classList.remove('is-recording');
-        micButton.classList.remove('recording');
-        micButton.innerHTML = micSVG;
-        stopAudioVisualizer();
-    }
-
-    micButton.addEventListener('click', () => {
+    recognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
         if (isRecording) {
+            // Un error también debe detener la grabación
             stopRecording();
-        } else {
-            startRecording();
         }
-    });
+    };
 
-    function generateUUID() { return crypto.randomUUID(); }
-
-    async function startNewConversation() {
-        currentSessionId = generateUUID();
-        // ... Lógica de startNewConversation (sin cambios)
-        newConversationWrapper.style.display = 'none';
-        chatInterface.classList.add('active');
-
-        const langCode = currentLang.split('-')[0];
-        const botGreetingMessage = document.createElement('div');
-        botGreetingMessage.className = 'chat-message bot bot-greeting-message';
-        botGreetingMessage.innerHTML = translations[langCode].botGreeting;
-        messagesContainer.appendChild(botGreetingMessage);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }
-
-    async function sendMessage(message) {
-        // ... Lógica de sendMessage (sin cambios)
-        const messageData = { action: "sendMessage", sessionId: currentSessionId, route: config.webhook.route, chatInput: message, metadata: { userId: "", lang: currentLang } };
-        const userMessageDiv = document.createElement('div');
-        userMessageDiv.className = 'chat-message user';
-        userMessageDiv.textContent = message;
-        messagesContainer.appendChild(userMessageDiv);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-        try {
-            const response = await fetch(config.webhook.url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(messageData) });
-            const data = await response.json();
-            const botMessageDiv = document.createElement('div');
-            botMessageDiv.className = 'chat-message bot';
-            botMessageDiv.textContent = Array.isArray(data) ? data[0].output : data.output;
-            messagesContainer.appendChild(botMessageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        } catch (error) { console.error('Error:', error); }
-    }
-
-    function correctTextRealtime(text) {
-        // ... Lógica de correctTextRealtime (sin cambios)
-        const words = [...new Intl.Segmenter(langCodes[currentLang], { granularity: 'word' }).segment(text)];
-        let corrected = '';
-        words.forEach((w, idx) => {
-            let word = w.segment;
-            if (!word.trim()) return;
-            if (idx === 0 || /[.!?]\s*$/.test(corrected)) {
-                word = word.charAt(0).toUpperCase() + word.slice(1);
-            }
-            if (/[.,!?]/.test(word)) {
-                corrected = corrected.trim() + word;
-            } else {
-                corrected += (corrected ? ' ' : '') + word;
-            }
-        });
-        if (corrected && !/[.!?]$/.test(corrected)) corrected += '.';
-        return corrected;
-    }
-    
-    // --- MODIFICADO --- Retraso en el envío al presionar "enviar" durante la grabación
-    sendButton.addEventListener('click', () => {
-        if (isRecording) {
-            shouldSendMessageAfterStop = true;
-            // Damos un pequeño retraso para capturar el final de la frase
-            setTimeout(() => {
-                stopRecording();
-            }, 200); 
-        } else {
+    recognition.onend = () => {
+        // En este punto, la grabación ha terminado.
+        // La función stopRecording() ya se encarga de limpiar el estado
+        // y el UI. No necesitamos lógica adicional aquí.
+        // La próxima grabación se activará con un nuevo clic.
+        if (shouldSendMessageAfterStop) {
             const message = textarea.value.trim();
             if (message) {
                 sendMessage(message);
                 textarea.value = '';
                 textarea.style.height = 'auto';
             }
+            shouldSendMessageAfterStop = false;
         }
-    });
+    };
+}
 
-    textarea.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            sendButton.click(); // Reutilizamos la lógica del botón de enviar
+if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
+    micButton.disabled = true;
+    micButton.title = translations[currentLang.split('-')[0]].micUnsupported;
+}
+
+privacyCheckbox.addEventListener('change', () => { newChatBtn.disabled = !privacyCheckbox.checked; });
+
+languageSelects.forEach(select => {
+    select.addEventListener('change', (e) => {
+        currentLang = e.target.value;
+        if (recognition) {
+            recognition.lang = langCodes[currentLang];
+        }
+        updateUI();
+    });
+});
+
+function startAudioVisualizer() {
+    if (!visualizerCanvas) return;
+    const canvasCtx = visualizerCanvas.getContext('2d');
+    navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+        .then((stream) => {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+            source = audioContext.createMediaStreamSource(stream);
+            source.connect(analyser);
+            analyser.fftSize = 256;
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            canvasCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+            function draw() {
+                animationFrameId = requestAnimationFrame(draw);
+                analyser.getByteFrequencyData(dataArray);
+                canvasCtx.fillStyle = '#f8f8f8';
+                canvasCtx.fillRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+                const barWidth = (visualizerCanvas.width / bufferLength) * 2;
+                let barHeight;
+                let x = 0;
+                for (let i = 0; i < bufferLength; i++) {
+                    barHeight = dataArray[i] / 2.5;
+                    canvasCtx.fillStyle = getComputedStyle(widgetContainer).getPropertyValue('--chat--color-primary');
+                    canvasCtx.fillRect(x, visualizerCanvas.height - barHeight, barWidth, barHeight);
+                    x += barWidth + 1;
+                }
+            }
+            draw();
+        })
+        .catch((err) => { console.error('Mic error:', err); });
+}
+
+function stopAudioVisualizer() {
+    if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    if (source && source.mediaStream) {
+        source.mediaStream.getTracks().forEach(track => track.stop());
+    }
+    if (audioContext && audioContext.state !== 'closed') {
+        audioContext.close();
+    }
+    if(visualizerCanvas) {
+        const canvasCtx = visualizerCanvas.getContext('2d');
+        canvasCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+    }
+}
+
+// --- MODIFICADO --- Función de iniciar grabación
+function startRecording() {
+    if (isRecording) return;
+    
+    // Creamos una nueva instancia de reconocimiento CADA VEZ que se inicia
+    setupRecognition();
+
+    if (!recognition) return;
+    isRecording = true;
+    chatInputContainer.classList.add('is-recording');
+    micButton.classList.add('recording');
+    micButton.innerHTML = stopSVG;
+    recognition.start();
+    startAudioVisualizer();
+}
+
+// --- MODIFICADO --- Función de detener grabación
+function stopRecording(calledFromOnEnd = false) {
+    if (!isRecording) return;
+    isRecording = false;
+
+    // Si la función no fue llamada desde el evento `onend`, detenemos el reconocimiento.
+    // Esto evita un bucle si `onend` llama a `stopRecording`.
+    if (recognition && !calledFromOnEnd) {
+        recognition.stop();
+    }
+    
+    // Destruimos la instancia para asegurarnos de que se cree una nueva la próxima vez.
+    recognition = null; 
+
+    chatInputContainer.classList.remove('is-recording');
+    micButton.classList.remove('recording');
+    micButton.innerHTML = micSVG;
+    stopAudioVisualizer();
+}
+
+micButton.addEventListener('click', () => {
+    if (isRecording) {
+        stopRecording();
+    } else {
+        startRecording();
+    }
+});
+
+function generateUUID() { return crypto.randomUUID(); }
+
+async function startNewConversation() {
+    currentSessionId = generateUUID();
+    // ... Lógica de startNewConversation (sin cambios)
+    newConversationWrapper.style.display = 'none';
+    chatInterface.classList.add('active');
+
+    const langCode = currentLang.split('-')[0];
+    const botGreetingMessage = document.createElement('div');
+    botGreetingMessage.className = 'chat-message bot bot-greeting-message';
+    botGreetingMessage.innerHTML = translations[langCode].botGreeting;
+    messagesContainer.appendChild(botGreetingMessage);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+async function sendMessage(message) {
+    // ... Lógica de sendMessage (sin cambios)
+    const messageData = { action: "sendMessage", sessionId: currentSessionId, route: config.webhook.route, chatInput: message, metadata: { userId: "", lang: currentLang } };
+    const userMessageDiv = document.createElement('div');
+    userMessageDiv.className = 'chat-message user';
+    userMessageDiv.textContent = message;
+    messagesContainer.appendChild(userMessageDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+    try {
+        const response = await fetch(config.webhook.url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(messageData) });
+        const data = await response.json();
+        const botMessageDiv = document.createElement('div');
+        botMessageDiv.className = 'chat-message bot';
+        botMessageDiv.textContent = Array.isArray(data) ? data[0].output : data.output;
+        messagesContainer.appendChild(botMessageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    } catch (error) { console.error('Error:', error); }
+}
+
+function correctTextRealtime(text) {
+    // ... Lógica de correctTextRealtime (sin cambios)
+    const words = [...new Intl.Segmenter(langCodes[currentLang], { granularity: 'word' }).segment(text)];
+    let corrected = '';
+    words.forEach((w, idx) => {
+        let word = w.segment;
+        if (!word.trim()) return;
+        if (idx === 0 || /[.!?]\s*$/.test(corrected)) {
+            word = word.charAt(0).toUpperCase() + word.slice(1);
+        }
+        if (/[.,!?]/.test(word)) {
+            corrected = corrected.trim() + word;
+        } else {
+            corrected += (corrected ? ' ' : '') + word;
         }
     });
+    if (corrected && !/[.!?]$/.test(corrected)) corrected += '.';
+    return corrected;
+}
+
+// --- MODIFICADO --- Retraso en el envío al presionar "enviar" durante la grabación
+sendButton.addEventListener('click', () => {
+    if (isRecording) {
+        shouldSendMessageAfterStop = true;
+        // Damos un pequeño retraso para capturar el final de la frase
+        if (recognition) {
+            setTimeout(() => {
+                recognition.stop();
+            }, 200);
+        }
+    } else {
+        const message = textarea.value.trim();
+        if (message) {
+            sendMessage(message);
+            textarea.value = '';
+            textarea.style.height = 'auto';
+        }
+    }
+});
+
+textarea.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendButton.click(); // Reutilizamos la lógica del botón de enviar
+    }
+});
 
     const closeButtons = chatContainer.querySelectorAll('.close-button');
     closeButtons.forEach(button => { button.addEventListener('click', () => { chatContainer.classList.remove('open'); }); });
