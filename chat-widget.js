@@ -682,7 +682,7 @@
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition = new SpeechRecognition();
         recognition.lang = langCodes[currentLang] || langCodes.de;
-        recognition.continuous = true;
+        recognition.continuous = !isMobile; // Será `false` en móviles y `true` en escritorio.
         recognition.interimResults = true;
 
         recognition.onresult = (event) => {
