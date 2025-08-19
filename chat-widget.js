@@ -1,16 +1,17 @@
 // Chat Widget Script
 (function() {
-    // Create and inject styles
+    // ========================
+    // 1️⃣ Crear e inyectar estilos
+    // ========================
     const styles = `
         .n8n-chat-widget {
             --chat--color-primary: var(--n8n-chat-primary-color, #854fff);
             --chat--color-secondary: var(--n8n-chat-secondary-color, #6b3fd4);
             --chat--color-background: var(--n8n-chat-background-color, #ffffff);
             --chat--color-font: var(--n8n-chat-font-color, #333333);
-            --chat--color-accent: #ff4d4d; /* Nuevo color de acento para la grabación */
+            --chat--color-accent: #ff4d4d; /* Color de acento para la grabación */
             font-family: futura-pt;
         }
-
         .n8n-chat-widget .chat-container {
             position: fixed;
             bottom: 20px;
@@ -466,19 +467,25 @@
         }
     `;
 
-    // Load font
+    // ========================
+    // 2️⃣ Cargar fuente
+    // ========================
     const fontLink = document.createElement('link');
     fontLink.rel = 'stylesheet';
     fontLink.href = 'https://cdn.jsdelivr.net/npm/geist@1.0.0/dist/fonts/geist-sans/style.css';
     document.head.appendChild(fontLink);
 
-    // Inject styles
+    // ========================
+    // 3️⃣ Inyectar estilos
+    // ========================
     const styleSheet = document.createElement('style');
     styleSheet.textContent = styles;
     document.head.appendChild(styleSheet);
 
-    // Objeto de traducciones
-    const translations = {
+    // ========================
+    // 4️⃣ Traducciones
+    // ========================
+    const translations = { 
         de: {
             language: "Deutsch",
             welcomeText: "HERZLICH WILLKOMMEN BEI AMARETIS!",
@@ -514,10 +521,12 @@
             sendTitle: "Enviar mensaje",
             micUnsupported: "Reconocimiento de voz no soportado",
             botGreeting: "¡Hola! 👋 Soy tu asistente personal de la agencia de comunicación AMARETIS. Somos una agencia de publicidad de servicio completo con sede en Göttingen y trabajamos para clientes en toda Alemania. ¿En qué puedo ayudarte hoy?"
-        }
+        } 
     };
 
-    // Default config
+    // ========================
+    // 5️⃣ Configuración por defecto y configuración del widget
+    // ========================
     const defaultConfig = {
         webhook: { url: '', route: '' },
         branding: {
@@ -539,17 +548,22 @@
 
     let currentSessionId = '';
     let currentLang = 'de';
-
     const langCodes = { de: 'de-DE', en: 'en-US', es: 'es-ES' };
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
+    // ========================
+    // 6️⃣ Crear contenedor del widget
+    // ========================
     const widgetContainer = document.createElement('div');
     widgetContainer.className = 'n8n-chat-widget';
-
     widgetContainer.style.setProperty('--n8n-chat-primary-color', config.style.primaryColor);
     widgetContainer.style.setProperty('--n8n-chat-secondary-color', config.style.secondaryColor);
     widgetContainer.style.setProperty('--n8n-chat-background-color', config.style.backgroundColor);
     widgetContainer.style.setProperty('--n8n-chat-font-color', config.style.fontColor);
 
+    // ========================
+    // 7️⃣ HTML del widget (nueva conversación + interfaz)
+    // ========================
     const chatContainer = document.createElement('div');
     chatContainer.className = `chat-container${config.style.position === 'left' ? ' position-left' : ''}`;
 
@@ -581,7 +595,6 @@
             </div>
         </div>
     `;
-
     const chatInterfaceHTML = `
         <div class="chat-interface">
             <div class="brand-header">
@@ -620,6 +633,9 @@
 
     chatContainer.innerHTML = newConversationHTML + chatInterfaceHTML;
 
+    // ========================
+    // 8️⃣ Botón para abrir/cerrar el chat
+    // ========================
     const toggleButton = document.createElement('button');
     toggleButton.className = `chat-toggle${config.style.position === 'left' ? ' position-left' : ''}`;
     toggleButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0112 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.476 0-2.886-.313-4.156-.878l-3.156.586.586-3.156A7.962 7.962 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/></svg>`;
@@ -628,6 +644,9 @@
     widgetContainer.appendChild(toggleButton);
     document.body.appendChild(widgetContainer);
 
+    // ========================
+    // 9️⃣ Elementos clave del DOM
+    // ========================
     const newChatBtn = chatContainer.querySelector('.new-chat-btn');
     const newChatBtnTextSpan = newChatBtn.querySelector('span');
     const newConversationWrapper = chatContainer.querySelector('.new-conversation-wrapper');
@@ -644,160 +663,206 @@
     const micSVG = micButton.innerHTML;
     const stopSVG = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>`;
 
+    // ========================
+    // 10️⃣ Función para actualizar UI según idioma
+    // ========================
     function updateUI() {
         const langCode = currentLang.split('-')[0];
         const t = translations[langCode] || translations.de;
-        
+
         chatContainer.querySelector('.welcome-text').textContent = t.welcomeText;
         chatContainer.querySelector('.response-text').textContent = t.responseTimeText;
         chatContainer.querySelector('.privacy-checkbox label').innerHTML = t.privacyLabel;
         newChatBtnTextSpan.textContent = t.newChatBtnText;
-        chatContainer.querySelector('textarea').placeholder = t.placeholder;
-        chatContainer.querySelector('.mic-button').title = t.micTitle;
-        chatContainer.querySelector('.send-button').title = t.sendTitle;
+        textarea.placeholder = t.placeholder;
+        micButton.title = t.micTitle;
+        sendButton.title = t.sendTitle;
 
         languageSelects.forEach(select => { select.value = langCode; });
-        
-        const botGreeting = messagesContainer.querySelector('.bot-greeting-message');
-        if (botGreeting) {
-            botGreeting.textContent = t.botGreeting;
-        }
+
+        const botGreeting = messagesContainer.querySelector('.bot-greeting-message');//Revisar
+        if (botGreeting) botGreeting.textContent = t.botGreeting;
     }
 
     updateUI();
 
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    // ========================
+    // 11️⃣ Reconocimiento de voz
+    // ========================
+    let recognition;
+    let isRecording = false;
+    let shouldSendMessageAfterStop = false;
+    let audioContext;
+    let analyser;
+    let source;
+    let animationFrameId;
 
-let recognition;
-let isRecording = false;
-let shouldSendMessageAfterStop = false;
-let audioContext;
-let analyser;
-let source;
-let animationFrameId;
+    function setupRecognition() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) return null;
 
-// --- NUEVO --- Función para crear y configurar una instancia de reconocimiento
-function setupRecognition() {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) return null;
+        const recog = new SpeechRecognition();
+        recog.lang = langCodes[currentLang] || langCodes.de;
+        recog.continuous = !isMobile; // móviles: una frase
+        recog.interimResults = true;
 
-    const recog = new SpeechRecognition();
-    recog.lang = langCodes[currentLang] || langCodes.de;
-    recog.continuous = !isMobile; // En móviles una sola frase por sesión
-    recog.interimResults = true;
-
-    recog.onresult = (event) => {
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-            const transcript = event.results[i][0].transcript.trim();
-            if (event.results[i].isFinal) {
-                const corrected = correctTextRealtime(transcript);
-                textarea.value += (textarea.value ? ' ' : '') + corrected;
-                textarea.style.height = 'auto';
-                textarea.style.height = `${textarea.scrollHeight}px`;
+        recog.onresult = (event) => {
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript.trim();
+                if (event.results[i].isFinal) {
+                    textarea.value += (textarea.value ? ' ' : '') + transcript;
+                    textarea.style.height = 'auto';
+                    textarea.style.height = `${textarea.scrollHeight}px`;
+                }
             }
+        };
+
+        recog.onerror = (event) => {
+            console.error('Speech recognition error:', event.error);
+            if (isRecording) stopRecording();
+        };
+
+        recog.onend = () => {
+            // Finalizar grabación
+            isRecording = false;
+            chatInputContainer.classList.remove('is-recording');
+            micButton.classList.remove('recording');
+            micButton.innerHTML = micSVG;
+            stopAudioVisualizer();
+
+            if (shouldSendMessageAfterStop) {
+                const message = textarea.value.trim();
+                if (message) sendMessage(message);
+                textarea.value = '';
+                textarea.style.height = 'auto';
+                shouldSendMessageAfterStop = false;
+            }
+
+            if (isMobile) recognition = null; // limpiar para móviles
+        };
+
+        return recog;
+    }
+
+    if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
+        micButton.disabled = true;
+        micButton.title = translations[currentLang.split('-')[0]].micUnsupported;
+    }
+
+    // ========================
+    // 12️⃣ Audio visualizer
+    // ========================
+    function startAudioVisualizer() {
+        if (!visualizerCanvas) return;
+        visualizerCanvas.style.display = 'block';
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 2048;
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+
+        navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+            source = audioContext.createMediaStreamSource(stream);
+            source.connect(analyser);
+            drawVisualizer();
+        }).catch(err => console.error(err));
+
+        function drawVisualizer() {
+            const canvasCtx = visualizerCanvas.getContext('2d');
+            animationFrameId = requestAnimationFrame(drawVisualizer);
+            analyser.getByteTimeDomainData(dataArray);
+
+            canvasCtx.fillStyle = '#f8f8f8';
+            canvasCtx.fillRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+
+            canvasCtx.lineWidth = 2;
+            canvasCtx.strokeStyle = '#854fff';
+            canvasCtx.beginPath();
+
+            const sliceWidth = visualizerCanvas.width / bufferLength;
+            let x = 0;
+            for(let i = 0; i < bufferLength; i++) {
+                const v = dataArray[i] / 128.0;
+                const y = v * visualizerCanvas.height/2;
+                if(i === 0) canvasCtx.moveTo(x, y);
+                else canvasCtx.lineTo(x, y);
+                x += sliceWidth;
+            }
+            canvasCtx.lineTo(visualizerCanvas.width, visualizerCanvas.height/2);
+            canvasCtx.stroke();
         }
-    };
+    }
 
-    recog.onerror = (event) => {
-        console.error('Speech recognition error:', event.error);
-        if (isRecording) stopRecording();
-    };
+    function stopAudioVisualizer() {
+        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        if (audioContext) audioContext.close();
+        audioContext = analyser = source = animationFrameId = null;
+        visualizerCanvas.style.display = 'none';
+    }
 
-    recog.onend = () => {
-        // Termina la sesión de reconocimiento
+    // ========================
+    // 13️⃣ Funciones de grabación
+    // ========================
+    function startRecording() {
+        if (isRecording) return;
+        recognition = setupRecognition(); // siempre nueva instancia
+        if (!recognition) return;
+
+        isRecording = true;
+        chatInputContainer.classList.add('is-recording');
+        micButton.classList.add('recording');
+        micButton.innerHTML = stopSVG;
+
+        try {
+            recognition.start();
+            startAudioVisualizer();
+        } catch (err) {
+            console.error('Error al iniciar el micrófono:', err);
+            stopRecording();
+        }
+    }
+
+    function stopRecording() {
+        if (!isRecording) return;
+        if (recognition) recognition.stop();
         isRecording = false;
         chatInputContainer.classList.remove('is-recording');
         micButton.classList.remove('recording');
         micButton.innerHTML = micSVG;
         stopAudioVisualizer();
+    }
 
-        if (shouldSendMessageAfterStop) {
+    micButton.addEventListener('click', () => {
+        if (isRecording) stopRecording();
+        else startRecording();
+    });
+
+    // ========================
+    // 14️⃣ Enviar mensaje
+    // ========================
+    sendButton.addEventListener('click', () => {
+        if (isRecording) {
+            shouldSendMessageAfterStop = true;
+            if (recognition) setTimeout(() => recognition.stop(), 200);
+        } else {
             const message = textarea.value.trim();
-            if (message) {
-                sendMessage(message);
-                textarea.value = '';
-                textarea.style.height = 'auto';
-            }
-            shouldSendMessageAfterStop = false;
-        }
-
-        // --- clave: limpiar instancia en móviles para que se cree una nueva después ---
-        if (isMobile) {
-            recognition = null;
-        }
-    };
-
-    return recog;
-}
-
-if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
-    micButton.disabled = true;
-    micButton.title = translations[currentLang.split('-')[0]].micUnsupported;
-}
-
-function startRecording() {
-    if (isRecording) return;
-
-    // En móviles siempre nueva instancia, en desktop la reusamos si existe
-    recognition = isMobile ? setupRecognition() : recognition || setupRecognition();
-    if (!recognition) return;
-
-    isRecording = true;
-    chatInputContainer.classList.add('is-recording');
-    micButton.classList.add('recording');
-    micButton.innerHTML = stopSVG;
-
-    recognition.start();
-    startAudioVisualizer();
-}
-
-function stopRecording(calledFromOnEnd = false) {
-    if (!isRecording) return;
-
-    if (recognition && !calledFromOnEnd) {
-        recognition.stop();
-    }
-    // En desktop limpiamos después, en móviles ya se limpia en onend
-    if (!isMobile) recognition = null;
-
-    isRecording = false;
-    chatInputContainer.classList.remove('is-recording');
-    micButton.classList.remove('recording');
-    micButton.innerHTML = micSVG;
-    stopAudioVisualizer();
-}
-
-micButton.addEventListener('click', () => {
-    if (isRecording) {
-        stopRecording();
-    } else {
-        startRecording();
-    }
-});
-
-// --- MODIFICADO --- Retraso en el envío al presionar "enviar" durante la grabación
-sendButton.addEventListener('click', () => {
-    if (isRecording) {
-        shouldSendMessageAfterStop = true;
-        if (recognition) {
-            setTimeout(() => recognition.stop(), 200);
-        }
-    } else {
-        const message = textarea.value.trim();
-        if (message) {
-            sendMessage(message);
+            if (message) sendMessage(message);
             textarea.value = '';
             textarea.style.height = 'auto';
         }
-    }
-});
+    });
 
+    // ========================
+    // 15️⃣ Abrir/cerrar chat
+    // ========================
+    chatContainer.querySelectorAll('.close-button').forEach(button => {
+        button.addEventListener('click', () => chatContainer.classList.remove('open'));
+    });
+    toggleButton.addEventListener('click', () => chatContainer.classList.toggle('open'));
 
-    const closeButtons = chatContainer.querySelectorAll('.close-button');
-    closeButtons.forEach(button => { button.addEventListener('click', () => { chatContainer.classList.remove('open'); }); });
-    
-    toggleButton.addEventListener('click', () => { chatContainer.classList.toggle('open'); });
-
+    // ========================
+    // 16️⃣ Nuevo chat
+    // ========================
     newChatBtn.addEventListener('click', startNewConversation);
 
 })();
