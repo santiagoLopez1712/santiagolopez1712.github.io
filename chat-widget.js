@@ -466,22 +466,18 @@
         }
     `;
 
-    (function() {
-    // ============================
-    // CARGA DE FUENTES Y ESTILOS
-    // ============================
+    // Load font
     const fontLink = document.createElement('link');
     fontLink.rel = 'stylesheet';
     fontLink.href = 'https://cdn.jsdelivr.net/npm/geist@1.0.0/dist/fonts/geist-sans/style.css';
     document.head.appendChild(fontLink);
 
+    // Inject styles
     const styleSheet = document.createElement('style');
-    styleSheet.textContent = styles; // Aquí debes definir tu variable 'styles' previamente
+    styleSheet.textContent = styles;
     document.head.appendChild(styleSheet);
 
-    // ============================
-    // TRADUCCIONES
-    // ============================
+    // Objeto de traducciones
     const translations = {
         de: {
             language: "Deutsch",
@@ -521,9 +517,7 @@
         }
     };
 
-    // ============================
-    // CONFIGURACIÓN DEFAULT
-    // ============================
+    // Default config
     const defaultConfig = {
         webhook: { url: '', route: '' },
         branding: {
@@ -545,25 +539,25 @@
 
     let currentSessionId = '';
     let currentLang = 'de'; // Idioma por defecto
-    const langCodes = { de: 'de-DE', en: 'en-US', es: 'es-ES' };
 
-    // ============================
-    // CREACIÓN DEL CONTENEDOR DEL WIDGET
-    // ============================
+    // Mapa para los códigos de idioma correctos
+    const langCodes = {
+        de: 'de-DE',
+        en: 'en-US',
+        es: 'es-ES'
+    };
+
     const widgetContainer = document.createElement('div');
     widgetContainer.className = 'n8n-chat-widget';
+
     widgetContainer.style.setProperty('--n8n-chat-primary-color', config.style.primaryColor);
     widgetContainer.style.setProperty('--n8n-chat-secondary-color', config.style.secondaryColor);
     widgetContainer.style.setProperty('--n8n-chat-background-color', config.style.backgroundColor);
     widgetContainer.style.setProperty('--n8n-chat-font-color', config.style.fontColor);
 
-    // ============================
-    // HTML DEL CHAT
-    // ============================
     const chatContainer = document.createElement('div');
     chatContainer.className = `chat-container${config.style.position === 'left' ? ' position-left' : ''}`;
 
-    // HTML para nueva conversación
     const newConversationHTML = `
         <div class="new-conversation-wrapper">
             <div class="brand-header">
@@ -593,7 +587,6 @@
         </div>
     `;
 
-    // HTML de la interfaz principal del chat
     const chatInterfaceHTML = `
         <div class="chat-interface">
             <div class="brand-header">
@@ -632,9 +625,6 @@
 
     chatContainer.innerHTML = newConversationHTML + chatInterfaceHTML;
 
-    // ============================
-    // BOTÓN TOGGLE DEL CHAT
-    // ============================
     const toggleButton = document.createElement('button');
     toggleButton.className = `chat-toggle${config.style.position === 'left' ? ' position-left' : ''}`;
     toggleButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0112 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.476 0-2.886-.313-4.156-.878l-3.156.586.586-3.156A7.962 7.962 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/></svg>`;
@@ -643,9 +633,7 @@
     widgetContainer.appendChild(toggleButton);
     document.body.appendChild(widgetContainer);
 
-    // ============================
-    // ELEMENTOS DEL DOM
-    // ============================
+    // Selección de elementos del DOM
     const newChatBtn = chatContainer.querySelector('.new-chat-btn');
     const newChatBtnTextSpan = newChatBtn.querySelector('span');
     const newConversationWrapper = chatContainer.querySelector('.new-conversation-wrapper');
@@ -659,9 +647,7 @@
     const visualizerCanvas = chatContainer.querySelector('#audio-visualizer');
     const languageSelects = chatContainer.querySelectorAll('.language-select');
 
-    // ============================
-    // ICONOS SVG
-    // ============================
+    // SVGs para los iconos
     const micSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
                         <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
@@ -674,9 +660,7 @@
                         d="M6 18L18 6M6 6l12 12" />
                 </svg>`;
 
-    // ============================
-    // FUNCIONES DE UI Y TRADUCCIÓN
-    // ============================
+    // Función para actualizar los textos del UI
     function updateUI() {
         const langCode = currentLang.split('-')[0];
         const t = translations[langCode] || translations.de;
@@ -685,21 +669,23 @@
         chatContainer.querySelector('.response-text').textContent = t.responseTimeText;
         chatContainer.querySelector('.privacy-checkbox label').innerHTML = t.privacyLabel;
         newChatBtnTextSpan.textContent = t.newChatBtnText;
-        textarea.placeholder = t.placeholder;
-        micButton.title = t.micTitle;
-        sendButton.title = t.sendTitle;
+        chatContainer.querySelector('textarea').placeholder = t.placeholder;
+        chatContainer.querySelector('.mic-button').title = t.micTitle;
+        chatContainer.querySelector('.send-button').title = t.sendTitle;
 
-        languageSelects.forEach(select => select.value = langCode);
-
+        languageSelects.forEach(select => {
+            select.value = langCode;
+        });
+        
         const botGreeting = messagesContainer.querySelector('.bot-greeting-message');
-        if (botGreeting) botGreeting.textContent = t.botGreeting;
+        if (botGreeting) {
+            botGreeting.textContent = t.botGreeting;
+        }
     }
 
-    updateUI(); // Inicializar UI
+    // Inicializar UI con el idioma por defecto
+    updateUI();
 
-    // ============================
-    // CONFIGURACIÓN DE SPEECH RECOGNITION
-    // ============================
     let recognition;
     let isRecording = false;
     let shouldSendMessageAfterStop = false;
@@ -729,15 +715,23 @@
 
         recognition.onerror = (event) => {
             console.error('Speech recognition error:', event.error);
-            if (event.error !== 'no-speech' && isRecording) recognition.start();
-            else stopRecording();
+            if (event.error !== 'no-speech' && isRecording) {
+                recognition.start();
+            } else {
+                stopRecording();
+            }
         };
 
         recognition.onend = () => {
-            if (isRecording) recognition.start();
-            else if (shouldSendMessageAfterStop) {
+            if (isRecording) {
+                recognition.start();
+            } else if (shouldSendMessageAfterStop) {
                 const message = textarea.value.trim();
-                if (message) { sendMessage(message); textarea.value = ''; textarea.style.height = 'auto'; }
+                if (message) {
+                    sendMessage(message);
+                    textarea.value = '';
+                    textarea.style.height = 'auto';
+                }
                 shouldSendMessageAfterStop = false;
             }
         };
@@ -746,9 +740,23 @@
         micButton.title = translations[currentLang.split('-')[0]].micUnsupported;
     }
 
-    // ============================
-    // AUDIO VISUALIZER
-    // ============================
+    // Lógica para habilitar/deshabilitar el botón de inicio de chat
+    privacyCheckbox.addEventListener('change', () => {
+        newChatBtn.disabled = !privacyCheckbox.checked;
+    });
+
+    // Lógica para cambiar el idioma del reconocimiento de voz y UI
+    languageSelects.forEach(select => {
+        select.addEventListener('change', (e) => {
+            currentLang = e.target.value;
+            if (recognition) {
+                recognition.lang = langCodes[currentLang];
+                console.log('Idioma de reconocimiento de voz cambiado a:', recognition.lang);
+            }
+            updateUI();
+        });
+    });
+
     function startAudioVisualizer() {
         if (!visualizerCanvas) return;
         const canvasCtx = visualizerCanvas.getContext('2d');
@@ -761,146 +769,163 @@
                 analyser.fftSize = 256;
                 const bufferLength = analyser.frequencyBinCount;
                 const dataArray = new Uint8Array(bufferLength);
-
+                canvasCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
                 function draw() {
                     animationFrameId = requestAnimationFrame(draw);
                     analyser.getByteFrequencyData(dataArray);
                     canvasCtx.fillStyle = '#f8f8f8';
                     canvasCtx.fillRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
-
                     const barWidth = (visualizerCanvas.width / bufferLength) * 2;
+                    let barHeight;
                     let x = 0;
                     for (let i = 0; i < bufferLength; i++) {
-                        const barHeight = dataArray[i] / 2.5;
-                        canvasCtx.fillStyle = getComputedStyle(widgetContainer).getPropertyValue('--n8n-chat-primary-color');
+                        barHeight = dataArray[i] / 2.5;
+                        canvasCtx.fillStyle = getComputedStyle(widgetContainer).getPropertyValue('--chat--color-primary');
                         canvasCtx.fillRect(x, visualizerCanvas.height - barHeight, barWidth, barHeight);
                         x += barWidth + 1;
                     }
                 }
                 draw();
             })
-            .catch(err => console.error('Mic error:', err));
+            .catch((err) => { console.error('Mic error:', err); });
     }
 
     function stopAudioVisualizer() {
         if (animationFrameId) cancelAnimationFrame(animationFrameId);
-        if (source && source.mediaStream) source.mediaStream.getTracks().forEach(track => track.stop());
-        if (audioContext && audioContext.state !== 'closed') audioContext.close();
-        if (visualizerCanvas) visualizerCanvas.getContext('2d').clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+        if (source && source.mediaStream) {
+            source.mediaStream.getTracks().forEach(track => track.stop());
+        }
+        if (audioContext && audioContext.state !== 'closed') {
+            audioContext.close();
+        }
+        if(visualizerCanvas) {
+            const canvasCtx = visualizerCanvas.getContext('2d');
+            canvasCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+        }
     }
 
-    // ============================
-    // FUNCIONES DE GRABACIÓN
-    // ============================
     function startRecording() {
         if (!recognition) return;
         isRecording = true;
+        chatInputContainer.classList.add('is-recording');
+        micButton.classList.add('recording');
         micButton.innerHTML = stopSVG;
-        textarea.value = '';
-        textarea.style.height = 'auto';
-        recognition.lang = langCodes[currentLang] || langCodes.de;
         recognition.start();
         startAudioVisualizer();
     }
 
     function stopRecording() {
+        if (!recognition) return;
         isRecording = false;
+        chatInputContainer.classList.remove('is-recording');
+        micButton.classList.remove('recording');
         micButton.innerHTML = micSVG;
-        if (recognition) recognition.stop();
+        recognition.stop();
         stopAudioVisualizer();
     }
 
     micButton.addEventListener('click', () => {
-        if (isRecording) stopRecording();
-        else startRecording();
+        if (isRecording) {
+            stopRecording();
+        } else {
+            startRecording();
+        }
     });
 
-    // ============================
-    // ENVÍO DE MENSAJES
-    // ============================
-    function sendMessage(message) {
-        const msgDiv = document.createElement('div');
-        msgDiv.className = 'user-message';
-        msgDiv.textContent = message;
-        messagesContainer.appendChild(msgDiv);
+    function generateUUID() { return crypto.randomUUID(); }
+
+    async function startNewConversation() {
+        currentSessionId = generateUUID();
+        const data = [{ action: "loadPreviousSession", sessionId: currentSessionId, route: config.webhook.route, metadata: { userId: "" } }];
+        try {
+            const response = await fetch(config.webhook.url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+            const responseData = await response.json();
+            newConversationWrapper.style.display = 'none';
+            chatInterface.classList.add('active');
+
+            const langCode = currentLang.split('-')[0];
+            const botGreetingMessage = document.createElement('div');
+            botGreetingMessage.className = 'chat-message bot bot-greeting-message';
+            botGreetingMessage.innerHTML = translations[langCode].botGreeting;
+            messagesContainer.appendChild(botGreetingMessage);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        } catch (error) { console.error('Error:', error); }
+    }
+
+    async function sendMessage(message) {
+        const messageData = { action: "sendMessage", sessionId: currentSessionId, route: config.webhook.route, chatInput: message, metadata: { userId: "", lang: currentLang } };
+        const userMessageDiv = document.createElement('div');
+        userMessageDiv.className = 'chat-message user';
+        userMessageDiv.textContent = message;
+        messagesContainer.appendChild(userMessageDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-        if (config.webhook.url) {
-            fetch(config.webhook.url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message, sessionId: currentSessionId })
-            })
-            .then(res => res.json())
-            .then(data => {
-                const botMsg = document.createElement('div');
-                botMsg.className = 'bot-message';
-                botMsg.textContent = data.reply || '';
-                messagesContainer.appendChild(botMsg);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            })
-            .catch(err => console.error('Webhook error:', err));
-        }
+        try {
+            const response = await fetch(config.webhook.url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(messageData) });
+            const data = await response.json();
+            const botMessageDiv = document.createElement('div');
+            botMessageDiv.className = 'chat-message bot';
+            botMessageDiv.textContent = Array.isArray(data) ? data[0].output : data.output;
+            messagesContainer.appendChild(botMessageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        } catch (error) { console.error('Error:', error); }
     }
 
+    function correctTextRealtime(text) {
+        const words = [...new Intl.Segmenter(recognition.lang, { granularity: 'word' }).segment(text)];
+        let corrected = '';
+        words.forEach((w, idx) => {
+            let word = w.segment;
+            if (!word.trim()) return;
+            if (idx === 0 || /[.!?]\s*$/.test(corrected)) {
+                word = word.charAt(0).toUpperCase() + word.slice(1);
+            }
+            if (/[.,!?]/.test(word)) {
+                corrected = corrected.trim() + word;
+            } else {
+                corrected += (corrected ? ' ' : '') + word;
+            }
+        });
+        if (corrected && !/[.!?]$/.test(corrected)) corrected += '.';
+        return corrected;
+    }
+
+    newChatBtn.addEventListener('click', startNewConversation);
+    
     sendButton.addEventListener('click', () => {
-        const message = textarea.value.trim();
-        if (!message) return;
-        sendMessage(message);
-        textarea.value = '';
-        textarea.style.height = 'auto';
+        if (isRecording) {
+            shouldSendMessageAfterStop = true;
+            stopRecording();
+        } else {
+            const message = textarea.value.trim();
+            if (message) {
+                sendMessage(message);
+                textarea.value = '';
+                textarea.style.height = 'auto';
+            }
+        }
     });
 
-    textarea.addEventListener('keydown', (e) => {
+    textarea.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
-            sendButton.click();
+            if (isRecording) {
+                shouldSendMessageAfterStop = true;
+                stopRecording();
+            } else {
+                const message = textarea.value.trim();
+                if (message) {
+                    sendMessage(message);
+                    textarea.value = '';
+                    textarea.style.height = 'auto';
+                }
+            }
         }
     });
 
-    // ============================
-    // CORRECCIÓN AUTOMÁTICA (EJEMPLO)
-    // ============================
-    function correctTextRealtime(text) {
-        return text.replace(/microfon/gi, 'micrófono');
-    }
-
-    // ============================
-    // CONTROL DE CIERRE Y APERTURA
-    // ============================
     const closeButtons = chatContainer.querySelectorAll('.close-button');
-    closeButtons.forEach(button => {
-        button.addEventListener('click', () => { chatContainer.classList.remove('open'); });
-    });
-
+    closeButtons.forEach(button => { button.addEventListener('click', () => { chatContainer.classList.remove('open'); }); });
+    
     toggleButton.addEventListener('click', () => { chatContainer.classList.toggle('open'); });
 
-    // ============================
-    // SELECCIÓN DE IDIOMA
-    // ============================
-    languageSelects.forEach(select => {
-        select.addEventListener('change', (e) => {
-            currentLang = e.target.value;
-            updateUI();
-        });
-    });
-    // ============================
-    // CHAT EMBEBIDO EN PÁGINAS (via shortcode [amaretis-chatbot])
-    // ============================
-    const pageChatContainer = document.getElementById('amaretis-chatbot-container');
-    if (pageChatContainer) {
-        // Clonar todo el widget
-        const embeddedChat = widgetContainer.cloneNode(true);
-
-        // Quitar el botón flotante en la versión embebida
-        const embeddedToggle = embeddedChat.querySelector('.chat-toggle');
-        if (embeddedToggle) embeddedToggle.remove();
-
-        // Forzar el chat a estar abierto
-        const embeddedChatBox = embeddedChat.querySelector('.chat-container');
-        if (embeddedChatBox) embeddedChatBox.classList.add('open');
-
-        // Insertar en el contenedor del shortcode
-        pageChatContainer.appendChild(embeddedChat);
-    }
 })();
