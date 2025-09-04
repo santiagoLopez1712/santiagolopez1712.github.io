@@ -884,5 +884,23 @@
             updateUI();
         });
     });
+    // ============================
+    // CHAT EMBEBIDO EN PÁGINAS (via shortcode [amaretis-chatbot])
+    // ============================
+    const pageChatContainer = document.getElementById('amaretis-chatbot-container');
+    if (pageChatContainer) {
+        // Clonar todo el widget
+        const embeddedChat = widgetContainer.cloneNode(true);
 
+        // Quitar el botón flotante en la versión embebida
+        const embeddedToggle = embeddedChat.querySelector('.chat-toggle');
+        if (embeddedToggle) embeddedToggle.remove();
+
+        // Forzar el chat a estar abierto
+        const embeddedChatBox = embeddedChat.querySelector('.chat-container');
+        if (embeddedChatBox) embeddedChatBox.classList.add('open');
+
+        // Insertar en el contenedor del shortcode
+        pageChatContainer.appendChild(embeddedChat);
+    }
 })();
