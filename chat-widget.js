@@ -267,9 +267,7 @@
             font-family: inherit;
             font-size: 14px;
             min-height: 40px;
-            /* CAMBIO: Límite de altura para que no se salga */
-            max-height: 120px;
-            /* CAMBIO: Permite scroll si excede la altura máxima */
+            max-height: 150px;
             overflow-y: hidden;
         }
 
