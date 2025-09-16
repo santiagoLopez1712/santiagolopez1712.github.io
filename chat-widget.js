@@ -690,7 +690,7 @@
     // --- LÓGICA DE AUTO-REDIMENSIONAMIENTO DEL TEXTAREA (AÑADIDA) ---
     textarea.addEventListener('input', () => {
         textarea.style.height = 'auto'; // Reinicia la altura para un recálculo preciso
-        const newHeight = Math.min(textarea.scrollHeight, 120); // Limita la altura a 120px
+        const newHeight = Math.min(textarea.scrollHeight, 150); // Limita la altura a 150px
         textarea.style.height = `${newHeight}px`;
     });
 
@@ -719,7 +719,7 @@
                     textarea.value += (textarea.value ? ' ' : '') + corrected;
                     // Ajuste de altura después del resultado de voz
                     textarea.style.height = 'auto';
-                    const newHeight = Math.min(textarea.scrollHeight, 120);
+                    const newHeight = Math.min(textarea.scrollHeight, 150);
                     textarea.style.height = `${newHeight}px`;
                 }
             }
