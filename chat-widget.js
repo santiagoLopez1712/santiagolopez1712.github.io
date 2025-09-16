@@ -1,6 +1,6 @@
 // Chat Widget Script
 (function() {
-    // Create and inject styles
+    // Definimos los estilos CSS para el chat
     const styles = `
         .n8n-chat-widget {
             --chat--color-primary: var(--n8n-chat-primary-color, #854fff);
@@ -267,7 +267,10 @@
             font-family: inherit;
             font-size: 14px;
             min-height: 40px;
-            overflow: hidden;
+            /* CAMBIO: Límite de altura para que no se salga */
+            max-height: 120px;
+            /* CAMBIO: Permite scroll si excede la altura máxima */
+            overflow-y: hidden;
         }
 
         .n8n-chat-widget .chat-input textarea::placeholder {
@@ -685,6 +688,15 @@
 
     // Inicializar UI con el idioma por defecto
     updateUI();
+    
+    // --- LÓGICA DE AUTO-REDIMENSIONAMIENTO DEL TEXTAREA (AÑADIDA) ---
+    textarea.addEventListener('input', () => {
+        textarea.style.height = 'auto'; // Reinicia la altura para un recálculo preciso
+        const newHeight = Math.min(textarea.scrollHeight, 120); // Limita la altura a 120px
+        textarea.style.height = `${newHeight}px`;
+    });
+
+    // --- FIN DE LÓGICA DE AUTO-REDIMENSIONAMIENTO ---
 
     let recognition;
     let isRecording = false;
@@ -703,14 +715,16 @@
 
         recognition.onresult = (event) => {
              for (let i = event.resultIndex; i < event.results.length; i++) {
-                 const transcript = event.results[i][0].transcript.trim();
-                 if (event.results[i].isFinal) {
-                     const corrected = correctTextRealtime(transcript);
-                     textarea.value += (textarea.value ? ' ' : '') + corrected;
-                     textarea.style.height = 'auto';
-                     textarea.style.height = `${textarea.scrollHeight}px`;
-                 }
-             }
+                const transcript = event.results[i][0].transcript.trim();
+                if (event.results[i].isFinal) {
+                    const corrected = correctTextRealtime(transcript);
+                    textarea.value += (textarea.value ? ' ' : '') + corrected;
+                    // Ajuste de altura después del resultado de voz
+                    textarea.style.height = 'auto';
+                    const newHeight = Math.min(textarea.scrollHeight, 120);
+                    textarea.style.height = `${newHeight}px`;
+                }
+            }
         };
 
         recognition.onerror = (event) => {
