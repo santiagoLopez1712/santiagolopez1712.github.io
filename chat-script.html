@@ -1,35 +1,45 @@
-   /* ===========================================
-   CHATBOT AMARETIS PARA TODA LA WEB Y CONTACTO
-=========================================== */
-
-/* 1. Chat flotante en todas las páginas */
+/* EIN N8N CHATBOT IN ALLE SEITEN HINZUFÜGEN */
 function add_n8n_chatbot_script() {
-    echo '<div id="chat-widget-root"></div>
+    ?>
+    <div id="chat-widget-root"></div>
     <script>
     document.addEventListener("DOMContentLoaded", function () {
         window.ChatWidgetConfig = {
             webhook: {
-                url: "https://rpcnhez7y.app.n8n.cloud/webhook/f406671e-c954-4691-b39a-66c90aa2f103/chat",
-                route: "general"
+                url: 'https://rpcnhez7y.app.n8n.cloud/webhook/f406671e-c954-4691-b39a-66c90aa2f103/chat',
+                route: 'general'
             },
             branding: {
-                logo: "https://www.amaretis.de/wp-content/uploads/2022/01/Amaretis-Logo_Maps-75px.png",
-                name: "AMARETIS AI"
+                logo: 'https://www.amaretis.de/wp-content/uploads/2022/01/Amaretis-Logo_Maps-75px.png',
+                name: 'AMARETIS AI'
             },
             style: {
-                primaryColor: "#854fff",
-                secondaryColor: "#DD0C0D",
-                position: "right",
-                backgroundColor: "#ffffff",
-                fontColor: "#333333"
+                primaryColor: '#854fff',
+                secondaryColor: '#DD0C0D',
+                position: 'right',
+                backgroundColor: '#ffffff',
+                fontColor: '#333333'
             }
         };
 
-        const script = document.createElement("script");
-        script.src = "https://AMARETIS.github.io/chat-widget.js";
+        // Cargar el script del widget
+        const script = document.createElement('script');
+        script.src = 'https://www.amaretis.de/wp-content/themes/amaretisWP55/assets/js/chat-widget.js';
         script.async = true;
+
+        script.onload = function () {
+            // Esperar a que el usuario abra el chat y enviar /start
+            window.addEventListener('chatOpened', () => {
+                const event = new CustomEvent('chatSendMessage', {
+                    detail: { message: '/start' }
+                });
+                window.dispatchEvent(event);
+            });
+        };
+
         document.body.appendChild(script);
     });
-    </script>';
+    </script>
+    <?php
 }
 add_action('wp_footer', 'add_n8n_chatbot_script');
