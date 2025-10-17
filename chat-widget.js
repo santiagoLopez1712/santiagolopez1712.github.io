@@ -47,7 +47,7 @@
             flex-shrink: 0;
         }
 
-        /* Estilos del Selector de Idioma (ya incluidos) */
+        /* Estilos del Selector de Idioma */
         .n8n-chat-widget .language-select {
             margin-left: auto;
             padding: 4px 8px;
@@ -276,7 +276,12 @@
         .n8n-chat-widget .chat-input button:hover {
             transform: scale(1.05);
         }
-        /* ... Estilos para tooltips y visualizador (se omiten por brevedad) ... */
+        .n8n-chat-widget .chat-input button.mic-button[title]:hover::after {
+            right: 60px;
+        }
+        .n8n-chat-widget .chat-input button.send-button[title]:hover::after {
+            right: 16px;
+        }
         .n8n-chat-widget #audio-visualizer {
             flex-grow: 1;
             height: 44px;
@@ -310,7 +315,73 @@
             align-items: center;
             justify-content: center;
         }
-        /* ... Estilos de checkbox y footer (se omiten por brevedad) ... */
+
+        .n8n-chat-widget .chat-footer {
+            flex-shrink: 0;
+            padding: 8px;
+            text-align: center;
+            background: var(--chat--color-background);
+            border-top: 1px solid rgba(133, 79, 255, 0.1);
+        }
+        .n8n-chat-widget .privacy-checkbox {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: left;
+            margin-top: 1.5rem;
+            margin-bottom: 20px;
+            font-family: inherit;
+        }
+        .n8n-chat-widget .privacy-checkbox input[type="checkbox"] {
+            display: none;
+        }
+        .n8n-chat-widget .privacy-checkbox label {
+            position: relative;
+            padding-left: 28px;
+            font-size: 14px;
+            color: #000;
+            cursor: pointer;
+            max-width: 300px;
+            font-weight: 400;
+            opacity: 0.7;
+        }
+        .n8n-chat-widget .privacy-checkbox label::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 2px;
+            width: 18px;
+            height: 18px;
+            border: 1.5px solid rgba(133, 79, 255, 0.6);
+            border-radius: 4px;
+            background-color: #fff;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(133, 79, 255, 0.1);
+        }
+        .n8n-chat-widget .privacy-checkbox input[type="checkbox"]:checked + label::before {
+            background: linear-gradient(135deg, var(--chat--color-primary), var(--chat--color-secondary));
+            border-color: transparent;
+        }
+        .n8n-chat-widget .privacy-checkbox input[type="checkbox"]:checked + label::after {
+            content: "";
+            position: absolute;
+            display: block;
+            left: 6px;
+            top: 4px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2.5px 2.5px 0;
+            transform: rotate(45deg);
+        }
+        .n8n-chat-widget .privacy-checkbox a {
+            color: var(--chat--color-primary);
+            text-decoration: underline;
+            transition: color 0.2s;
+        }
+        .n8n-chat-widget .privacy-checkbox a:hover {
+            color: var(--chat--color-secondary);
+        }
     `;
 
     // Load font
@@ -326,7 +397,6 @@
 
     // Objeto de traducciones
     const translations = {
-        // ... (Tu objeto de traducciones completo) ...
         de: {
             language: "Deutsch",
             welcomeText: "HERZLICH WILLKOMMEN BEI AMARETIS!",
@@ -398,20 +468,21 @@
     // --- NUEVAS VARIABLES PARA MEDIA RECORDER (FALLBACK) ---
     let mediaRecorder;
     let audioChunks = [];
+    let mediaStream = null; // <-- CORRECCIÓN CLAVE: Almacena el stream de audio globalmente
     let audioMimeType = MediaRecorder.isTypeSupported('audio/webm; codecs=opus') 
         ? 'audio/webm; codecs=opus' 
         : 'audio/wav'; 
-    const VOICE_WEBHOOK_URL = `${config.webhook.url}/voice-input`; // URL del webhook de transcripción
+    // URL del webhook de transcripción
+    const VOICE_WEBHOOK_URL = `${config.webhook.url.replace(/\/chat$/, '')}/voice-input`; 
     // --- FIN NUEVAS VARIABLES ---
 
     const widgetContainer = document.createElement('div');
     widgetContainer.className = 'n8n-chat-widget';
-    // ... (Establecimiento de propiedades de estilo en widgetContainer) ...
+
     widgetContainer.style.setProperty('--n8n-chat-primary-color', config.style.primaryColor);
     widgetContainer.style.setProperty('--n8n-chat-secondary-color', config.style.secondaryColor);
     widgetContainer.style.setProperty('--n8n-chat-background-color', config.style.backgroundColor);
     widgetContainer.style.setProperty('--n8n-chat-font-color', config.style.fontColor);
-
 
     const chatContainer = document.createElement('div');
     chatContainer.className = `chat-container${config.style.position === 'left' ? ' position-left' : ''}`;
@@ -518,6 +589,7 @@
     const chatInputContainer = chatContainer.querySelector('.chat-input');
     const visualizerCanvas = chatContainer.querySelector('#audio-visualizer');
     const languageSelects = chatContainer.querySelectorAll('.language-select');
+    // ... (Selección de elementos closeButtons) ...
 
     // SVGs para los iconos
     const micSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -540,10 +612,10 @@
         chatContainer.querySelector('.welcome-text').textContent = t.welcomeText;
         chatContainer.querySelector('.response-text').textContent = t.responseTimeText;
         chatContainer.querySelector('.privacy-checkbox label').innerHTML = t.privacyLabel;
-        newChatBtn.querySelector('span').textContent = t.newChatBtnText;
+        newChatBtnTextSpan.textContent = t.newChatBtnText;
         chatContainer.querySelector('textarea').placeholder = t.placeholder;
-        chatContainer.querySelector('.mic-button').title = t.micTitle;
-        chatContainer.querySelector('.send-button').title = t.sendTitle;
+        micButton.title = t.micTitle;
+        sendButton.title = t.sendTitle;
 
         languageSelects.forEach(select => {
             select.value = langCode;
@@ -574,15 +646,10 @@
     let source;
     let animationFrameId;
 
-    // --- NUEVAS VARIABLES PARA MEDIA RECORDER (FALLBACK) ---
-    let mediaRecorder;
-    let audioChunks = [];
-    let audioMimeType = MediaRecorder.isTypeSupported('audio/webm; codecs=opus') 
-        ? 'audio/webm; codecs=opus' 
-        : 'audio/wav'; 
-    const VOICE_WEBHOOK_URL = `${config.webhook.url.replace(/\/chat$/, '')}/voice-input`; // Construye la URL de voz a partir de la URL del webhook principal
-    // --- FIN NUEVAS VARIABLES ---
-
+    // --- FUNCIONES DE AUDIO VISUALIZER (Se mantienen) ---
+    function startAudioVisualizer() { /* ... (código existente) ... */ }
+    function stopAudioVisualizer() { /* ... (código existente) ... */ }
+    // --- FIN FUNCIONES DE AUDIO VISUALIZER ---
 
     // =================================================================
     // FUNCIÓN DE ENVÍO DE AUDIO AL BACKEND (ESTRATEGIA 2)
@@ -610,17 +677,20 @@
             if (data.status === 'ok' && data.transcription) {
                 textarea.value = data.transcription.trim();
                 
-                // Si el mensaje tiene contenido, lo enviamos (la acción final del usuario)
                 if (textarea.value) {
                     sendMessage(textarea.value);
                 } else {
-                    alert(translations[currentLang].micUnsupported + " Intenta de nuevo.");
+                    const emptyMessage = document.createElement('div');
+                    emptyMessage.className = 'chat-message bot';
+                    emptyMessage.textContent = translations[currentLang.split('-')[0]].micUnsupported + " Intenta de nuevo.";
+                    messagesContainer.appendChild(emptyMessage);
+                    textarea.value = '';
                 }
 
             } else {
                 const errorMessage = document.createElement('div');
                 errorMessage.className = 'chat-message bot';
-                errorMessage.textContent = translations[currentLang].micUnsupported + " Fallo la transcripción.";
+                errorMessage.textContent = translations[currentLang.split('-')[0]].micUnsupported + " Fallo la transcripción.";
                 messagesContainer.appendChild(errorMessage);
             }
 
@@ -634,6 +704,7 @@
         }
     }
 
+
     // =================================================================
     // LÓGICA DE GRABACIÓN DE MEDIA RECORDER (FALLBACK)
     // =================================================================
@@ -643,6 +714,13 @@
         if (mediaRecorder && mediaRecorder.state !== 'inactive') {
             mediaRecorder.stop();
         }
+        
+        // CORRECCIÓN CLAVE: Cerrar el stream de audio para la reutilización
+        if (mediaStream) {
+            mediaStream.getTracks().forEach(track => track.stop());
+            mediaStream = null; 
+        }
+        
         isRecording = false;
         micButton.innerHTML = micSVG;
         micButton.classList.remove('recording');
@@ -654,7 +732,8 @@
     function startMediaRecording() {
         navigator.mediaDevices.getUserMedia({ audio: true })
             .then(stream => {
-                mediaRecorder = new MediaRecorder(stream, { mimeType: audioMimeType });
+                mediaStream = stream; // Guarda el stream globalmente
+                mediaRecorder = new MediaRecorder(mediaStream, { mimeType: audioMimeType });
                 audioChunks = [];
 
                 mediaRecorder.ondataavailable = event => {
@@ -664,7 +743,6 @@
                 mediaRecorder.onstop = () => {
                     const audioBlob = new Blob(audioChunks, { type: audioMimeType });
                     sendAudioToBackend(audioBlob);
-                    stream.getTracks().forEach(track => track.stop());
                 };
 
                 mediaRecorder.start();
@@ -678,7 +756,7 @@
             })
             .catch(err => {
                 console.error('Error al acceder al micrófono:', err);
-                alert(translations[currentLang].micUnsupported + " Por favor, permite el acceso al micrófono.");
+                alert(translations[currentLang.split('-')[0]].micUnsupported + " Por favor, permite el acceso al micrófono.");
             });
     }
 
@@ -686,7 +764,6 @@
     // DETECCIÓN DE API NATIVA VS FALLBACK
     // =================================================================
 
-    // Variable para saber si debemos usar el Fallback
     const useNativeSpeechRecognition = ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
 
     if (useNativeSpeechRecognition) {
@@ -696,15 +773,31 @@
         recognition.continuous = true;
         recognition.interimResults = true;
         
-        // ... (Lógica de onresult, onerror y onend del API Nativo) ...
-        recognition.onresult = (event) => { /* ... (código existente) ... */ };
-        recognition.onerror = (event) => { /* ... (código existente) ... */ };
+        // --- LÓGICA DE REINICIO ROBUSTO PARA API NATIVA ---
+        recognition.onresult = (event) => { 
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript.trim();
+                if (event.results[i].isFinal) {
+                    const corrected = correctTextRealtime(transcript);
+                    textarea.value += (textarea.value ? ' ' : '') + corrected;
+                    textarea.style.height = 'auto';
+                    const newHeight = Math.min(textarea.scrollHeight, 150);
+                    textarea.style.height = `${newHeight}px`;
+                }
+            }
+        };
         
+        recognition.onerror = (event) => {
+            if (isRecording) recognition.start();
+            else stopRecording();
+        };
+
         recognition.onend = () => {
             if (isRecording) {
-                // Reinicia la grabación si se detuvo inesperadamente
+                // Reinicia la API nativa para escucha continua
                 recognition.start();
             } else if (shouldSendMessageAfterStop) {
+                // Si el usuario detuvo la grabación para enviar
                 const message = textarea.value.trim();
                 if (message) {
                     sendMessage(message);
@@ -715,7 +808,7 @@
             }
         };
 
-        // Función de inicio de grabación para el API Nativo
+        // En navegadores compatibles, usamos las funciones del API nativo
         window.startVoiceRecording = () => {
             isRecording = true;
             chatInputContainer.classList.add('is-recording');
@@ -736,10 +829,12 @@
         };
         
     } else {
-        // En iOS/Safari, usamos las funciones de MediaRecorder para el Fallback
-        window.startVoiceRecording = startMediaRecording;
+        // En navegadores NO compatibles (Fallback a MediaRecorder + Servidor)
+        micButton.title = translations[currentLang.split('-')[0]].micUnsupported + " (Modo Fallback)";
+        window.startVoiceRecording = startMediaRecording; // Asigna la función de grabación de audio
         window.stopVoiceRecording = stopMediaRecording;
     }
+
 
     // LÓGICA FINAL DEL BOTÓN DE MICRÓFONO
     micButton.addEventListener('click', () => {
@@ -750,20 +845,6 @@
             window.startVoiceRecording(); // Llama a la función de inicio apropiada
         }
     });
-
-    // ... (El resto de tus funciones y event listeners) ...
-
-    // --- FUNCIONES DE AUDIO VISUALIZER (Se mantienen) ---
-    function startAudioVisualizer() {
-        if (!visualizerCanvas) return;
-        // ... (código existente) ...
-    }
-
-    function stopAudioVisualizer() {
-        if (animationFrameId) cancelAnimationFrame(animationFrameId);
-        // ... (código existente) ...
-    }
-    // --- FIN FUNCIONES DE AUDIO VISUALIZER ---
 
     function generateUUID() { return crypto.randomUUID(); }
 
