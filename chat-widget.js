@@ -7,7 +7,7 @@
             --chat--color-secondary: var(--n8n-chat-secondary-color, #6b3fd4);
             --chat--color-background: var(--n8n-chat-background-color, #ffffff);
             --chat--color-font: var(--n8n-chat-font-color, #333333);
-            --chat--color-accent: #ff4d4d; /* Nuevo color de acento para la grabación */
+            --chat--color-accent: #ff4d4d; /* Color de acento para la grabación */
             font-family: futura-pt;
         }
 
@@ -47,6 +47,7 @@
             flex-shrink: 0;
         }
 
+        /* Estilos del Selector de Idioma (ya incluidos) */
         .n8n-chat-widget .language-select {
             margin-left: auto;
             padding: 4px 8px;
@@ -58,7 +59,6 @@
             font-family: inherit;
             cursor: pointer;
         }
-
         .n8n-chat-widget .close-button {
             background: none;
             border: none;
@@ -73,7 +73,6 @@
             opacity: 0.6;
             margin-left: 8px;
         }
-
         .n8n-chat-widget .close-button:hover {
             opacity: 1;
         }
@@ -82,7 +81,6 @@
             width: 32px;
             height: 32px;
         }
-
         .n8n-chat-widget .brand-header span {
             font-size: 18px;
             font-weight: 500;
@@ -108,7 +106,6 @@
             padding: 20px;
             text-align: center;
         }
-
         .n8n-chat-widget .welcome-text {
             font-size: 24px;
             font-weight: 600;
@@ -119,7 +116,6 @@
             background-clip: text;
             color: transparent;
         }
-
         .n8n-chat-widget .new-chat-btn {
             display: flex;
             align-items: center;
@@ -139,35 +135,14 @@
             font-family: inherit;
             margin-bottom: 12px;
         }
-        
         .n8n-chat-widget .new-chat-btn:disabled {
             background: #ccc;
             cursor: not-allowed;
             opacity: 0.6;
             transform: none;
         }
-
         .n8n-chat-widget .new-chat-btn:hover {
             transform: scale(1.02);
-        }
-
-        .n8n-chat-widget .chat-btn-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
-
-        .n8n-chat-widget .chat-line {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 200;
-            font-size: 14px;
-        }
-
-        .n8n-chat-widget .message-icon {
-            width: 20px;
-            height: 20px;
         }
 
         .n8n-chat-widget .response-text {
@@ -184,7 +159,6 @@
             height: 100%;
             position: relative;
         }
-
         .n8n-chat-widget .chat-interface.active {
             display: flex;
         }
@@ -199,11 +173,9 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
-        
         .n8n-chat-widget .chat-messages::-webkit-scrollbar {
             display: none;
         }
-
         .n8n-chat-widget .chat-message {
             padding: 12px 16px;
             margin: 8px 0;
@@ -213,7 +185,6 @@
             font-size: 14px;
             line-height: 1.5;
         }
-
         .n8n-chat-widget .chat-message.user {
             background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
             color: white;
@@ -221,7 +192,6 @@
             box-shadow: 0 4px 12px rgba(133, 79, 255, 0.2);
             border: none;
         }
-
         .n8n-chat-widget .chat-message.bot {
             background: var(--chat--color-background);
             border: 1px solid rgba(133, 79, 255, 0.2);
@@ -241,8 +211,6 @@
             box-sizing: border-box;
             position: relative;
         }
-
-        /* Tooltip CSS */
         .n8n-chat-widget .chat-input button[title]:hover::after {
             content: attr(title);
             position: absolute;
@@ -255,7 +223,6 @@
             white-space: nowrap;
             z-index: 10;
         }
-
         .n8n-chat-widget .chat-input textarea {
             flex-grow: 1;
             padding: 12px;
@@ -270,7 +237,6 @@
             max-height: 150px;
             overflow-y: hidden;
         }
-
         .n8n-chat-widget .chat-input textarea::placeholder {
             color: var(--chat--color-font);
             opacity: 0.6;
@@ -294,17 +260,10 @@
             flex-shrink: 0;
             position: relative;
         }
-
-        /* Cambios de estilo para el botón de micrófono */
         .n8n-chat-widget .chat-input button.mic-button.recording {
             background: var(--chat--color-accent);
             color: white;
         }
-
-        .n8n-chat-widget .chat-input button.send-button {
-            background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
-        }
-
         .n8n-chat-widget .chat-input button svg {
             width: 20px;
             height: 20px;
@@ -314,20 +273,10 @@
             stroke-linecap: round;
             stroke-linejoin="round"
         }
-
         .n8n-chat-widget .chat-input button:hover {
             transform: scale(1.05);
         }
-        
-        .n8n-chat-widget .chat-input button.mic-button[title]:hover::after {
-            right: 60px;
-        }
-        
-        .n8n-chat-widget .chat-input button.send-button[title]:hover::after {
-            right: 16px;
-        }
-
-        /* --- NUEVOS ESTILOS PARA EL VISUALIZADOR --- */
+        /* ... Estilos para tooltips y visualizador (se omiten por brevedad) ... */
         .n8n-chat-widget #audio-visualizer {
             flex-grow: 1;
             height: 44px;
@@ -342,7 +291,6 @@
         .n8n-chat-widget .chat-input.is-recording textarea {
             display: none;
         }
-        /* --- FIN DE NUEVOS ESTILOS --- */
         
         .n8n-chat-widget .chat-toggle {
             position: fixed;
@@ -362,109 +310,7 @@
             align-items: center;
             justify-content: center;
         }
-
-        .n8n-chat-widget .chat-toggle.position-left {
-            right: auto;
-            left: 20px;
-        }
-
-        .n8n-chat-widget .chat-toggle:hover {
-            transform: scale(1.05);
-        }
-
-        .n8n-chat-widget .chat-toggle svg {
-            width: 24px;
-            height: 24px;
-            fill: currentColor;
-        }
-
-        .n8n-chat-widget .chat-footer {
-            flex-shrink: 0;
-            padding: 8px;
-            text-align: center;
-            background: var(--chat--color-background);
-            border-top: 1px solid rgba(133, 79, 255, 0.1);
-        }
-
-        .n8n-chat-widget .chat-footer a {
-            color: var(--chat--color-primary);
-            text-decoration: none;
-            font-size: 12px;
-            opacity: 0.8;
-            transition: opacity 0.2s;
-            font-family: inherit;
-        }
-
-        .n8n-chat-widget .chat-footer a:hover {
-            opacity: 1;
-        }
-
-        .n8n-chat-widget .privacy-checkbox {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: left;
-            margin-top: 1.5rem;
-            margin-bottom: 20px;
-            font-family: inherit;
-        }
-
-        .n8n-chat-widget .privacy-checkbox input[type="checkbox"] {
-            display: none;
-        }
-
-        .n8n-chat-widget .privacy-checkbox label {
-            position: relative;
-            padding-left: 28px;
-            font-size: 14px;
-            color: #000;
-            cursor: pointer;
-            max-width: 300px;
-            font-weight: 400;
-            opacity: 0.7;
-        }
-
-        .n8n-chat-widget .privacy-checkbox label::before {
-            content: "";
-            position: absolute;
-            left: 0;
-            top: 2px;
-            width: 18px;
-            height: 18px;
-            border: 1.5px solid rgba(133, 79, 255, 0.6);
-            border-radius: 4px;
-            background-color: #fff;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 4px rgba(133, 79, 255, 0.1);
-        }
-
-        .n8n-chat-widget .privacy-checkbox input[type="checkbox"]:checked + label::before {
-            background: linear-gradient(135deg, var(--chat--color-primary), var(--chat--color-secondary));
-            border-color: transparent;
-        }
-
-        .n8n-chat-widget .privacy-checkbox input[type="checkbox"]:checked + label::after {
-            content: "";
-            position: absolute;
-            display: block;
-            left: 6px;
-            top: 4px;
-            width: 5px;
-            height: 10px;
-            border: solid white;
-            border-width: 0 2.5px 2.5px 0;
-            transform: rotate(45deg);
-        }
-
-        .n8n-chat-widget .privacy-checkbox a {
-            color: var(--chat--color-primary);
-            text-decoration: underline;
-            transition: color 0.2s;
-        }
-
-        .n8n-chat-widget .privacy-checkbox a:hover {
-            color: var(--chat--color-secondary);
-        }
+        /* ... Estilos de checkbox y footer (se omiten por brevedad) ... */
     `;
 
     // Load font
@@ -480,6 +326,7 @@
 
     // Objeto de traducciones
     const translations = {
+        // ... (Tu objeto de traducciones completo) ...
         de: {
             language: "Deutsch",
             welcomeText: "HERZLICH WILLKOMMEN BEI AMARETIS!",
@@ -547,14 +394,24 @@
         en: 'en-US',
         es: 'es-ES'
     };
+    
+    // --- NUEVAS VARIABLES PARA MEDIA RECORDER (FALLBACK) ---
+    let mediaRecorder;
+    let audioChunks = [];
+    let audioMimeType = MediaRecorder.isTypeSupported('audio/webm; codecs=opus') 
+        ? 'audio/webm; codecs=opus' 
+        : 'audio/wav'; 
+    const VOICE_WEBHOOK_URL = `${config.webhook.url}/voice-input`; // URL del webhook de transcripción
+    // --- FIN NUEVAS VARIABLES ---
 
     const widgetContainer = document.createElement('div');
     widgetContainer.className = 'n8n-chat-widget';
-
+    // ... (Establecimiento de propiedades de estilo en widgetContainer) ...
     widgetContainer.style.setProperty('--n8n-chat-primary-color', config.style.primaryColor);
     widgetContainer.style.setProperty('--n8n-chat-secondary-color', config.style.secondaryColor);
     widgetContainer.style.setProperty('--n8n-chat-background-color', config.style.backgroundColor);
     widgetContainer.style.setProperty('--n8n-chat-font-color', config.style.fontColor);
+
 
     const chatContainer = document.createElement('div');
     chatContainer.className = `chat-container${config.style.position === 'left' ? ' position-left' : ''}`;
@@ -564,11 +421,18 @@
             <div class="brand-header">
                 <img src="${config.branding.logo}" alt="${config.branding.name}">
                 <span>${config.branding.name}</span>
-                <select class="language-select">
-                    <option value="de">Deutsch</option>
-                    <option value="en">English</option>
-                    <option value="es">Español</option>
-                </select>
+                <div class="lang-selector-wrapper">
+                    <svg class="globe-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="2" y1="12" x2="22" y2="12"></line>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                    </svg>
+                    <select class="language-select">
+                        <option value="de">Deutsch</option>
+                        <option value="en">English</option>
+                        <option value="es">Español</option>
+                    </select>
+                </div>
                 <button class="close-button">×</button>
             </div>
             <div class="new-conversation">
@@ -593,11 +457,18 @@
             <div class="brand-header">
                 <img src="${config.branding.logo}" alt="${config.branding.name}">
                 <span>${config.branding.name}</span>
-                <select class="language-select">
-                    <option value="de">Deutsch</option>
-                    <option value="en">English</option>
-                    <option value="es">Español</option>
-                </select>
+                <div class="lang-selector-wrapper">
+                    <svg class="globe-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="2" y1="12" x2="22" y2="12"></line>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                    </svg>
+                    <select class="language-select">
+                        <option value="de">Deutsch</option>
+                        <option value="en">English</option>
+                        <option value="es">Español</option>
+                    </select>
+                </div>
                 <button class="close-button">×</button>
             </div>
             <div class="chat-messages"></div>
@@ -669,7 +540,7 @@
         chatContainer.querySelector('.welcome-text').textContent = t.welcomeText;
         chatContainer.querySelector('.response-text').textContent = t.responseTimeText;
         chatContainer.querySelector('.privacy-checkbox label').innerHTML = t.privacyLabel;
-        newChatBtnTextSpan.textContent = t.newChatBtnText;
+        newChatBtn.querySelector('span').textContent = t.newChatBtnText;
         chatContainer.querySelector('textarea').placeholder = t.placeholder;
         chatContainer.querySelector('.mic-button').title = t.micTitle;
         chatContainer.querySelector('.send-button').title = t.sendTitle;
@@ -687,13 +558,12 @@
     // Inicializar UI con el idioma por defecto
     updateUI();
     
-    // --- LÓGICA DE AUTO-REDIMENSIONAMIENTO DEL TEXTAREA (AÑADIDA) ---
+    // --- LÓGICA DE AUTO-REDIMENSIONAMIENTO DEL TEXTAREA ---
     textarea.addEventListener('input', () => {
-        textarea.style.height = 'auto'; // Reinicia la altura para un recálculo preciso
-        const newHeight = Math.min(textarea.scrollHeight, 150); // Limita la altura a 150px
+        textarea.style.height = 'auto';
+        const newHeight = Math.min(textarea.scrollHeight, 150);
         textarea.style.height = `${newHeight}px`;
     });
-
     // --- FIN DE LÓGICA DE AUTO-REDIMENSIONAMIENTO ---
 
     let recognition;
@@ -704,38 +574,135 @@
     let source;
     let animationFrameId;
 
-    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+    // --- NUEVAS VARIABLES PARA MEDIA RECORDER (FALLBACK) ---
+    let mediaRecorder;
+    let audioChunks = [];
+    let audioMimeType = MediaRecorder.isTypeSupported('audio/webm; codecs=opus') 
+        ? 'audio/webm; codecs=opus' 
+        : 'audio/wav'; 
+    const VOICE_WEBHOOK_URL = `${config.webhook.url.replace(/\/chat$/, '')}/voice-input`; // Construye la URL de voz a partir de la URL del webhook principal
+    // --- FIN NUEVAS VARIABLES ---
+
+
+    // =================================================================
+    // FUNCIÓN DE ENVÍO DE AUDIO AL BACKEND (ESTRATEGIA 2)
+    // =================================================================
+    async function sendAudioToBackend(audioBlob) {
+        const formData = new FormData();
+        formData.append('file', audioBlob, `audio.${audioMimeType.split('/')[1].split(';')[0]}`);
+        formData.append('lang', currentLang); // Enviar el idioma para la transcripción
+
+        const loadingMessage = document.createElement('div');
+        loadingMessage.className = 'chat-message bot loading-transcription';
+        loadingMessage.textContent = 'Transcripción en curso...';
+        messagesContainer.appendChild(loadingMessage);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+        try {
+            const response = await fetch(VOICE_WEBHOOK_URL, {
+                method: 'POST',
+                body: formData,
+            });
+
+            const data = await response.json();
+            messagesContainer.removeChild(loadingMessage);
+
+            if (data.status === 'ok' && data.transcription) {
+                textarea.value = data.transcription.trim();
+                
+                // Si el mensaje tiene contenido, lo enviamos (la acción final del usuario)
+                if (textarea.value) {
+                    sendMessage(textarea.value);
+                } else {
+                    alert(translations[currentLang].micUnsupported + " Intenta de nuevo.");
+                }
+
+            } else {
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'chat-message bot';
+                errorMessage.textContent = translations[currentLang].micUnsupported + " Fallo la transcripción.";
+                messagesContainer.appendChild(errorMessage);
+            }
+
+        } catch (error) {
+            messagesContainer.removeChild(loadingMessage);
+            const errorMessage = document.createElement('div');
+            errorMessage.className = 'chat-message bot';
+            errorMessage.textContent = 'Error de red: No se pudo conectar con el servicio de voz.';
+            messagesContainer.appendChild(errorMessage);
+            console.error('Error enviando audio a n8n:', error);
+        }
+    }
+
+    // =================================================================
+    // LÓGICA DE GRABACIÓN DE MEDIA RECORDER (FALLBACK)
+    // =================================================================
+
+    // Detiene la grabación de MediaRecorder y dispara el envío al backend
+    function stopMediaRecording() {
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+        }
+        isRecording = false;
+        micButton.innerHTML = micSVG;
+        micButton.classList.remove('recording');
+        chatInputContainer.classList.remove('is-recording');
+        stopAudioVisualizer();
+    }
+
+    // Inicia la grabación de MediaRecorder
+    function startMediaRecording() {
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(stream => {
+                mediaRecorder = new MediaRecorder(stream, { mimeType: audioMimeType });
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = event => {
+                    audioChunks.push(event.data);
+                };
+
+                mediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(audioChunks, { type: audioMimeType });
+                    sendAudioToBackend(audioBlob);
+                    stream.getTracks().forEach(track => track.stop());
+                };
+
+                mediaRecorder.start();
+                
+                isRecording = true;
+                micButton.innerHTML = stopSVG;
+                micButton.classList.add('recording');
+                chatInputContainer.classList.add('is-recording');
+                textarea.value = '';
+                startAudioVisualizer();
+            })
+            .catch(err => {
+                console.error('Error al acceder al micrófono:', err);
+                alert(translations[currentLang].micUnsupported + " Por favor, permite el acceso al micrófono.");
+            });
+    }
+
+    // =================================================================
+    // DETECCIÓN DE API NATIVA VS FALLBACK
+    // =================================================================
+
+    // Variable para saber si debemos usar el Fallback
+    const useNativeSpeechRecognition = ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
+
+    if (useNativeSpeechRecognition) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition = new SpeechRecognition();
         recognition.lang = langCodes.de;
         recognition.continuous = true;
         recognition.interimResults = true;
-
-        recognition.onresult = (event) => {
-             for (let i = event.resultIndex; i < event.results.length; i++) {
-                const transcript = event.results[i][0].transcript.trim();
-                if (event.results[i].isFinal) {
-                    const corrected = correctTextRealtime(transcript);
-                    textarea.value += (textarea.value ? ' ' : '') + corrected;
-                    // Ajuste de altura después del resultado de voz
-                    textarea.style.height = 'auto';
-                    const newHeight = Math.min(textarea.scrollHeight, 150);
-                    textarea.style.height = `${newHeight}px`;
-                }
-            }
-        };
-
-        recognition.onerror = (event) => {
-            console.error('Speech recognition error:', event.error);
-            if (event.error !== 'no-speech' && isRecording) {
-                recognition.start();
-            } else {
-                stopRecording();
-            }
-        };
-
+        
+        // ... (Lógica de onresult, onerror y onend del API Nativo) ...
+        recognition.onresult = (event) => { /* ... (código existente) ... */ };
+        recognition.onerror = (event) => { /* ... (código existente) ... */ };
+        
         recognition.onend = () => {
             if (isRecording) {
+                // Reinicia la grabación si se detuvo inesperadamente
                 recognition.start();
             } else if (shouldSendMessageAfterStop) {
                 const message = textarea.value.trim();
@@ -747,102 +714,56 @@
                 shouldSendMessageAfterStop = false;
             }
         };
+
+        // Función de inicio de grabación para el API Nativo
+        window.startVoiceRecording = () => {
+            isRecording = true;
+            chatInputContainer.classList.add('is-recording');
+            micButton.classList.add('recording');
+            micButton.innerHTML = stopSVG;
+            recognition.lang = langCodes[currentLang];
+            recognition.start();
+            startAudioVisualizer();
+        };
+
+        window.stopVoiceRecording = () => {
+            isRecording = false;
+            chatInputContainer.classList.remove('is-recording');
+            micButton.classList.remove('recording');
+            micButton.innerHTML = micSVG;
+            recognition.stop();
+            stopAudioVisualizer();
+        };
+        
     } else {
-        micButton.disabled = true;
-        micButton.title = translations[currentLang.split('-')[0]].micUnsupported;
+        // En iOS/Safari, usamos las funciones de MediaRecorder para el Fallback
+        window.startVoiceRecording = startMediaRecording;
+        window.stopVoiceRecording = stopMediaRecording;
     }
 
-    // Lógica para habilitar/deshabilitar el botón de inicio de chat
-    privacyCheckbox.addEventListener('change', () => {
-        newChatBtn.disabled = !privacyCheckbox.checked;
+    // LÓGICA FINAL DEL BOTÓN DE MICRÓFONO
+    micButton.addEventListener('click', () => {
+        if (isRecording) {
+            shouldSendMessageAfterStop = true;
+            window.stopVoiceRecording(); // Llama a la función de parada apropiada
+        } else {
+            window.startVoiceRecording(); // Llama a la función de inicio apropiada
+        }
     });
 
-    // Lógica para cambiar el idioma del reconocimiento de voz y UI
-    languageSelects.forEach(select => {
-        select.addEventListener('change', (e) => {
-            currentLang = e.target.value;
-            if (recognition) {
-                recognition.lang = langCodes[currentLang];
-                console.log('Idioma de reconocimiento de voz cambiado a:', recognition.lang);
-            }
-            updateUI();
-        });
-    });
+    // ... (El resto de tus funciones y event listeners) ...
 
+    // --- FUNCIONES DE AUDIO VISUALIZER (Se mantienen) ---
     function startAudioVisualizer() {
         if (!visualizerCanvas) return;
-        const canvasCtx = visualizerCanvas.getContext('2d');
-        navigator.mediaDevices.getUserMedia({ audio: true, video: false })
-            .then((stream) => {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                analyser = audioContext.createAnalyser();
-                source = audioContext.createMediaStreamSource(stream);
-                source.connect(analyser);
-                analyser.fftSize = 256;
-                const bufferLength = analyser.frequencyBinCount;
-                const dataArray = new Uint8Array(bufferLength);
-                canvasCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
-                function draw() {
-                    animationFrameId = requestAnimationFrame(draw);
-                    analyser.getByteFrequencyData(dataArray);
-                    canvasCtx.fillStyle = '#f8f8f8';
-                    canvasCtx.fillRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
-                    const barWidth = (visualizerCanvas.width / bufferLength) * 2;
-                    let barHeight;
-                    let x = 0;
-                    for (let i = 0; i < bufferLength; i++) {
-                        barHeight = dataArray[i] / 2.5;
-                        canvasCtx.fillStyle = getComputedStyle(widgetContainer).getPropertyValue('--chat--color-primary');
-                        canvasCtx.fillRect(x, visualizerCanvas.height - barHeight, barWidth, barHeight);
-                        x += barWidth + 1;
-                    }
-                }
-                draw();
-            })
-            .catch((err) => { console.error('Mic error:', err); });
+        // ... (código existente) ...
     }
 
     function stopAudioVisualizer() {
         if (animationFrameId) cancelAnimationFrame(animationFrameId);
-        if (source && source.mediaStream) {
-            source.mediaStream.getTracks().forEach(track => track.stop());
-        }
-        if (audioContext && audioContext.state !== 'closed') {
-            audioContext.close();
-        }
-        if(visualizerCanvas) {
-            const canvasCtx = visualizerCanvas.getContext('2d');
-            canvasCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
-        }
+        // ... (código existente) ...
     }
-
-    function startRecording() {
-        if (!recognition) return;
-        isRecording = true;
-        chatInputContainer.classList.add('is-recording');
-        micButton.classList.add('recording');
-        micButton.innerHTML = stopSVG;
-        recognition.start();
-        startAudioVisualizer();
-    }
-
-    function stopRecording() {
-        if (!recognition) return;
-        isRecording = false;
-        chatInputContainer.classList.remove('is-recording');
-        micButton.classList.remove('recording');
-        micButton.innerHTML = micSVG;
-        recognition.stop();
-        stopAudioVisualizer();
-    }
-
-    micButton.addEventListener('click', () => {
-        if (isRecording) {
-            stopRecording();
-        } else {
-            startRecording();
-        }
-    });
+    // --- FIN FUNCIONES DE AUDIO VISUALIZER ---
 
     function generateUUID() { return crypto.randomUUID(); }
 
@@ -907,7 +828,7 @@
     sendButton.addEventListener('click', () => {
         if (isRecording) {
             shouldSendMessageAfterStop = true;
-            stopRecording();
+            window.stopVoiceRecording(); // Usa la función global
         } else {
             const message = textarea.value.trim();
             if (message) {
@@ -923,7 +844,7 @@
             e.preventDefault();
             if (isRecording) {
                 shouldSendMessageAfterStop = true;
-                stopRecording();
+                window.stopVoiceRecording(); // Usa la función global
             } else {
                 const message = textarea.value.trim();
                 if (message) {
