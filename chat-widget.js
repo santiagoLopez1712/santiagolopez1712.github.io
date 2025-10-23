@@ -1,13 +1,13 @@
 // Chat Widget Script
 (function() {
-    // Definimos los estilos CSS para el chat
+    // Define CSS styles for the chat
     const styles = `
         .n8n-chat-widget {
             --chat--color-primary: var(--n8n-chat-primary-color, #854fff);
             --chat--color-secondary: var(--n8n-chat-secondary-color, #6b3fd4);
             --chat--color-background: var(--n8n-chat-background-color, #ffffff);
             --chat--color-font: var(--n8n-chat-font-color, #333333);
-            --chat--color-accent: #ff4d4d; /* Nuevo color de acento para la grabación */
+            --chat--color-accent: #ff4d4d; /* Accent color for recording */
             font-family: futura-pt;
         }
 
@@ -47,9 +47,24 @@
             flex-shrink: 0;
         }
 
-        .n8n-chat-widget .language-select {
+        /* --- NEW STYLES FOR LANGUAGE CONTAINER AND ICON --- */
+        .n8n-chat-widget .lang-selector-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
             margin-left: auto;
-            padding: 4px 8px;
+        }
+        .n8n-chat-widget .globe-icon {
+            width: 20px;
+            height: 20px;
+            fill: var(--chat--color-font);
+            stroke: var(--chat--color-font);
+            opacity: 0.6;
+            margin-right: -28px;
+            pointer-events: none;
+        }
+        .n8n-chat-widget .language-select {
+            padding: 4px 8px 4px 32px; /* Adjustment for the icon */
             border-radius: 6px;
             border: 1px solid rgba(133, 79, 255, 0.2);
             background: var(--chat--color-background);
@@ -57,7 +72,10 @@
             font-size: 14px;
             font-family: inherit;
             cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
         }
+        /* --- END OF NEW STYLES --- */
 
         .n8n-chat-widget .close-button {
             background: none;
@@ -73,7 +91,6 @@
             opacity: 0.6;
             margin-left: 8px;
         }
-
         .n8n-chat-widget .close-button:hover {
             opacity: 1;
         }
@@ -82,7 +99,6 @@
             width: 32px;
             height: 32px;
         }
-
         .n8n-chat-widget .brand-header span {
             font-size: 18px;
             font-weight: 500;
@@ -108,7 +124,6 @@
             padding: 20px;
             text-align: center;
         }
-
         .n8n-chat-widget .welcome-text {
             font-size: 24px;
             font-weight: 600;
@@ -119,7 +134,6 @@
             background-clip: text;
             color: transparent;
         }
-
         .n8n-chat-widget .new-chat-btn {
             display: flex;
             align-items: center;
@@ -139,37 +153,20 @@
             font-family: inherit;
             margin-bottom: 12px;
         }
-        
         .n8n-chat-widget .new-chat-btn:disabled {
             background: #ccc;
             cursor: not-allowed;
             opacity: 0.6;
             transform: none;
         }
-
         .n8n-chat-widget .new-chat-btn:hover {
             transform: scale(1.02);
         }
-
-        .n8n-chat-widget .chat-btn-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
-
-        .n8n-chat-widget .chat-line {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 200;
-            font-size: 14px;
-        }
-
         .n8n-chat-widget .message-icon {
             width: 20px;
             height: 20px;
+            margin-right: 8px;
         }
-
         .n8n-chat-widget .response-text {
             font-size: 14px;
             color: #000;
@@ -184,7 +181,6 @@
             height: 100%;
             position: relative;
         }
-
         .n8n-chat-widget .chat-interface.active {
             display: flex;
         }
@@ -199,11 +195,9 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
-        
         .n8n-chat-widget .chat-messages::-webkit-scrollbar {
             display: none;
         }
-
         .n8n-chat-widget .chat-message {
             padding: 12px 16px;
             margin: 8px 0;
@@ -213,7 +207,6 @@
             font-size: 14px;
             line-height: 1.5;
         }
-
         .n8n-chat-widget .chat-message.user {
             background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
             color: white;
@@ -221,7 +214,6 @@
             box-shadow: 0 4px 12px rgba(133, 79, 255, 0.2);
             border: none;
         }
-
         .n8n-chat-widget .chat-message.bot {
             background: var(--chat--color-background);
             border: 1px solid rgba(133, 79, 255, 0.2);
@@ -241,12 +233,12 @@
             box-sizing: border-box;
             position: relative;
         }
-
-        /* Tooltip CSS */
         .n8n-chat-widget .chat-input button[title]:hover::after {
             content: attr(title);
             position: absolute;
             bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
             background: #333;
             color: #fff;
             font-size: 12px;
@@ -255,7 +247,6 @@
             white-space: nowrap;
             z-index: 10;
         }
-
         .n8n-chat-widget .chat-input textarea {
             flex-grow: 1;
             padding: 12px;
@@ -267,12 +258,9 @@
             font-family: inherit;
             font-size: 14px;
             min-height: 40px;
-            /* CAMBIO: Límite de altura para que no se salga */
             max-height: 150px;
-            /* CAMBIO: Permite scroll si excede la altura máxima */
-            overflow-y: hidden;
+            overflow-y: auto;
         }
-
         .n8n-chat-widget .chat-input textarea::placeholder {
             color: var(--chat--color-font);
             opacity: 0.6;
@@ -296,17 +284,10 @@
             flex-shrink: 0;
             position: relative;
         }
-
-        /* Cambios de estilo para el botón de micrófono */
         .n8n-chat-widget .chat-input button.mic-button.recording {
             background: var(--chat--color-accent);
             color: white;
         }
-
-        .n8n-chat-widget .chat-input button.send-button {
-            background: linear-gradient(135deg, var(--chat--color-primary) 0%, var(--chat--color-secondary) 100%);
-        }
-
         .n8n-chat-widget .chat-input button svg {
             width: 20px;
             height: 20px;
@@ -314,22 +295,12 @@
             stroke: currentColor;
             stroke-width: 2;
             stroke-linecap: round;
-            stroke-linejoin="round"
+            stroke-linejoin: round;
         }
-
         .n8n-chat-widget .chat-input button:hover {
             transform: scale(1.05);
         }
         
-        .n8n-chat-widget .chat-input button.mic-button[title]:hover::after {
-            right: 60px;
-        }
-        
-        .n8n-chat-widget .chat-input button.send-button[title]:hover::after {
-            right: 16px;
-        }
-
-        /* --- NUEVOS ESTILOS PARA EL VISUALIZADOR --- */
         .n8n-chat-widget #audio-visualizer {
             flex-grow: 1;
             height: 44px;
@@ -344,7 +315,6 @@
         .n8n-chat-widget .chat-input.is-recording textarea {
             display: none;
         }
-        /* --- FIN DE NUEVOS ESTILOS --- */
         
         .n8n-chat-widget .chat-toggle {
             position: fixed;
@@ -364,16 +334,13 @@
             align-items: center;
             justify-content: center;
         }
-
         .n8n-chat-widget .chat-toggle.position-left {
             right: auto;
             left: 20px;
         }
-
         .n8n-chat-widget .chat-toggle:hover {
             transform: scale(1.05);
         }
-
         .n8n-chat-widget .chat-toggle svg {
             width: 24px;
             height: 24px;
@@ -387,7 +354,6 @@
             background: var(--chat--color-background);
             border-top: 1px solid rgba(133, 79, 255, 0.1);
         }
-
         .n8n-chat-widget .chat-footer a {
             color: var(--chat--color-primary);
             text-decoration: none;
@@ -396,11 +362,9 @@
             transition: opacity 0.2s;
             font-family: inherit;
         }
-
         .n8n-chat-widget .chat-footer a:hover {
             opacity: 1;
         }
-
         .n8n-chat-widget .privacy-checkbox {
             display: flex;
             justify-content: center;
@@ -410,11 +374,9 @@
             margin-bottom: 20px;
             font-family: inherit;
         }
-
         .n8n-chat-widget .privacy-checkbox input[type="checkbox"] {
             display: none;
         }
-
         .n8n-chat-widget .privacy-checkbox label {
             position: relative;
             padding-left: 28px;
@@ -425,7 +387,6 @@
             font-weight: 400;
             opacity: 0.7;
         }
-
         .n8n-chat-widget .privacy-checkbox label::before {
             content: "";
             position: absolute;
@@ -439,12 +400,10 @@
             transition: all 0.2s ease;
             box-shadow: 0 2px 4px rgba(133, 79, 255, 0.1);
         }
-
         .n8n-chat-widget .privacy-checkbox input[type="checkbox"]:checked + label::before {
             background: linear-gradient(135deg, var(--chat--color-primary), var(--chat--color-secondary));
             border-color: transparent;
         }
-
         .n8n-chat-widget .privacy-checkbox input[type="checkbox"]:checked + label::after {
             content: "";
             position: absolute;
@@ -457,13 +416,11 @@
             border-width: 0 2.5px 2.5px 0;
             transform: rotate(45deg);
         }
-
         .n8n-chat-widget .privacy-checkbox a {
             color: var(--chat--color-primary);
             text-decoration: underline;
             transition: color 0.2s;
         }
-
         .n8n-chat-widget .privacy-checkbox a:hover {
             color: var(--chat--color-secondary);
         }
@@ -480,7 +437,7 @@
     styleSheet.textContent = styles;
     document.head.appendChild(styleSheet);
 
-    // Objeto de traducciones
+    // Translations object
     const translations = {
         de: {
             language: "Deutsch",
@@ -492,7 +449,13 @@
             micTitle: "Spracheingabe starten/stoppen",
             sendTitle: "Nachricht senden",
             micUnsupported: "Spracherkennung nicht unterstützt",
-            botGreeting: "Hallo! 👋 Ich bin Ihr persönlicher Assistent der Agentur für Kommunikation AMARETIS. Wir sind eine Full-Service-Werbeagentur mit Sitz in Göttingen und arbeiten für Kundinnen und Kunden in ganz Deutschland. Wie kann ich Ihnen heute weiterhelfen?"
+            botGreeting: "Hallo! 👋 Ich bin Ihr persönlicher Assistent der Agentur für Kommunikation AMARETIS. Wir sind eine Full-Service-Werbeagentur mit Sitz in Göttingen und arbeiten für Kundinnen und Kunden in ganz Deutschland. Wie kann ich Ihnen heute weiterhelfen?",
+            transcribing: "Transkribieren...", // German for "Transcribing..."
+            noVoiceDetected: "Keine Sprache erkannt. Bitte erneut versuchen.",
+            transcriptionFailed: "Transkription fehlgeschlagen.",
+            voiceNetworkError: "Netzwerkfehler: Konnte keine Verbindung zum Sprachdienst herstellen.",
+            voicePermissionError: "Mikrofonzugriff verweigert. Bitte in den Browsereinstellungen erlauben.",
+            sendMessageError: "Fehler beim Senden der Nachricht."
         },
         en: {
             language: "English",
@@ -504,7 +467,13 @@
             micTitle: "Start/stop voice input",
             sendTitle: "Send message",
             micUnsupported: "Speech recognition not supported",
-            botGreeting: "Hello! 👋 I am your personal assistant from the AMARETIS communication agency. We are a full-service advertising agency based in Göttingen and work for clients throughout Germany. How can I help you today?"
+            botGreeting: "Hello! 👋 I am your personal assistant from the AMARETIS communication agency. We are a full-service advertising agency based in Göttingen and work for clients throughout Germany. How can I help you today?",
+            transcribing: "Transcription in progress...",
+            noVoiceDetected: "No voice detected. Please try again.",
+            transcriptionFailed: "Transcription failed.",
+            voiceNetworkError: "Network Error: Could not connect to voice service.",
+            voicePermissionError: "Microphone access denied. Please allow it in your browser settings.",
+            sendMessageError: "Error sending message."
         },
         es: {
             language: "Español",
@@ -516,7 +485,13 @@
             micTitle: "Iniciar/detener entrada de voz",
             sendTitle: "Enviar mensaje",
             micUnsupported: "Reconocimiento de voz no soportado",
-            botGreeting: "¡Hola! 👋 Soy tu asistente personal de la agencia de comunicación AMARETIS. Somos una agencia de publicidad de servicio completo con sede en Göttingen y trabajamos para clientes en toda Alemania. ¿En qué puedo ayudarte hoy?"
+            botGreeting: "¡Hola! 👋 Soy tu asistente personal de la agencia de comunicación AMARETIS. Somos una agencia de publicidad de servicio completo con sede en Göttingen y trabajamos para clientes en toda Alemania. ¿En qué puedo ayudarte hoy?",
+            transcribing: "Transcripción en curso...",
+            noVoiceDetected: "No se detectó voz. Intenta de nuevo.",
+            transcriptionFailed: "Fallo la transcripción.",
+            voiceNetworkError: "Error de red: No se pudo conectar con el servicio de voz.",
+            voicePermissionError: "Acceso al micrófono denegado. Por favor, permítelo en la configuración de tu navegador.",
+            sendMessageError: "Error al enviar el mensaje."
         }
     };
 
@@ -527,32 +502,48 @@
             logo: '', name: '', welcomeText: '', responseTimeText: '',
             poweredBy: { text: 'Powered by AMARETIS AI', link: 'https://www.amaretis.de' }
         },
-        style: { primaryColor: '', secondaryColor: '', position: 'right', backgroundColor: '#ffffff', fontColor: '#333333' }
+        style: { primaryColor: '#854fff', secondaryColor: '#6b3fd4', position: 'right', backgroundColor: '#ffffff', fontColor: '#333333' }
     };
 
-    const config = window.ChatWidgetConfig ?
-        {
-            webhook: { ...defaultConfig.webhook, ...window.ChatWidgetConfig.webhook },
-            branding: { ...defaultConfig.branding, ...window.ChatWidgetConfig.branding },
-            style: { ...defaultConfig.style, ...window.ChatWidgetConfig.style }
-        } : defaultConfig;
+    // =================================================================
+    // CORRECTION: ROBUST CONFIG MERGE
+    // =================================================================
+    const config = {
+        webhook: { ...defaultConfig.webhook },
+        branding: { ...defaultConfig.branding },
+        style: { ...defaultConfig.style }
+    };
+
+    if (window.ChatWidgetConfig) {
+        if (window.ChatWidgetConfig.webhook) {
+            config.webhook = { ...config.webhook, ...window.ChatWidgetConfig.webhook };
+        }
+        if (window.ChatWidgetConfig.branding) {
+            config.branding = { ...config.branding, ...window.ChatWidgetConfig.branding };
+        }
+        if (window.ChatWidgetConfig.style) {
+            config.style = { ...config.style, ...window.ChatWidgetConfig.style };
+        }
+    }
+    // --- END OF ROBUST MERGE ---
 
     if (window.N8NChatWidgetInitialized) return;
     window.N8NChatWidgetInitialized = true;
 
     let currentSessionId = '';
-    let currentLang = 'de'; // Idioma por defecto
+    let currentLang = 'de'; // Default language
 
-    // Mapa para los códigos de idioma correctos
-    const langCodes = {
-        de: 'de-DE',
-        en: 'en-US',
-        es: 'es-ES'
-    };
+    const langCodes = { de: 'de-DE', en: 'en-US', es: 'es-ES' };
+    
+    // Variables for MediaRecorder
+    let mediaRecorder;
+    let audioChunks = [];
+    let mediaStream = null; 
+    let audioMimeType = MediaRecorder.isTypeSupported('audio/webm; codecs=opus') ? 'audio/webm; codecs=opus' : 'audio/wav'; 
+    const VOICE_WEBHOOK_URL = "https://rpcnhez7y.app.n8n.cloud/webhook/voice-input"; 
 
     const widgetContainer = document.createElement('div');
     widgetContainer.className = 'n8n-chat-widget';
-
     widgetContainer.style.setProperty('--n8n-chat-primary-color', config.style.primaryColor);
     widgetContainer.style.setProperty('--n8n-chat-secondary-color', config.style.secondaryColor);
     widgetContainer.style.setProperty('--n8n-chat-background-color', config.style.backgroundColor);
@@ -566,11 +557,18 @@
             <div class="brand-header">
                 <img src="${config.branding.logo}" alt="${config.branding.name}">
                 <span>${config.branding.name}</span>
-                <select class="language-select">
-                    <option value="de">Deutsch</option>
-                    <option value="en">English</option>
-                    <option value="es">Español</option>
-                </select>
+                <div class="lang-selector-wrapper">
+                    <svg class="globe-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="2" y1="12" x2="22" y2="12"></line>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                    </svg>
+                    <select class="language-select">
+                        <option value="de">Deutsch</option>
+                        <option value="en">English</option>
+                        <option value="es">Español</option>
+                    </select>
+                </div>
                 <button class="close-button">×</button>
             </div>
             <div class="new-conversation">
@@ -595,11 +593,18 @@
             <div class="brand-header">
                 <img src="${config.branding.logo}" alt="${config.branding.name}">
                 <span>${config.branding.name}</span>
-                <select class="language-select">
-                    <option value="de">Deutsch</option>
-                    <option value="en">English</option>
-                    <option value="es">Español</option>
-                </select>
+                <div class="lang-selector-wrapper">
+                    <svg class="globe-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="2" y1="12" x2="22" y2="12"></line>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                    </svg>
+                    <select class="language-select">
+                        <option value="de">Deutsch</option>
+                        <option value="en">English</option>
+                        <option value="es">Español</option>
+                    </select>
+                </div>
                 <button class="close-button">×</button>
             </div>
             <div class="chat-messages"></div>
@@ -636,9 +641,9 @@
     widgetContainer.appendChild(toggleButton);
     document.body.appendChild(widgetContainer);
 
-    // Selección de elementos del DOM
+    // DOM Element Selection
     const newChatBtn = chatContainer.querySelector('.new-chat-btn');
-    const newChatBtnTextSpan = newChatBtn.querySelector('span');
+    const newChatBtnTextSpan = newChatBtn.querySelector('span'); // CORRECTION
     const newConversationWrapper = chatContainer.querySelector('.new-conversation-wrapper');
     const chatInterface = chatContainer.querySelector('.chat-interface');
     const privacyCheckbox = chatContainer.querySelector('#datenschutz');
@@ -649,8 +654,9 @@
     const chatInputContainer = chatContainer.querySelector('.chat-input');
     const visualizerCanvas = chatContainer.querySelector('#audio-visualizer');
     const languageSelects = chatContainer.querySelectorAll('.language-select');
+    const closeButtons = chatContainer.querySelectorAll('.close-button');
 
-    // SVGs para los iconos
+    // SVGs for icons
     const micSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
                         <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
@@ -663,7 +669,15 @@
                         d="M6 18L18 6M6 6l12 12" />
                 </svg>`;
 
-    // Función para actualizar los textos del UI
+    // Function to create message elements
+    function createMessageElement(text, sender) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-message ${sender}`;
+        messageDiv.textContent = text;
+        return messageDiv;
+    }
+
+    // Function to update UI texts
     function updateUI() {
         const langCode = currentLang.split('-')[0];
         const t = translations[langCode] || translations.de;
@@ -672,9 +686,9 @@
         chatContainer.querySelector('.response-text').textContent = t.responseTimeText;
         chatContainer.querySelector('.privacy-checkbox label').innerHTML = t.privacyLabel;
         newChatBtnTextSpan.textContent = t.newChatBtnText;
-        chatContainer.querySelector('textarea').placeholder = t.placeholder;
-        chatContainer.querySelector('.mic-button').title = t.micTitle;
-        chatContainer.querySelector('.send-button').title = t.sendTitle;
+        textarea.placeholder = t.placeholder;
+        micButton.title = t.micTitle;
+        sendButton.title = t.sendTitle;
 
         languageSelects.forEach(select => {
             select.value = langCode;
@@ -686,17 +700,16 @@
         }
     }
 
-    // Inicializar UI con el idioma por defecto
+    // Initialize UI with default language
     updateUI();
     
-    // --- LÓGICA DE AUTO-REDIMENSIONAMIENTO DEL TEXTAREA (AÑADIDA) ---
+    // --- TEXTAREA AUTO-RESIZE LOGIC ---
     textarea.addEventListener('input', () => {
-        textarea.style.height = 'auto'; // Reinicia la altura para un recálculo preciso
-        const newHeight = Math.min(textarea.scrollHeight, 150); // Limita la altura a 150px
+        textarea.style.height = 'auto';
+        const newHeight = Math.min(textarea.scrollHeight, 150); // Limit to 150px
         textarea.style.height = `${newHeight}px`;
     });
-
-    // --- FIN DE LÓGICA DE AUTO-REDIMENSIONAMIENTO ---
+    // --- END OF AUTO-RESIZE LOGIC ---
 
     let recognition;
     let isRecording = false;
@@ -706,146 +719,204 @@
     let source;
     let animationFrameId;
 
-    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognition = new SpeechRecognition();
-        recognition.lang = langCodes.de;
-        recognition.continuous = true;
-        recognition.interimResults = true;
-
-        recognition.onresult = (event) => {
-             for (let i = event.resultIndex; i < event.results.length; i++) {
-                const transcript = event.results[i][0].transcript.trim();
-                if (event.results[i].isFinal) {
-                    const corrected = correctTextRealtime(transcript);
-                    textarea.value += (textarea.value ? ' ' : '') + corrected;
-                    // Ajuste de altura después del resultado de voz
-                    textarea.style.height = 'auto';
-                    const newHeight = Math.min(textarea.scrollHeight, 150);
-                    textarea.style.height = `${newHeight}px`;
-                }
-            }
-        };
-
-        recognition.onerror = (event) => {
-            console.error('Speech recognition error:', event.error);
-            if (event.error !== 'no-speech' && isRecording) {
-                recognition.start();
-            } else {
-                stopRecording();
-            }
-        };
-
-        recognition.onend = () => {
-            if (isRecording) {
-                recognition.start();
-            } else if (shouldSendMessageAfterStop) {
-                const message = textarea.value.trim();
-                if (message) {
-                    sendMessage(message);
-                    textarea.value = '';
-                    textarea.style.height = 'auto';
-                }
-                shouldSendMessageAfterStop = false;
-            }
-        };
-    } else {
-        micButton.disabled = true;
-        micButton.title = translations[currentLang.split('-')[0]].micUnsupported;
-    }
-
-    // Lógica para habilitar/deshabilitar el botón de inicio de chat
-    privacyCheckbox.addEventListener('change', () => {
-        newChatBtn.disabled = !privacyCheckbox.checked;
-    });
-
-    // Lógica para cambiar el idioma del reconocimiento de voz y UI
-    languageSelects.forEach(select => {
-        select.addEventListener('change', (e) => {
-            currentLang = e.target.value;
-            if (recognition) {
-                recognition.lang = langCodes[currentLang];
-                console.log('Idioma de reconocimiento de voz cambiado a:', recognition.lang);
-            }
-            updateUI();
-        });
-    });
-
-    function startAudioVisualizer() {
+    // --- AUDIO VISUALIZER FUNCTIONS ---
+    function startAudioVisualizer(stream) {
         if (!visualizerCanvas) return;
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioContext.createAnalyser();
+        source = audioContext.createMediaStreamSource(stream);
+        source.connect(analyser);
+        analyser.fftSize = 256;
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
         const canvasCtx = visualizerCanvas.getContext('2d');
-        navigator.mediaDevices.getUserMedia({ audio: true, video: false })
-            .then((stream) => {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                analyser = audioContext.createAnalyser();
-                source = audioContext.createMediaStreamSource(stream);
-                source.connect(analyser);
-                analyser.fftSize = 256;
-                const bufferLength = analyser.frequencyBinCount;
-                const dataArray = new Uint8Array(bufferLength);
-                canvasCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
-                function draw() {
-                    animationFrameId = requestAnimationFrame(draw);
-                    analyser.getByteFrequencyData(dataArray);
-                    canvasCtx.fillStyle = '#f8f8f8';
-                    canvasCtx.fillRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
-                    const barWidth = (visualizerCanvas.width / bufferLength) * 2;
-                    let barHeight;
-                    let x = 0;
-                    for (let i = 0; i < bufferLength; i++) {
-                        barHeight = dataArray[i] / 2.5;
-                        canvasCtx.fillStyle = getComputedStyle(widgetContainer).getPropertyValue('--chat--color-primary');
-                        canvasCtx.fillRect(x, visualizerCanvas.height - barHeight, barWidth, barHeight);
-                        x += barWidth + 1;
-                    }
-                }
-                draw();
-            })
-            .catch((err) => { console.error('Mic error:', err); });
+        canvasCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+        
+        function draw() {
+            animationFrameId = requestAnimationFrame(draw);
+            analyser.getByteFrequencyData(dataArray);
+            canvasCtx.fillStyle = '#f8f8f8';
+            canvasCtx.fillRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+            const barWidth = (visualizerCanvas.width / bufferLength) * 2;
+            let barHeight;
+            let x = 0;
+            for (let i = 0; i < bufferLength; i++) {
+                barHeight = dataArray[i] / 2.5;
+                canvasCtx.fillStyle = getComputedStyle(widgetContainer).getPropertyValue('--chat--color-primary');
+                canvasCtx.fillRect(x, visualizerCanvas.height - barHeight, barWidth, barHeight);
+                x += barWidth + 1;
+            }
+        }
+        draw();
     }
-
+    
     function stopAudioVisualizer() {
         if (animationFrameId) cancelAnimationFrame(animationFrameId);
-        if (source && source.mediaStream) {
-            source.mediaStream.getTracks().forEach(track => track.stop());
+        if (source) {
+            source.disconnect();
+            source = null;
         }
-        if (audioContext && audioContext.state !== 'closed') {
+         if (audioContext && audioContext.state !== 'closed') {
             audioContext.close();
+            audioContext = null; 
         }
         if(visualizerCanvas) {
             const canvasCtx = visualizerCanvas.getContext('2d');
             canvasCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
         }
     }
+    // --- END AUDIO VISUALIZER FUNCTIONS ---
 
-    function startRecording() {
-        if (!recognition) return;
-        isRecording = true;
-        chatInputContainer.classList.add('is-recording');
-        micButton.classList.add('recording');
-        micButton.innerHTML = stopSVG;
-        recognition.start();
-        startAudioVisualizer();
+    // =================================================================
+    // FUNCTION TO SEND AUDIO TO BACKEND (STRATEGY 2)
+    // =================================================================
+    async function sendAudioToBackend(audioBlob) {
+        const formData = new FormData();
+        formData.append('file', audioBlob, `audio.${audioMimeType.split('/')[1].split(';')[0]}`);
+        formData.append('lang', currentLang); 
+
+        const langCode = currentLang.split('-')[0];
+        const loadingMessage = createMessageElement(translations[langCode].transcribing, 'bot');
+        loadingMessage.classList.add('loading-transcription');
+        messagesContainer.appendChild(loadingMessage);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+        try {
+            const response = await fetch(VOICE_WEBHOOK_URL, {
+                method: 'POST',
+                body: formData,
+            });
+
+            messagesContainer.removeChild(loadingMessage); 
+
+            if (response.ok) {
+                const dataArray = await response.json(); 
+                const data = (Array.isArray(dataArray) && dataArray.length > 0) ? dataArray[0] : null; 
+
+                if (data && data.status === 'ok' && data.transcription) {
+                    textarea.value = data.transcription.trim();
+                    if (textarea.value) {
+                        // --- CORRECTION: Do not auto-send, just fill the field ---
+                        // sendMessage(textarea.value); 
+                        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+                    } else {
+                        alert(translations[langCode].noVoiceDetected);
+                        textarea.value = ''; 
+                    }
+                } else {
+                    alert(translations[langCode].transcriptionFailed);
+                }
+            } else {
+                const errorText = await response.text();
+                console.error('Error HTTP:', response.status, errorText);
+                alert(translations[langCode].voiceNetworkError);
+            }
+
+        } catch (error) {
+            messagesContainer.removeChild(loadingMessage);
+            alert(translations[langCode].voiceNetworkError);
+            console.error('Error sending audio to n8n:', error);
+        }
     }
 
-    function stopRecording() {
-        if (!recognition) return;
+
+    // =================================================================
+    // MEDIA RECORDER RECORDING LOGIC (FALLBACK)
+    // =================================================================
+    function stopMediaRecording() {
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop(); 
+        } else {
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+                mediaStream = null; 
+            }
+        }
+        
         isRecording = false;
-        chatInputContainer.classList.remove('is-recording');
-        micButton.classList.remove('recording');
         micButton.innerHTML = micSVG;
-        recognition.stop();
+        micButton.classList.remove('recording');
+        chatInputContainer.classList.remove('is-recording');
         stopAudioVisualizer();
     }
 
+    function startMediaRecording() {
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(stream => {
+                mediaStream = stream; 
+                mediaRecorder = new MediaRecorder(mediaStream, { mimeType: audioMimeType });
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = event => {
+                    if(event.data.size > 0) audioChunks.push(event.data);
+                };
+
+                mediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(audioChunks, { type: audioMimeType });
+                    if (audioBlob.size > 0) {
+                        sendAudioToBackend(audioBlob); 
+                    } else {
+                        console.warn("Audio Blob empty, not sending.");
+                    }
+                    if (mediaStream) {
+                        mediaStream.getTracks().forEach(track => track.stop());
+                        mediaStream = null; 
+                    }
+                };
+                
+                mediaRecorder.onerror = (event) => {
+                    console.error('MediaRecorder error:', event.error);
+                    stopMediaRecording(); 
+                };
+
+                mediaRecorder.start();
+                isRecording = true;
+                micButton.innerHTML = stopSVG;
+                micButton.classList.add('recording');
+                chatInputContainer.classList.add('is-recording');
+                textarea.value = ''; 
+                startAudioVisualizer(stream); 
+            })
+            .catch(err => {
+                console.error('Error accessing microphone:', err);
+                alert(translations[currentLang.split('-')[0]].voicePermissionError);
+                isRecording = false;
+                micButton.innerHTML = micSVG;
+                micButton.classList.remove('recording');
+            });
+    }
+    
+    // =================================================================
+    // NATIVE API VS FALLBACK DETECTION AND GLOBAL FUNCTION ASSIGNMENT
+    // =================================================================
+
+    const useNativeSpeechRecognition = ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
+
+    // --- CORRECTION: ALWAYS USE MEDIARECORDER ---
+    window.startVoiceRecording = startMediaRecording;
+    window.stopVoiceRecording = stopMediaRecording;
+    
+    if (useNativeSpeechRecognition) {
+        recognition = null; // Make sure we don't use it
+    } else {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+             micButton.disabled = true;
+             micButton.title = translations[currentLang.split('-')[0]].micUnsupported;
+        }
+    }
+
+
+    // FINAL MICROPHONE BUTTON LOGIC
     micButton.addEventListener('click', () => {
         if (isRecording) {
-            stopRecording();
+            window.stopVoiceRecording(); 
         } else {
-            startRecording();
+            window.startVoiceRecording(); 
         }
     });
 
+    // --- REMAINING FUNCTIONS AND EVENT LISTENERS ---
+    
     function generateUUID() { return crypto.randomUUID(); }
 
     async function startNewConversation() {
@@ -853,93 +924,72 @@
         const data = [{ action: "loadPreviousSession", sessionId: currentSessionId, route: config.webhook.route, metadata: { userId: "" } }];
         try {
             const response = await fetch(config.webhook.url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-            const responseData = await response.json();
+            await response.json(); 
             newConversationWrapper.style.display = 'none';
             chatInterface.classList.add('active');
 
             const langCode = currentLang.split('-')[0];
-            const botGreetingMessage = document.createElement('div');
-            botGreetingMessage.className = 'chat-message bot bot-greeting-message';
-            botGreetingMessage.innerHTML = translations[langCode].botGreeting;
+            const botGreetingMessage = createMessageElement(translations[langCode].botGreeting, 'bot');
+            botGreetingMessage.classList.add('bot-greeting-message');
             messagesContainer.appendChild(botGreetingMessage);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        } catch (error) { console.error('Error:', error); }
+        } catch (error) { console.error('Error starting conversation:', error); }
     }
 
     async function sendMessage(message) {
-        const messageData = { action: "sendMessage", sessionId: currentSessionId, route: config.webhook.route, chatInput: message, metadata: { userId: "", lang: currentLang } };
-        const userMessageDiv = document.createElement('div');
-        userMessageDiv.className = 'chat-message user';
-        userMessageDiv.textContent = message;
+        if (!message) return;
+        const langCode = currentLang.split('-')[0];
+        const messageData = { action: "sendMessage", sessionId: currentSessionId, route: config.webhook.route, chatInput: message, metadata: { userId: "", lang: langCode } };
+        
+        const userMessageDiv = createMessageElement(message, 'user');
         messagesContainer.appendChild(userMessageDiv);
+        textarea.value = ''; 
+        textarea.style.height = 'auto'; 
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
         try {
             const response = await fetch(config.webhook.url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(messageData) });
             const data = await response.json();
-            const botMessageDiv = document.createElement('div');
-            botMessageDiv.className = 'chat-message bot';
-            botMessageDiv.textContent = Array.isArray(data) ? data[0].output : data.output;
+            const botMessageDiv = createMessageElement(Array.isArray(data) ? data[0].output : data.output, 'bot');
             messagesContainer.appendChild(botMessageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        } catch (error) { console.error('Error:', error); }
+        } catch (error) { 
+             console.error('Error sending message:', error); 
+             const errorMsg = createMessageElement(translations[langCode].sendMessageError, 'bot');
+             messagesContainer.appendChild(errorMsg);
+             messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
     }
 
-    function correctTextRealtime(text) {
-        const words = [...new Intl.Segmenter(recognition.lang, { granularity: 'word' }).segment(text)];
-        let corrected = '';
-        words.forEach((w, idx) => {
-            let word = w.segment;
-            if (!word.trim()) return;
-            if (idx === 0 || /[.!?]\s*$/.test(corrected)) {
-                word = word.charAt(0).toUpperCase() + word.slice(1);
-            }
-            if (/[.,!?]/.test(word)) {
-                corrected = corrected.trim() + word;
-            } else {
-                corrected += (corrected ? ' ' : '') + word;
-            }
+    privacyCheckbox.addEventListener('change', () => { newChatBtn.disabled = !privacyCheckbox.checked; });
+    
+    languageSelects.forEach(select => {
+        select.addEventListener('change', (e) => {
+            currentLang = e.target.value;
+            updateUI();
         });
-        if (corrected && !/[.!?]$/.test(corrected)) corrected += '.';
-        return corrected;
-    }
-
+    });
+    
     newChatBtn.addEventListener('click', startNewConversation);
     
     sendButton.addEventListener('click', () => {
-        if (isRecording) {
-            shouldSendMessageAfterStop = true;
-            stopRecording();
-        } else {
+        if (!isRecording) {
             const message = textarea.value.trim();
-            if (message) {
-                sendMessage(message);
-                textarea.value = '';
-                textarea.style.height = 'auto';
-            }
+            if (message) sendMessage(message);
         }
     });
 
     textarea.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
-            if (isRecording) {
-                shouldSendMessageAfterStop = true;
-                stopRecording();
-            } else {
+             if (!isRecording) {
                 const message = textarea.value.trim();
-                if (message) {
-                    sendMessage(message);
-                    textarea.value = '';
-                    textarea.style.height = 'auto';
-                }
+                if (message) sendMessage(message);
             }
         }
     });
 
-    const closeButtons = chatContainer.querySelectorAll('.close-button');
     closeButtons.forEach(button => { button.addEventListener('click', () => { chatContainer.classList.remove('open'); }); });
-    
     toggleButton.addEventListener('click', () => { chatContainer.classList.toggle('open'); });
 
 })();
