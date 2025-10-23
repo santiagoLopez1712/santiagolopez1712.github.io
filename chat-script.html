@@ -1,45 +1,43 @@
-/* EIN N8N CHATBOT IN ALLE SEITEN HINZUFÜGEN */
+/* ADD n8n Widget*/
 function add_n8n_chatbot_script() {
     ?>
-    <div id="chat-widget-root"></div>
     <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        window.ChatWidgetConfig = {
-            webhook: {
-                url: 'https://rpcnhez7y.app.n8n.cloud/webhook/f406671e-c954-4691-b39a-66c90aa2f103/chat',
-                route: 'general'
-            },
-            branding: {
-                logo: 'https://www.amaretis.de/wp-content/uploads/2022/01/Amaretis-Logo_Maps-75px.png',
-                name: 'AMARETIS AI'
-            },
-            style: {
-                primaryColor: '#854fff',
-                secondaryColor: '#DD0C0D',
-                position: 'right',
-                backgroundColor: '#ffffff',
-                fontColor: '#333333'
+    // Configuración ANTES de cargar el script
+    window.ChatWidgetConfig = {
+        webhook: {
+            url: 'URL from your n8n Workflow',
+            route: 'general'
+        },
+        branding: {
+            logo: 'Logo your company',
+            name: 'Name your company',
+            poweredBy: {
+                text: 'Powered by Developer',
+                link: 'www.linkedin.com/in/santiago-lopez-otalvaro'
             }
-        };
-
-        // Cargar el script del widget
-        const script = document.createElement('script');
-        script.src = 'https://www.amaretis.de/wp-content/themes/amaretisWP55/assets/js/chat-widget.js';
-        script.async = true;
-
-        script.onload = function () {
-            // Esperar a que el usuario abra el chat y enviar /start
-            window.addEventListener('chatOpened', () => {
-                const event = new CustomEvent('chatSendMessage', {
-                    detail: { message: '/start' }
-                });
-                window.dispatchEvent(event);
-            });
-        };
-
-        document.body.appendChild(script);
+        },
+        style: {
+            primaryColor: '#854fff',
+            secondaryColor: '#DD0C0D',
+            position: 'right',
+            backgroundColor: '#ffffff',
+            fontColor: '#333333'
+        }
+    };
+    </script>
+    <script src="Add hier the URL your Code" async></script>
+    <script>
+    // Listener para cuando se abra el chat
+    window.addEventListener('chatOpened', function(e) {
+        console.log('✅ Chat abierto - Session ID:', e.detail.sessionId);
+        setTimeout(function() {
+            window.dispatchEvent(new CustomEvent('chatSendMessage', {
+                detail: { message: '/start' }
+            }));
+        }, 500);
     });
     </script>
     <?php
 }
 add_action('wp_footer', 'add_n8n_chatbot_script');
+/* END ADD CHATBOT */
