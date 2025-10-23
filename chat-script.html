@@ -1,40 +1,49 @@
-/* ADD n8n Widget*/
+/* ADD N8N CHATBOT TO ALL PAGES */
 function add_n8n_chatbot_script() {
     ?>
     <script>
-    // Configuración ANTES de cargar el script
-    window.ChatWidgetConfig = {
-        webhook: {
-            url: 'URL from your n8n Workflow',
-            route: 'general'
-        },
-        branding: {
-            logo: 'Logo your company',
-            name: 'Name your company',
-            poweredBy: {
-                text: 'Powered by Developer',
-                link: 'www.linkedin.com/in/santiago-lopez-otalvaro'
+    document.addEventListener("DOMContentLoaded", function () {
+        // Configuration BEFORE loading the script
+        window.ChatWidgetConfig = {
+            webhook: {
+                url: 'URL from your n8n Workflow',
+                route: 'general'
+            },
+            branding: {
+                logo: 'Logo your company',
+                name: 'Name your company',
+                poweredBy: {
+                    text: 'Powered by Developer',
+                    link: 'www.linkedin.com/in/santiago-lopez-otalvaro'
+                }
+            },
+            style: {
+                primaryColor: '#854fff',
+                secondaryColor: '#DD0C0D',
+                position: 'right',
+                backgroundColor: '#ffffff',
+                fontColor: '#333333'
             }
-        },
-        style: {
-            primaryColor: '#854fff',
-            secondaryColor: '#DD0C0D',
-            position: 'right',
-            backgroundColor: '#ffffff',
-            fontColor: '#333333'
-        }
-    };
-    </script>
-    <script src="Add hier the URL your Code" async></script>
-    <script>
-    // Listener para cuando se abra el chat
-    window.addEventListener('chatOpened', function(e) {
-        console.log('✅ Chat abierto - Session ID:', e.detail.sessionId);
-        setTimeout(function() {
-            window.dispatchEvent(new CustomEvent('chatSendMessage', {
-                detail: { message: '/start' }
-            }));
-        }, 500);
+        };
+
+        // Load the widget script
+        const script = document.createElement('script');
+        script.src = 'Add here the URL to your Code'; // Placeholder corrected
+        script.async = true;
+
+        script.onload = function () {
+            // Listener for when the chat is opened
+            window.addEventListener('chatOpened', (e) => {
+                console.log('✅ Chat opened - Session ID:', e.detail.sessionId);
+                setTimeout(function() {
+                    window.dispatchEvent(new CustomEvent('chatSendMessage', {
+                        detail: { message: '/start' }
+                    }));
+                }, 500);
+            });
+        };
+
+        document.body.appendChild(script);
     });
     </script>
     <?php
