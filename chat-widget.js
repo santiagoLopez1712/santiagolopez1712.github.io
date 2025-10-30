@@ -1,13 +1,13 @@
 // Chat Widget Script
 (function() {
-    // Define CSS styles for the chat
+    // Definimos los estilos CSS para el chat
     const styles = `
         .n8n-chat-widget {
             --chat--color-primary: var(--n8n-chat-primary-color, #854fff);
             --chat--color-secondary: var(--n8n-chat-secondary-color, #6b3fd4);
             --chat--color-background: var(--n8n-chat-background-color, #ffffff);
             --chat--color-font: var(--n8n-chat-font-color, #333333);
-            --chat--color-accent: #ff4d4d; /* Accent color for recording */
+            --chat--color-accent: #ff4d4d; /* Color de acento para la grabación */
             font-family: futura-pt;
         }
 
@@ -47,24 +47,23 @@
             flex-shrink: 0;
         }
 
-        /* --- NEW STYLES FOR LANGUAGE CONTAINER AND ICON --- */
+        /* --- ESTILOS PARA EL SELECTOR DE IDIOMA CON BANDERA --- */
         .n8n-chat-widget .lang-selector-wrapper {
             position: relative;
             display: flex;
             align-items: center;
             margin-left: auto;
         }
-        .n8n-chat-widget .globe-icon {
+        .n8n-chat-widget .language-flag {
             width: 20px;
-            height: 20px;
-            fill: var(--chat--color-font);
-            stroke: var(--chat--color-font);
-            opacity: 0.6;
-            margin-right: -28px;
+            height: 15px; /* Proporción más rectangular para banderas */
+            position: absolute;
+            left: 8px;
             pointer-events: none;
+            border: 1px solid #eee;
         }
         .n8n-chat-widget .language-select {
-            padding: 4px 8px 4px 32px; /* Adjustment for the icon */
+            padding: 4px 8px 4px 45px; 
             border-radius: 6px;
             border: 1px solid rgba(133, 79, 255, 0.2);
             background: var(--chat--color-background);
@@ -75,7 +74,7 @@
             appearance: none;
             -webkit-appearance: none;
         }
-        /* --- END OF NEW STYLES --- */
+        /* --- FIN DE ESTILOS --- */
 
         .n8n-chat-widget .close-button {
             background: none;
@@ -437,10 +436,11 @@
     styleSheet.textContent = styles;
     document.head.appendChild(styleSheet);
 
-    // Translations object
+    // Objeto de traducciones (CON BANDERAS SVG)
     const translations = {
         de: {
             language: "Deutsch",
+            flag_svg: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 5 3'><rect width='5' height='1' y='0' fill='%23000'/><rect width='5' height='1' y='1' fill='%23D00'/><rect width='5' height='1' y='2' fill='%23FFCE00'/></svg>",
             welcomeText: "HERZLICH WILLKOMMEN BEI AMARETIS!",
             responseTimeText: "AMARETIS AI ist Ihr digitaler Assistent – direkt, unkompliziert und rund um die Uhr erreichbar. Ob Sie einen Termin vereinbaren möchten, Fragen zu unseren Leistungen haben oder herausfinden wollen, ob AMARETIS zu Ihrem Vorhaben passt – wir sind für Sie da.",
             privacyLabel: "Ich habe die <a href='https://www.amaretis.de/datenschutz/' target='_blank'>Datenschutzerklärung</a> gelesen und akzeptiere sie.",
@@ -450,15 +450,11 @@
             sendTitle: "Nachricht senden",
             micUnsupported: "Spracherkennung nicht unterstützt",
             botGreeting: "Hallo! 👋 Ich bin Ihr persönlicher Assistent der Agentur für Kommunikation AMARETIS. Wir sind eine Full-Service-Werbeagentur mit Sitz in Göttingen und arbeiten für Kundinnen und Kunden in ganz Deutschland. Wie kann ich Ihnen heute weiterhelfen?",
-            transcribing: "Transkribieren...", // German for "Transcribing..."
-            noVoiceDetected: "Keine Sprache erkannt. Bitte erneut versuchen.",
-            transcriptionFailed: "Transkription fehlgeschlagen.",
-            voiceNetworkError: "Netzwerkfehler: Konnte keine Verbindung zum Sprachdienst herstellen.",
-            voicePermissionError: "Mikrofonzugriff verweigert. Bitte in den Browsereinstellungen erlauben.",
-            sendMessageError: "Fehler beim Senden der Nachricht."
+            transcribing: "Transcripción en curso..."
         },
         en: {
             language: "English",
+            flag_svg: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 30'><clipPath id='a'><path d='M0 0v30h60V0z'/></clipPath><path d='M0 0v30h60V0z' fill='%23012169'/><path d='M0 0l60 30m0-30L0 30' stroke='%23fff' stroke-width='6' clip-path='url(%23a)'/><path d='M0 0l60 30m0-30L0 30' stroke='%23C8102E' stroke-width='4' clip-path='url(%23a)'/><path d='M30 0v30M0 15h60' stroke='%23fff' stroke-width='10'/><path d='M30 0v30M0 15h60' stroke='%23C8102E' stroke-width='6'/></svg>",
             welcomeText: "WELCOME TO AMARETIS!",
             responseTimeText: "AMARETIS AI is your digital assistant – direct, uncomplicated, and available around the clock. Whether you want to schedule an appointment, have questions about our services, or want to find out if AMARETIS is a good fit for your project – we're here for you.",
             privacyLabel: "I have read and accept the <a href='https://www.amaretis.de/datenschutz/' target='_blank'>privacy policy</a>.",
@@ -468,15 +464,11 @@
             sendTitle: "Send message",
             micUnsupported: "Speech recognition not supported",
             botGreeting: "Hello! 👋 I am your personal assistant from the AMARETIS communication agency. We are a full-service advertising agency based in Göttingen and work for clients throughout Germany. How can I help you today?",
-            transcribing: "Transcription in progress...",
-            noVoiceDetected: "No voice detected. Please try again.",
-            transcriptionFailed: "Transcription failed.",
-            voiceNetworkError: "Network Error: Could not connect to voice service.",
-            voicePermissionError: "Microphone access denied. Please allow it in your browser settings.",
-            sendMessageError: "Error sending message."
+            transcribing: "Transcription in progress..."
         },
         es: {
             language: "Español",
+            flag_svg: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 3 2'><rect width='3' height='2' fill='%23C60B1E'/><rect width='3' height='1' y='.5' fill='%23FFC400'/></svg>",
             welcomeText: "¡BIENVENIDO A AMARETIS!",
             responseTimeText: "AMARETIS AI es tu asistente digital: directo, sencillo y disponible las 24 horas. Ya sea que quieras programar una cita, tengas preguntas sobre nuestros servicios o quieras saber si AMARETIS es adecuado para tu proyecto, estamos aquí para ayudarte.",
             privacyLabel: "He leído y acepto la <a href='https://www.amaretis.de/datenschutz/' target='_blank'>política de privacidad</a>.",
@@ -486,12 +478,7 @@
             sendTitle: "Enviar mensaje",
             micUnsupported: "Reconocimiento de voz no soportado",
             botGreeting: "¡Hola! 👋 Soy tu asistente personal de la agencia de comunicación AMARETIS. Somos una agencia de publicidad de servicio completo con sede en Göttingen y trabajamos para clientes en toda Alemania. ¿En qué puedo ayudarte hoy?",
-            transcribing: "Transcripción en curso...",
-            noVoiceDetected: "No se detectó voz. Intenta de nuevo.",
-            transcriptionFailed: "Fallo la transcripción.",
-            voiceNetworkError: "Error de red: No se pudo conectar con el servicio de voz.",
-            voicePermissionError: "Acceso al micrófono denegado. Por favor, permítelo en la configuración de tu navegador.",
-            sendMessageError: "Error al enviar el mensaje."
+            transcribing: "Transcripción en curso..."
         }
     };
 
@@ -505,9 +492,7 @@
         style: { primaryColor: '#854fff', secondaryColor: '#6b3fd4', position: 'right', backgroundColor: '#ffffff', fontColor: '#333333' }
     };
 
-    // =================================================================
-    // CORRECTION: ROBUST CONFIG MERGE
-    // =================================================================
+    // --- CORRECCIÓN: FUSIÓN DE CONFIGURACIÓN MÁS ROBUSTA ---
     const config = {
         webhook: { ...defaultConfig.webhook },
         branding: { ...defaultConfig.branding },
@@ -525,17 +510,17 @@
             config.style = { ...config.style, ...window.ChatWidgetConfig.style };
         }
     }
-    // --- END OF ROBUST MERGE ---
+    // --- FIN DE FUSIÓN ROBUSTA ---
 
     if (window.N8NChatWidgetInitialized) return;
     window.N8NChatWidgetInitialized = true;
 
     let currentSessionId = '';
-    let currentLang = 'de'; // Default language
+    let currentLang = 'de'; // Idioma por defecto
 
     const langCodes = { de: 'de-DE', en: 'en-US', es: 'es-ES' };
     
-    // Variables for MediaRecorder
+    // Variables para MediaRecorder
     let mediaRecorder;
     let audioChunks = [];
     let mediaStream = null; 
@@ -558,11 +543,7 @@
                 <img src="${config.branding.logo}" alt="${config.branding.name}">
                 <span>${config.branding.name}</span>
                 <div class="lang-selector-wrapper">
-                    <svg class="globe-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="2" y1="12" x2="22" y2="12"></line>
-                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-                    </svg>
+                    <img class="language-flag" alt="language flag" />
                     <select class="language-select">
                         <option value="de">Deutsch</option>
                         <option value="en">English</option>
@@ -594,11 +575,7 @@
                 <img src="${config.branding.logo}" alt="${config.branding.name}">
                 <span>${config.branding.name}</span>
                 <div class="lang-selector-wrapper">
-                    <svg class="globe-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="2" y1="12" x2="22" y2="12"></line>
-                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-                    </svg>
+                    <img class="language-flag" alt="language flag" />
                     <select class="language-select">
                         <option value="de">Deutsch</option>
                         <option value="en">English</option>
@@ -641,9 +618,9 @@
     widgetContainer.appendChild(toggleButton);
     document.body.appendChild(widgetContainer);
 
-    // DOM Element Selection
+    // Selección de elementos del DOM
     const newChatBtn = chatContainer.querySelector('.new-chat-btn');
-    const newChatBtnTextSpan = newChatBtn.querySelector('span'); // CORRECTION
+    const newChatBtnTextSpan = newChatBtn.querySelector('span'); // CORRECCIÓN
     const newConversationWrapper = chatContainer.querySelector('.new-conversation-wrapper');
     const chatInterface = chatContainer.querySelector('.chat-interface');
     const privacyCheckbox = chatContainer.querySelector('#datenschutz');
@@ -656,7 +633,7 @@
     const languageSelects = chatContainer.querySelectorAll('.language-select');
     const closeButtons = chatContainer.querySelectorAll('.close-button');
 
-    // SVGs for icons
+    // SVGs para los iconos
     const micSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
                         <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
@@ -669,7 +646,7 @@
                         d="M6 18L18 6M6 6l12 12" />
                 </svg>`;
 
-    // Function to create message elements
+    // Función para crear elementos de mensaje
     function createMessageElement(text, sender) {
         const messageDiv = document.createElement('div');
         messageDiv.className = `chat-message ${sender}`;
@@ -677,9 +654,9 @@
         return messageDiv;
     }
 
-    // Function to update UI texts
+    // Función para actualizar los textos del UI
     function updateUI() {
-        const langCode = currentLang.split('-')[0];
+        const langCode = currentLang; // Usa 'de', 'en', 'es'
         const t = translations[langCode] || translations.de;
         
         chatContainer.querySelector('.welcome-text').textContent = t.welcomeText;
@@ -694,24 +671,31 @@
             select.value = langCode;
         });
         
+        // --- NUEVO: Actualizar la bandera ---
+        const flags = widgetContainer.querySelectorAll('.language-flag');
+        flags.forEach(flag => {
+            flag.src = t.flag_svg;
+        });
+        // --- FIN DE CAMBIO ---
+        
         const botGreeting = messagesContainer.querySelector('.bot-greeting-message');
         if (botGreeting) {
             botGreeting.textContent = t.botGreeting;
         }
     }
 
-    // Initialize UI with default language
+    // Inicializar UI con el idioma por defecto
     updateUI();
     
-    // --- TEXTAREA AUTO-RESIZE LOGIC ---
+    // --- LÓGICA DE AUTO-REDIMENSIONAMIENTO DEL TEXTAREA ---
     textarea.addEventListener('input', () => {
         textarea.style.height = 'auto';
-        const newHeight = Math.min(textarea.scrollHeight, 150); // Limit to 150px
+        const newHeight = Math.min(textarea.scrollHeight, 150); // Limita a 150px
         textarea.style.height = `${newHeight}px`;
     });
-    // --- END OF AUTO-RESIZE LOGIC ---
+    // --- FIN DE LÓGICA DE AUTO-REDIMENSIONAMIENTO ---
 
-    let recognition;
+    let recognition; // Se mantiene null si no es compatible
     let isRecording = false;
     let shouldSendMessageAfterStop = false;
     let audioContext;
@@ -719,35 +703,39 @@
     let source;
     let animationFrameId;
 
-    // --- AUDIO VISUALIZER FUNCTIONS ---
+    // --- FUNCIONES DE AUDIO VISUALIZER ---
     function startAudioVisualizer(stream) {
         if (!visualizerCanvas) return;
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        analyser = audioContext.createAnalyser();
-        source = audioContext.createMediaStreamSource(stream);
-        source.connect(analyser);
-        analyser.fftSize = 256;
-        const bufferLength = analyser.frequencyBinCount;
-        const dataArray = new Uint8Array(bufferLength);
-        const canvasCtx = visualizerCanvas.getContext('2d');
-        canvasCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
-        
-        function draw() {
-            animationFrameId = requestAnimationFrame(draw);
-            analyser.getByteFrequencyData(dataArray);
-            canvasCtx.fillStyle = '#f8f8f8';
-            canvasCtx.fillRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
-            const barWidth = (visualizerCanvas.width / bufferLength) * 2;
-            let barHeight;
-            let x = 0;
-            for (let i = 0; i < bufferLength; i++) {
-                barHeight = dataArray[i] / 2.5;
-                canvasCtx.fillStyle = getComputedStyle(widgetContainer).getPropertyValue('--chat--color-primary');
-                canvasCtx.fillRect(x, visualizerCanvas.height - barHeight, barWidth, barHeight);
-                x += barWidth + 1;
+        try {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+            source = audioContext.createMediaStreamSource(stream);
+            source.connect(analyser);
+            analyser.fftSize = 256;
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            const canvasCtx = visualizerCanvas.getContext('2d');
+            canvasCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+            
+            function draw() {
+                animationFrameId = requestAnimationFrame(draw);
+                analyser.getByteFrequencyData(dataArray);
+                canvasCtx.fillStyle = '#f8f8f8';
+                canvasCtx.fillRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+                const barWidth = (visualizerCanvas.width / bufferLength) * 2;
+                let barHeight;
+                let x = 0;
+                for (let i = 0; i < bufferLength; i++) {
+                    barHeight = dataArray[i] / 2.5;
+                    canvasCtx.fillStyle = getComputedStyle(widgetContainer).getPropertyValue('--chat--color-primary');
+                    canvasCtx.fillRect(x, visualizerCanvas.height - barHeight, barWidth, barHeight);
+                    x += barWidth + 1;
+                }
             }
+            draw();
+        } catch (e) {
+            console.error("Error starting visualizer:", e);
         }
-        draw();
     }
     
     function stopAudioVisualizer() {
@@ -757,7 +745,7 @@
             source = null;
         }
          if (audioContext && audioContext.state !== 'closed') {
-            audioContext.close();
+            audioContext.close().catch(e => console.error("Error closing audio context", e));
             audioContext = null; 
         }
         if(visualizerCanvas) {
@@ -765,10 +753,10 @@
             canvasCtx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
         }
     }
-    // --- END AUDIO VISUALIZER FUNCTIONS ---
+    // --- FIN FUNCIONES DE AUDIO VISUALIZER ---
 
     // =================================================================
-    // FUNCTION TO SEND AUDIO TO BACKEND (STRATEGY 2)
+    // FUNCIÓN DE ENVÍO DE AUDIO AL BACKEND (ESTRATEGIA 2)
     // =================================================================
     async function sendAudioToBackend(audioBlob) {
         const formData = new FormData();
@@ -796,8 +784,7 @@
                 if (data && data.status === 'ok' && data.transcription) {
                     textarea.value = data.transcription.trim();
                     if (textarea.value) {
-                        // --- CORRECTION: Do not auto-send, just fill the field ---
-                        // sendMessage(textarea.value); 
+                        // NO ENVIAR AUTOMÁTICAMENTE, solo rellenar el campo
                         textarea.dispatchEvent(new Event('input', { bubbles: true }));
                     } else {
                         alert(translations[langCode].noVoiceDetected);
@@ -815,18 +802,19 @@
         } catch (error) {
             messagesContainer.removeChild(loadingMessage);
             alert(translations[langCode].voiceNetworkError);
-            console.error('Error sending audio to n8n:', error);
+            console.error('Error enviando audio a n8n:', error);
         }
     }
 
 
     // =================================================================
-    // MEDIA RECORDER RECORDING LOGIC (FALLBACK)
+    // LÓGICA DE GRABACIÓN DE MEDIA RECORDER (FALLBACK)
     // =================================================================
     function stopMediaRecording() {
         if (mediaRecorder && mediaRecorder.state !== 'inactive') {
             mediaRecorder.stop(); 
         } else {
+            // Si no se estaba grabando (ej. error al inicio), igual limpiar el stream si existe
             if (mediaStream) {
                 mediaStream.getTracks().forEach(track => track.stop());
                 mediaStream = null; 
@@ -856,7 +844,7 @@
                     if (audioBlob.size > 0) {
                         sendAudioToBackend(audioBlob); 
                     } else {
-                        console.warn("Audio Blob empty, not sending.");
+                        console.warn("Audio Blob vacío, no se envía.");
                     }
                     if (mediaStream) {
                         mediaStream.getTracks().forEach(track => track.stop());
@@ -878,7 +866,7 @@
                 startAudioVisualizer(stream); 
             })
             .catch(err => {
-                console.error('Error accessing microphone:', err);
+                console.error('Error al acceder al micrófono:', err);
                 alert(translations[currentLang.split('-')[0]].voicePermissionError);
                 isRecording = false;
                 micButton.innerHTML = micSVG;
@@ -887,17 +875,17 @@
     }
     
     // =================================================================
-    // NATIVE API VS FALLBACK DETECTION AND GLOBAL FUNCTION ASSIGNMENT
+    // DETECCIÓN DE API NATIVA VS FALLBACK Y ASIGNACIÓN DE FUNCIONES GLOBALES
     // =================================================================
 
     const useNativeSpeechRecognition = ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
 
-    // --- CORRECTION: ALWAYS USE MEDIARECORDER ---
+    // --- CORRECCIÓN: USAR SIEMPRE MEDIARECORDER ---
     window.startVoiceRecording = startMediaRecording;
     window.stopVoiceRecording = stopMediaRecording;
     
     if (useNativeSpeechRecognition) {
-        recognition = null; // Make sure we don't use it
+        recognition = null; // Nos aseguramos de no usarla
     } else {
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
              micButton.disabled = true;
@@ -906,7 +894,7 @@
     }
 
 
-    // FINAL MICROPHONE BUTTON LOGIC
+    // LÓGICA FINAL DEL BOTÓN DE MICRÓFONO
     micButton.addEventListener('click', () => {
         if (isRecording) {
             window.stopVoiceRecording(); 
@@ -915,7 +903,7 @@
         }
     });
 
-    // --- REMAINING FUNCTIONS AND EVENT LISTENERS ---
+    // --- FUNCIONES Y EVENT LISTENERS RESTANTES ---
     
     function generateUUID() { return crypto.randomUUID(); }
 
